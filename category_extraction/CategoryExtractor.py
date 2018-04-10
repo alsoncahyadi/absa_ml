@@ -95,7 +95,7 @@ class CNNCategoryExtractor (MyClassifier):
         dense_activation = 'relu',
         dense_l2_regularizer = 0.01,
         activation = 'sigmoid',
-        optimizer = "Nadam",
+        optimizer = "nadam",
         loss_function = 'binary_crossentropy',
 
         **kwargs
@@ -107,11 +107,12 @@ class CNNCategoryExtractor (MyClassifier):
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         # layer_feature = Lambda(self._get_features)(layer_input)
         layer_embedding = self.layer_embedding(layer_input)
-        layer_conv = Conv1D(filters=300, kernel_size=5, padding='same', activation='tanh', kernel_regularizer=regularizers.l2(0.01))(layer_embedding)
+        layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
+        kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
-        layer_dropout_1 = Dropout(0.6, seed=7)(layer_pooling)
-        layer_dense_1 = Dense(256, activation='relu', kernel_regularizer=regularizers.l2(0.01))(layer_dropout_1)
-        layer_softmax = Dense(4, activation='sigmoid')(layer_dense_1)
+        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
+        layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -119,7 +120,7 @@ class CNNCategoryExtractor (MyClassifier):
         # Create Optimizer
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-        cnn_model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+        cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         return cnn_model
     
     def _get_features(self, x):
@@ -162,13 +163,11 @@ class CNNCategoryExtractor (MyClassifier):
     
     def plot_all_confusion_matrix(self, y_test, y_pred):
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,0], y_pred[:,0]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['0', '1'], title="O")
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,1], y_pred[:,1]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,1], y_pred[:,1]), classes=['0', '1'], title="ASPECT-B")
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,2], y_pred[:,2]), classes=['0', '1'])
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,3], y_pred[:,3]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
         plt.show()
 
 
@@ -182,7 +181,7 @@ class CategoryFeatureExtractor (BaseEstimator):
     def transform(self):
         raise NotImplementedError
 
-if __name__ == "__main__":
+def main():
 
     """
         Load Tokenizer
@@ -268,7 +267,6 @@ if __name__ == "__main__":
 
     # train
     if IS_FIT:
-        from sklearn.metrics import f1_score, make_scorer
         grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5)
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
@@ -278,5 +276,7 @@ if __name__ == "__main__":
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
             print("%f (%f) with: %r" % (mean, stdev, param))
-        import dill
         grid.best_estimator_.model.save('best')
+
+if __name__ == "__main__":
+    main()

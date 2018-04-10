@@ -271,17 +271,18 @@ def main():
 
     # train
     if IS_FIT:
-        IS_REFIT = 'f1_macro'
+        IS_REFIT = False
         grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
-        means = grid_result.cv_results_['mean_test_score']
-        stds = grid_result.cv_results_['std_test_score']
+        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
         params = grid_result.cv_results_['params']
-        for mean, stdev, param in zip(means, stds, params):
-            print("\n%f (%f) with: %r" % (mean, stdev, param))
-        if not IS_REFIT:
+        for mean, stdev in zip(means, stds):
+            print("\n{} ({})".format(mean, stdev))
+        print("with:", params)
+        if IS_REFIT:
             grid.best_estimator_.model.save('best')
 
 if __name__ == "__main__":

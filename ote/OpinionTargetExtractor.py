@@ -374,7 +374,7 @@ def main():
     """
     np.random.seed(7)
 
-    checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=1, save_best_only=True)
+    checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
     n_epoch = 20

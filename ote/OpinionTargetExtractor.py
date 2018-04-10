@@ -57,6 +57,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         rnn_model.load_weights('model/brnn/weights/blstm_weights.hdf5')
         scores = rnn_model.evaluate(X, y, verbose=0)
         print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
+        y_test = y
 
         def max_index(cat):
             i_max = -1
@@ -91,7 +92,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # print(y_pred)
 
         y_pred = get_decreased_dimension(y_pred)
-        y_test = get_decreased_dimension(y)
+        print(y)
+        y_test = get_decreased_dimension(y_test)
         print(y_test.shape, y_pred.shape)
 
         from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
@@ -103,9 +105,12 @@ class RNNOpinionTargetExtractor (MyClassifier):
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
         print("F1-Score-Macro:", f1_score_macro)
 
+        y_test = np.array(y_test)
+        y_pred = np.array(y_pred)
+
         is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
         if is_show_confusion_matrix:
-            self.plot_all_confusion_matrix(y, y_pred)
+            self.plot_all_confusion_matrix(y_test, y_pred)
         
         return f1_score_macro
 
@@ -191,13 +196,11 @@ class RNNOpinionTargetExtractor (MyClassifier):
     
     def plot_all_confusion_matrix(self, y_test, y_pred):
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,0], y_pred[:,0]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['0', '1'], title="O")
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,1], y_pred[:,1]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,1], y_pred[:,1]), classes=['0', '1'], title="ASPECT-B")
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,2], y_pred[:,2]), classes=['0', '1'])
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test.iloc[:,3], y_pred[:,3]), classes=['0', '1'])
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
         plt.show()
 
 
@@ -377,7 +380,7 @@ def main():
     checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
-    n_epoch = 20
+    n_epoch = 3
     # for i in range(n_epoch):
     #     print('Epoch #', i)
     #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,
@@ -385,9 +388,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
-        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-        ,sample_weight=sample_weight)
+    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
+    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+    #     ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=True)
     
 if __name__ == "__main__":

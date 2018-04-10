@@ -89,12 +89,12 @@ class CNNCategoryExtractor (MyClassifier):
         from keras.wrappers.scikit_learn import KerasClassifier
         np.random.seed(7)
         # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = self._create_model, verbose=2)
+        model = KerasClassifier(build_fn = self._create_model, verbose=0)
         print(model.get_params().keys())
 
         # train
         IS_REFIT = kwargs.get('is_refit', True)
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT)
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1)
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())

@@ -380,7 +380,7 @@ def main():
     checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
-    n_epoch = 3
+    n_epoch = 20
     # for i in range(n_epoch):
     #     print('Epoch #', i)
     #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,
@@ -388,9 +388,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
-    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-    #     ,sample_weight=sample_weight)
+    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
+        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+        ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=True)
     
 if __name__ == "__main__":

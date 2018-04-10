@@ -250,7 +250,7 @@ def main():
     np.random.seed(7)
 
     # Wrap in sklearn wrapper
-    model = KerasClassifier(build_fn = spc._create_model, verbose=2)
+    model = KerasClassifier(build_fn = spc._create_model, verbose=0)
     print(model.get_params().keys())
 
     # grid search hypers
@@ -262,8 +262,8 @@ def main():
         'conv_activation': ['tanh'],
         'conv_l2_regularizer': [0.01],
         'dropout_rate': [0.6],
-        'dense_activation': ['relu'],
-        'dense_l2_regularizer': [0.01],
+        'dense_activation': ['relu', 'tanh'],
+        'dense_l2_regularizer': [0.01, 0.001],
         'activation': ['softmax'],
         'optimizer': ['nadam'],
         'loss_function': ['categorical_crossentropy']
@@ -278,7 +278,7 @@ def main():
         print(grid_result.cv_results_.keys())
         means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
         stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
-        params = grid_result.cv_results_['params']
+        params = grid_result.best_params_
         for mean, stdev in zip(means, stds):
             print("\n{} ({})".format(mean, stdev))
         print("with:", params)

@@ -94,9 +94,9 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         dropout_rate = 0.6,
         dense_activation = 'relu',
         dense_l2_regularizer = 0.01,
-        activation = 'sigmoid',
+        activation = 'softmax',
         optimizer = "nadam",
-        loss_function = 'binary_crossentropy',
+        loss_function = 'categorical_crossentropy',
 
         **kwargs
     ):
@@ -220,13 +220,14 @@ def main():
     from keras.utils import to_categorical
     y = df[categories[0]]
     y = y[y != '-']
-    y = y.replace({'positive': 0., 'negative': 1., 'neutral': 2.})
-    y = to_categorical(y)
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    print(y)
 
     y_test = df_test[categories[0]]
     y_test = y_test[y_test != '-']
-    y_test = y_test.replace({'positive': 0., 'negative': 1., 'neutral': 2.})
-    y_test = to_categorical(y_test)
+    y_test = le.transform(y_test)
 
     X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
     print(np.isnan(y_test).any())
@@ -236,8 +237,8 @@ def main():
     """
     np.random.seed(7)
 
-    checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=1, save_best_only=True)
-    ce = CNNSentimentPolarityClassifier()
+    checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
+    spc = CNNSentimentPolarityClassifier()
 
     """
         Fit the model
@@ -249,7 +250,7 @@ def main():
     np.random.seed(7)
 
     # Wrap in sklearn wrapper
-    model = KerasClassifier(build_fn = ce._create_model, verbose=2)
+    model = KerasClassifier(build_fn = spc._create_model, verbose=2)
     print(model.get_params().keys())
 
     # grid search hypers
@@ -263,15 +264,15 @@ def main():
         'dropout_rate': [0.6],
         'dense_activation': ['relu'],
         'dense_l2_regularizer': [0.01],
-        'activation': ['sigmoid'],
-        'optimizer': ['Nadam'],
-        'loss_function': ['binary_crossentropy']
+        'activation': ['softmax'],
+        'optimizer': ['nadam'],
+        'loss_function': ['categorical_crossentropy']
     }
 
     # train
     if IS_FIT:
-        IS_REFIT = True
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT)
+        IS_REFIT = 'f1_macro'
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())

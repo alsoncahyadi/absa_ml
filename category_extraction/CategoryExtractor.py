@@ -84,6 +84,28 @@ class CNNCategoryExtractor (MyClassifier):
     def _fit_train_validate_split(self, X, y):
         pass
 
+    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
+        from sklearn.model_selection import GridSearchCV, cross_val_score
+        from keras.wrappers.scikit_learn import KerasClassifier
+        np.random.seed(7)
+        # Wrap in sklearn wrapper
+        model = KerasClassifier(build_fn = self._create_model, verbose=2)
+        print(model.get_params().keys())
+
+        # train
+        IS_REFIT = kwargs.get('is_refit', True)
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT)
+        grid_result = grid.fit(X, y)
+        # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+        print(grid_result.cv_results_.keys())
+        means = grid_result.cv_results_['mean_test_score']
+        stds = grid_result.cv_results_['std_test_score']
+        params = grid_result.cv_results_['params']
+        for mean, stdev, param in zip(means, stds, params):
+            print("\n%f (%f) with: %r" % (mean, stdev, param))
+        if not IS_REFIT:
+            grid.best_estimator_.model.save('best')
+
     def _create_model(
         self,
 
@@ -239,15 +261,6 @@ def main():
     """
         Fit the model
     """
-    from sklearn.model_selection import GridSearchCV, cross_val_score
-    from keras.wrappers.scikit_learn import KerasClassifier
-    IS_FIT = True
-
-    np.random.seed(7)
-
-    # Wrap in sklearn wrapper
-    model = KerasClassifier(build_fn = ce._create_model, verbose=2)
-    print(model.get_params().keys())
 
     # grid search hypers
     param_grid = {
@@ -265,20 +278,7 @@ def main():
         'loss_function': ['binary_crossentropy']
     }
 
-    # train
-    if IS_FIT:
-        IS_REFIT = True
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT)
-        grid_result = grid.fit(X, y)
-        # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-        print(grid_result.cv_results_.keys())
-        means = grid_result.cv_results_['mean_test_score']
-        stds = grid_result.cv_results_['std_test_score']
-        params = grid_result.cv_results_['params']
-        for mean, stdev, param in zip(means, stds, params):
-            print("\n%f (%f) with: %r" % (mean, stdev, param))
-        if not IS_REFIT:
-            grid.best_estimator_.model.save('best')
+    ce._fit_gridsearch_cv(X_train, y_train, param_grid)
 
 if __name__ == "__main__":
     main()

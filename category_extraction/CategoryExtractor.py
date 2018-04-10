@@ -42,7 +42,7 @@ class CNNCategoryExtractor (MyClassifier):
         if mode == "train_validate_split":
             self.cnn_model.fit(
                 X, y,
-                kwargs
+                **kwargs
             )
             self.cnn_model.load_weights(self.WEIGHTS_PATH)
     
@@ -267,7 +267,8 @@ def main():
 
     # train
     if IS_FIT:
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5)
+        IS_REFIT = True
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT)
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
@@ -275,8 +276,9 @@ def main():
         stds = grid_result.cv_results_['std_test_score']
         params = grid_result.cv_results_['params']
         for mean, stdev, param in zip(means, stds, params):
-            print("%f (%f) with: %r" % (mean, stdev, param))
-        grid.best_estimator_.model.save('best')
+            print("\n%f (%f) with: %r" % (mean, stdev, param))
+        if not IS_REFIT:
+            grid.best_estimator_.model.save('best')
 
 if __name__ == "__main__":
     main()

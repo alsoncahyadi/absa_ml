@@ -199,8 +199,8 @@ def main():
     import pandas as pd
     import numpy as np
 
-    df = pd.read_csv("data/train_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    df_test = pd.read_csv("data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df = pd.read_csv("data/train_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df_test = pd.read_csv("data/test_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
 
     df = df.sample(frac=1, random_state=7)
 

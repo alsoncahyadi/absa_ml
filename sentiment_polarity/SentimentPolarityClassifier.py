@@ -165,11 +165,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     
     def plot_all_confusion_matrix(self, y_test, y_pred):
         plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['0', '1'], title="O")
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,1], y_pred[:,1]), classes=['0', '1'], title="ASPECT-B")
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
+        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['Negative', 'Positive', ''], title="Sentiment")
         plt.show()
 
 
@@ -207,84 +203,86 @@ def main():
     df = df.sample(frac=1, random_state=7)
 
     categories = ['food', 'service', 'price', 'place']
+    
+    for category in categories:
+        print("========= CHECKING CATEGORY:", category, "==========")
+        X = df[df[category] != '-' ]['review']
+        X_test = df_test[df_test[category] != '-' ]['review']
 
-    X = df[df[categories[0]] != '-' ]['review']
-    X_test = df_test[df_test[categories[0]] != '-' ]['review']
+        X = tokenizer.texts_to_sequences(X)
+        X_test = tokenizer.texts_to_sequences(X_test)
 
-    X = tokenizer.texts_to_sequences(X)
-    X_test = tokenizer.texts_to_sequences(X_test)
+        max_review_length = 150
+        PADDING_TYPE = 'post'
+        X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
+        X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
 
-    max_review_length = 150
-    PADDING_TYPE = 'post'
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
+        from keras.utils import to_categorical
+        y = df[category]
+        y = y[y != '-']
+        from sklearn.preprocessing import LabelEncoder
+        le = LabelEncoder()
+        y = le.fit_transform(y)
+        print(y)
 
-    from keras.utils import to_categorical
-    y = df[categories[0]]
-    y = y[y != '-']
-    from sklearn.preprocessing import LabelEncoder
-    le = LabelEncoder()
-    y = le.fit_transform(y)
-    print(y)
+        y_test = df_test[category]
+        y_test = y_test[y_test != '-']
+        y_test = le.transform(y_test)
 
-    y_test = df_test[categories[0]]
-    y_test = y_test[y_test != '-']
-    y_test = le.transform(y_test)
+        X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
+        print(np.isnan(y_test).any())
 
-    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
-    print(np.isnan(y_test).any())
+        """
+            Make the model
+        """
+        np.random.seed(7)
 
-    """
-        Make the model
-    """
-    np.random.seed(7)
+        checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
+        spc = CNNSentimentPolarityClassifier()
 
-    checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
-    spc = CNNSentimentPolarityClassifier()
+        """
+            Fit the model
+        """
+        from sklearn.model_selection import GridSearchCV, cross_val_score
+        from keras.wrappers.scikit_learn import KerasClassifier
+        IS_FIT = True
 
-    """
-        Fit the model
-    """
-    from sklearn.model_selection import GridSearchCV, cross_val_score
-    from keras.wrappers.scikit_learn import KerasClassifier
-    IS_FIT = True
+        np.random.seed(7)
 
-    np.random.seed(7)
+        # Wrap in sklearn wrapper
+        model = KerasClassifier(build_fn = spc._create_model, verbose=0)
 
-    # Wrap in sklearn wrapper
-    model = KerasClassifier(build_fn = spc._create_model, verbose=0)
+        # grid search hypers
+        param_grid = {
+            'epochs': [50],
+            'batch_size': [64],
+            'filters': [320],
+            'kernel_size': [5],
+            'conv_activation': ['tanh'],
+            'conv_l2_regularizer': [0.01],
+            'dropout_rate': [0.6],
+            'dense_activation': ['relu', 'tanh'],
+            'dense_l2_regularizer': [0.01],
+            'activation': ['softmax'],
+            'optimizer': ['nadam'],
+            'loss_function': ['categorical_crossentropy']
+        }
 
-    # grid search hypers
-    param_grid = {
-        'epochs': [50],
-        'batch_size': [64],
-        'filters': [320],
-        'kernel_size': [5],
-        'conv_activation': ['tanh'],
-        'conv_l2_regularizer': [0.01],
-        'dropout_rate': [0.6],
-        'dense_activation': ['relu', 'tanh'],
-        'dense_l2_regularizer': [0.01],
-        'activation': ['softmax'],
-        'optimizer': ['nadam'],
-        'loss_function': ['categorical_crossentropy']
-    }
-
-    # train
-    if IS_FIT:
-        IS_REFIT = 'f1_macro'
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=1)
-        grid_result = grid.fit(X, y)
-        # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-        print(grid_result.cv_results_.keys())
-        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
-        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
-        for mean, stdev in zip(means, stds):
-            print("\n{} ({})".format(mean, stdev))
-        params = grid_result.best_params_
-        print("with:", params)
-        if IS_REFIT:
-            grid.best_estimator_.model.save('best')
+        # train
+        if IS_FIT:
+            IS_REFIT = 'f1_macro'
+            grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=1)
+            grid_result = grid.fit(X, y)
+            # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+            print(grid_result.cv_results_.keys())
+            means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+            stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
+            for mean, stdev in zip(means, stds):
+                print("\n{} ({})".format(mean, stdev))
+            params = grid_result.best_params_
+            print("with:", params)
+            if IS_REFIT:
+                grid.best_estimator_.model.save('best')
 
 if __name__ == "__main__":
     main()

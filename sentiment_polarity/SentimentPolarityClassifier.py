@@ -90,6 +90,30 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def _fit_train_validate_split(self, X, y):
         pass
 
+    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
+        from sklearn.model_selection import GridSearchCV, cross_val_score
+        from keras.wrappers.scikit_learn import KerasClassifier
+
+        np.random.seed(7)
+
+        # Wrap in sklearn wrapper
+        model = KerasClassifier(build_fn = spc._create_model, verbose=0)
+
+        # train
+        IS_REFIT = kwargs.get('is_refit','f1_macro')
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=1)
+        grid_result = grid.fit(X, y)
+        # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+        print(grid_result.cv_results_.keys())
+        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
+        for mean, stdev in zip(means, stds):
+            print("\n{} ({})".format(mean, stdev))
+        params = grid_result.best_params_
+        print("with:", params)
+        if IS_REFIT:
+            grid.best_estimator_.model.save('model/cnn/best_{}.model'.format(category))
+
     def _create_model(
         self,
 
@@ -205,15 +229,6 @@ def main():
         """
             Fit the model
         """
-        from sklearn.model_selection import GridSearchCV, cross_val_score
-        from keras.wrappers.scikit_learn import KerasClassifier
-        IS_FIT = True
-
-        np.random.seed(7)
-
-        # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = spc._create_model, verbose=0)
-
         # grid search hypers
         param_grid = {
             'epochs': [50],
@@ -230,21 +245,14 @@ def main():
             'loss_function': ['categorical_crossentropy']
         }
 
-        # train
-        if IS_FIT:
-            IS_REFIT = 'f1_macro'
-            grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=1)
-            grid_result = grid.fit(X, y)
-            # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-            print(grid_result.cv_results_.keys())
-            means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
-            stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
-            for mean, stdev in zip(means, stds):
-                print("\n{} ({})".format(mean, stdev))
-            params = grid_result.best_params_
-            print("with:", params)
-            if IS_REFIT:
-                grid.best_estimator_.model.save('model/cnn/best_{}.model'.format(category))
+        spc._fit_gridsearch_cv(X, y, param_grid)
+        
+        best_model = None
+        with open('model/cnn/best_{}.model'.format(category), 'rb') as fi:
+            best_model = dill.load(fi)
+        del spc.cnn_model
+        spc.cnn_model = best_model
+        spc.score(X_test, y_test)
 
 if __name__ == "__main__":
     main()

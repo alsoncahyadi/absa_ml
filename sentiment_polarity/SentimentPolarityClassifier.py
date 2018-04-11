@@ -133,7 +133,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
         K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        n_class = kwargs.get('n_class', 2)
+        n_class = kwargs.get('n_class', 1)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))

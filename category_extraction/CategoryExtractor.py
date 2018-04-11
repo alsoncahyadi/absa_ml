@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import itertools
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 
 class CNNCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -209,6 +210,7 @@ class CategoryFeatureExtractor (BaseEstimator):
     def transform(self, X):
         raise NotImplementedError
 
+
 class BinCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -221,6 +223,10 @@ class BinCategoryExtractor (MyClassifier):
         self.model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+        self.pipeline = Pipeline([
+
+        ])
 
     def _create_ann_model(
         self,

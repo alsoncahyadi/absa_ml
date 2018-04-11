@@ -270,16 +270,16 @@ def main():
 
     # train
     if IS_FIT:
-        IS_REFIT = False
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=2)
+        IS_REFIT = 'f1_macro'
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, scoring=['f1_macro', 'precision_macro', 'recall_macro'], verbose=1)
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
         means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
         stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
-        params = grid_result.best_params_
         for mean, stdev in zip(means, stds):
             print("\n{} ({})".format(mean, stdev))
+        params = grid_result.best_params_
         print("with:", params)
         if IS_REFIT:
             grid.best_estimator_.model.save('best')

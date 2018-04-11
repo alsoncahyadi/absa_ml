@@ -104,6 +104,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
     
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
+        print("MAX:", MAX_SEQUENCE_LENGTH)
         n_class = kwargs.get('n_class', 2)
 
         # Define Architecture
@@ -206,7 +207,7 @@ def main():
     categories = ['food', 'service', 'price', 'place']
     
     for category in categories:
-        print("========= CHECKING CATEGORY:", category, "==========")
+        print("\n\n========= CHECKING CATEGORY:", category, "==========")
         X = df[df[category] != '-' ]['review']
         X_test = df_test[df_test[category] != '-' ]['review']
 

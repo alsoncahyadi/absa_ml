@@ -57,6 +57,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         THRESHOLD = kwargs.get('threshold', 0.75)
         y_pred[y_pred >= THRESHOLD] = 1.
         y_pred[y_pred < THRESHOLD] = 0.
+        return y_pred
     
     def score(self, X, y, **kwargs):
         # del self.cnn_model
@@ -90,14 +91,14 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def _fit_train_validate_split(self, X, y):
         pass
 
-    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
-        from sklearn.model_selection import GridSearchCV, cross_val_score
+    def _fit_gridsearch_cv(self, X, y, param_grid, category="NOTSPECIFIED", **kwargs):
+        from sklearn.model_selection import GridSearchCV
         from keras.wrappers.scikit_learn import KerasClassifier
 
         np.random.seed(7)
 
         # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = spc._create_model, verbose=0)
+        model = KerasClassifier(build_fn = self._create_model, verbose=0)
 
         # train
         IS_REFIT = kwargs.get('is_refit','f1_macro')
@@ -245,7 +246,7 @@ def main():
             'loss_function': ['categorical_crossentropy']
         }
 
-        spc._fit_gridsearch_cv(X, y, param_grid)
+        spc._fit_gridsearch_cv(X, y, param_grid, category)
         
         """
             Load best estimator and score it

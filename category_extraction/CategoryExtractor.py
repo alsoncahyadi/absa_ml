@@ -327,11 +327,12 @@ def main():
         'optimizer': ['nadam'],
         'loss_function': ['binary_crossentropy']
     }
-    ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
+    # ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
 
-    best_model = None
-    with open('model/cnn/best.model', 'rb') as fi:
-        best_model = dill.load(fi)
+    """
+        Load best estimator and score it
+    """
+    best_model = load_model('model/cnn/best.model')
     del ce.cnn_model
     ce.cnn_model = best_model
     ce.score(X_test, y_test)

@@ -42,6 +42,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         if mode == "train_validate_split":
             self.cnn_model.fit(
                 X, y,
+                n_class = len(y[0]),
                 **kwargs
             )
             self.cnn_model.load_weights(self.WEIGHTS_PATH)
@@ -102,6 +103,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
     
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
+        n_class = kwargs.get('n_class', 2)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
@@ -112,7 +114,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
         layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_softmax = Dense(3, activation=activation)(layer_dense_1)
+        layer_softmax = Dense(n_class, activation=activation)(layer_dense_1)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)

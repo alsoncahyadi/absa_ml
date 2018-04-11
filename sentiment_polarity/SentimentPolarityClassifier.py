@@ -54,24 +54,14 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     
     def predict(self, X, **kwargs):
         y_pred = self.cnn_model.predict(X)
-        THRESHOLD = kwargs.get('threshold', 0.75)
-        y_pred[y_pred >= THRESHOLD] = 1.
-        y_pred[y_pred < THRESHOLD] = 0.
-        return y_pred
+        return y_pred.argmax(axis=-1)
     
     def score(self, X, y, **kwargs):
         # del self.cnn_model
         # self.cnn_model = load_model(self.MODEL_PATH)
         # self.cnn_model.load_weights(self.WEIGHTS_PATH)
-        # Final evaluation of the model
-        scores = self.cnn_model.evaluate(X, y, verbose=0)
-        print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
 
-        y_pred = self.cnn_model.predict(X)
-        THRESHOLD = kwargs.get('threshold', 0.75)
-        print("Threshold:", THRESHOLD)
-        y_pred[y_pred >= THRESHOLD] = 1.
-        y_pred[y_pred < THRESHOLD] = 0.
+        y_pred = self.predict(X)
 
         AVERAGE = None
         print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
@@ -133,7 +123,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
         K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        n_class = kwargs.get('n_class', 1)
+        n_class = kwargs.get('n_class', 2)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
@@ -255,6 +245,7 @@ def main():
         best_model = load_model('model/cnn/best_{}.model'.format(category))
         del spc.cnn_model
         spc.cnn_model = best_model
+        from keras.utils.np_utils import to_categorical
         spc.score(X_test, y_test)
 
 if __name__ == "__main__":

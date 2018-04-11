@@ -4,6 +4,7 @@ we/sswe/
 *.pkl
 *.model
 *.hdf5
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

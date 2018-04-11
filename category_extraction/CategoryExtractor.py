@@ -6,7 +6,7 @@ sys.path.insert(0, '..')
 
 import utils
 
-from MyClassifier import MyClassifier
+from MyClassifier import MyClassifier, MultilabelKerasClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 from keras import backend as K
@@ -89,23 +89,23 @@ class CNNCategoryExtractor (MyClassifier):
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
         from sklearn.model_selection import GridSearchCV
-        from keras.wrappers.scikit_learn import KerasClassifier
         np.random.seed(7)
         # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = self._create_model, verbose=0)
-        print(model.get_params().keys())
+        model = MultilabelKerasClassifier(build_fn = self._create_model, verbose=0)
+        # model.fit(X, y)
+        # print(model.predict(X))
 
         # train
-        IS_REFIT = kwargs.get('is_refit', True)
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring='f1_samples')
+        IS_REFIT = kwargs.get('is_refit', 'f1_macro')
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
-        means = grid_result.cv_results_['mean_test_score']
-        stds = grid_result.cv_results_['std_test_score']
-        params = grid_result.best_params_
+        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
         for mean, stdev in zip(means, stds):
-            print("\n%f (%f)" % (mean, stdev))
+            print("\n{} ({})".format(mean, stdev))
+        params = grid_result.best_params_
         print("with:", params)
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best.model')
@@ -251,8 +251,8 @@ class BinCategoryExtractor (MyClassifier):
     
     def fit(self, X, y):
         from sklearn.multiclass import OneVsRestClassifier
-        from keras.wrappers.scikit_learn import KerasClassifier
-        ann_model_sk = KerasClassifier(build_fn = self._create_ann_model, verbose=0)
+        from keras.wrappers.scikit_learn import MultilabelKerasClassifier
+        ann_model_sk = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
         ovr = OneVsRestClassifier(ann_model_sk)
         ovr.fit(X, y)
         self.model = ovr
@@ -285,7 +285,6 @@ def binDriver():
     """
     X, y, X_test, y_test = utils.get_ce_dataset()
     
-
     """
         Make the model
     """
@@ -328,7 +327,7 @@ def main():
         'optimizer': ['nadam'],
         'loss_function': ['binary_crossentropy']
     }
-    ce._fit_gridsearch_cv(X, y, param_grid, is_refit=True)
+    ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
 
     best_model = None
     with open('model/cnn/best.model', 'rb') as fi:
@@ -338,4 +337,5 @@ def main():
     ce.score(X_test, y_test)
 
 if __name__ == "__main__":
+    # binDriver()
     main()

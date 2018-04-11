@@ -247,9 +247,11 @@ def main():
 
         spc._fit_gridsearch_cv(X, y, param_grid)
         
-        best_model = None
-        with open('model/cnn/best_{}.model'.format(category), 'rb') as fi:
-            best_model = dill.load(fi)
+        """
+            Load best estimator and score it
+        """
+
+        best_model = load_model('model/cnn/best_{}.model'.format(category))
         del spc.cnn_model
         spc.cnn_model = best_model
         spc.score(X_test, y_test)

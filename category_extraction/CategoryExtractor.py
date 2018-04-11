@@ -327,7 +327,7 @@ def main():
         'optimizer': ['nadam'],
         'loss_function': ['binary_crossentropy']
     }
-    # ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
+    ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
 
     """
         Load best estimator and score it

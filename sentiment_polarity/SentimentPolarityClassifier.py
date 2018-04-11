@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 import sys
 sys.path.insert(0, '..')
 
@@ -103,7 +106,6 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
         K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        print("MAX:", MAX_SEQUENCE_LENGTH)
         n_class = kwargs.get('n_class', 2)
 
         # Define Architecture

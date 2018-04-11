@@ -125,6 +125,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
         cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
+        cnn_model.summary()
         return cnn_model
     
     def _get_features(self, x):

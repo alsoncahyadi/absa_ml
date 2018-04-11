@@ -38,7 +38,6 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def fit(self, X, y, **kwargs):
         self.cnn_model = self._create_model()
         self.cnn_model.save(self.MODEL_PATH)
-        self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.cnn_model.fit(
@@ -102,7 +101,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
 
         **kwargs
     ):
-    
+        K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
         print("MAX:", MAX_SEQUENCE_LENGTH)
         n_class = kwargs.get('n_class', 2)
@@ -125,7 +124,6 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
         cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
-        cnn_model.summary()
         return cnn_model
     
     def _get_features(self, x):
@@ -285,7 +283,6 @@ def main():
             print("with:", params)
             if IS_REFIT:
                 grid.best_estimator_.model.save('best_{}'.format(category))
-            K.clear_session()
 
 if __name__ == "__main__":
     main()

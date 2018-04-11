@@ -1,9 +1,13 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 import sys
 sys.path.insert(0, '..')
 
 from MyClassifier import MyClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
 from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
 from keras.layers.convolutional import Conv1D
@@ -94,7 +98,7 @@ class CNNCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', True)
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=2, scoring='f1_samples')
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring='f1_samples')
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
@@ -123,8 +127,9 @@ class CNNCategoryExtractor (MyClassifier):
 
         **kwargs
     ):
-    
+        K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
+        print(MAX_SEQUENCE_LENGTH)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
@@ -204,6 +209,56 @@ class CategoryFeatureExtractor (BaseEstimator):
     
     def transform(self):
         raise NotImplementedError
+
+class BinCategoryExtractor (MyClassifier):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.WEIGHTS_PATH = 'model/cnn/weights/CNN.hdf5'
+        self.MODEL_PATH = 'model/cnn/CNN.model'
+        self.WE_PATH = '../we/embedding_matrix.pkl'
+       
+        self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
+        self.cnn_model = None
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def _create_model(
+        self,
+        dropout_rate = 0.6,
+        dense_activation = 'relu',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+
+        **kwargs
+    ):
+        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
+
+        # Define Architecture
+        layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
+        layer_embedding = self.layer_embedding(layer_input)
+        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_embedding)
+        layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
+        
+        # Create Model
+        cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
+        
+        # Create Optimizer
+        cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
+        return cnn_model
+
+    
+    def fit(self, X, y):
+        from sklearn.multiclass import OneVsRestClassifier
+        OneVsRestClassifier
+    
+    def predict(self, X):
+        raise NotImplementedError
+
+    
 
 def main():
 

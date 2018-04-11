@@ -1,9 +1,13 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 import sys
 sys.path.insert(0, '..')
 
 from MyClassifier import MyClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
 from keras.layers.convolutional import Conv1D
 from keras.layers import Dense, LSTM, Dropout, Lambda, Bidirectional, TimeDistributed, RepeatVector, RNN
@@ -129,7 +133,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
         **kwargs
     ):
-    
+        K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
@@ -281,7 +285,7 @@ def main():
     """
         Create X and Y
     """
-    df = df.sample(frac=1, random_state=7)
+    # df = df.sample(frac=1, random_state=7)
 
     train_validation_split_at = 800
 
@@ -289,7 +293,7 @@ def main():
     X_test = test_data['raw']
     X = tokenizer.texts_to_sequences(X)
     X_test = tokenizer.texts_to_sequences(X_test)
-
+    print(X)
     # truncate and pad input sequences
     max_review_length = 81
     X = sequence.pad_sequences(X, maxlen=max_review_length, padding='post', value=-1)

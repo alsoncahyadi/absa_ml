@@ -4,6 +4,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import sys
 sys.path.insert(0, '..')
 
+import utils
+
 from MyClassifier import MyClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
@@ -183,63 +185,21 @@ class CategoryFeatureExtractor (BaseEstimator):
         raise NotImplementedError
 
 def main():
-
-    """
-        Load Tokenizer
-    """
-    # Make Tokenizer (load or from dataset)
-    from keras.preprocessing.text import Tokenizer
-    tokenizer = Tokenizer()
-
-    with open('../we/tokenizer.pkl', 'rb') as fi:
-        tokenizer = dill.load(fi)
-
-    """
-        Initialize data
-    """
-    import pandas as pd
-    import numpy as np
-
-    df = pd.read_csv("data/train_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    df_test = pd.read_csv("data/test_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-
-    df = df.sample(frac=1, random_state=7)
-
     categories = ['food', 'service', 'price', 'place']
-    
     for category in categories:
         print("\n\n========= CHECKING CATEGORY:", category, "==========")
-        X = df[df[category] != '-' ]['review']
-        X_test = df_test[df_test[category] != '-' ]['review']
-
-        X = tokenizer.texts_to_sequences(X)
-        X_test = tokenizer.texts_to_sequences(X_test)
-
-        max_review_length = 150
-        PADDING_TYPE = 'post'
-        X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
-        X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
-
-        from keras.utils import to_categorical
-        y = df[category]
-        y = y[y != '-']
-        from sklearn.preprocessing import LabelEncoder
-        le = LabelEncoder()
-        y = le.fit_transform(y)
-
-        y_test = df_test[category]
-        y_test = y_test[y_test != '-']
-        y_test = le.transform(y_test)
-
-        X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
-        print(np.isnan(y_test).any())
+        """
+            Initialize data
+        """
+        X, y, X_test, y_test = utils.get_spc_dataset(category)
+        # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
 
         """
             Make the model
         """
         np.random.seed(7)
 
-        checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
+        # checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
         spc = CNNSentimentPolarityClassifier()
 
         """
@@ -284,7 +244,7 @@ def main():
             params = grid_result.best_params_
             print("with:", params)
             if IS_REFIT:
-                grid.best_estimator_.model.save('best_{}'.format(category))
+                grid.best_estimator_.model.save('model/cnn/best_{}.model'.format(category))
 
 if __name__ == "__main__":
     main()

@@ -4,6 +4,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import sys
 sys.path.insert(0, '..')
 
+import utils
+
 from MyClassifier import MyClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
@@ -41,7 +43,7 @@ class CNNCategoryExtractor (MyClassifier):
     def fit(self, X, y, **kwargs):
         self.cnn_model = self._create_model()
         self.cnn_model.save(self.MODEL_PATH)
-        self.cnn_model.summary()
+        # self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.cnn_model.fit(
@@ -55,6 +57,7 @@ class CNNCategoryExtractor (MyClassifier):
         THRESHOLD = kwargs.get('threshold', 0.75)
         y_pred[y_pred >= THRESHOLD] = 1.
         y_pred[y_pred < THRESHOLD] = 0.
+        return y_pred
     
     def score(self, X, y, **kwargs):
         # del self.cnn_model
@@ -64,11 +67,7 @@ class CNNCategoryExtractor (MyClassifier):
         scores = self.cnn_model.evaluate(X, y, verbose=0)
         print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
 
-        y_pred = self.cnn_model.predict(X)
-        THRESHOLD = kwargs.get('threshold', 0.75)
-        print("Threshold:", THRESHOLD)
-        y_pred[y_pred >= THRESHOLD] = 1.
-        y_pred[y_pred < THRESHOLD] = 0.
+        y_pred = self.predict(X)
 
         AVERAGE = None
         print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
@@ -89,7 +88,7 @@ class CNNCategoryExtractor (MyClassifier):
         pass
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
-        from sklearn.model_selection import GridSearchCV, cross_val_score
+        from sklearn.model_selection import GridSearchCV
         from keras.wrappers.scikit_learn import KerasClassifier
         np.random.seed(7)
         # Wrap in sklearn wrapper
@@ -109,7 +108,7 @@ class CNNCategoryExtractor (MyClassifier):
             print("\n%f (%f)" % (mean, stdev))
         print("with:", params)
         if IS_REFIT:
-            grid.best_estimator_.model.save('best')
+            grid.best_estimator_.model.save('model/cnn/best.model')
 
     def _create_model(
         self,
@@ -204,10 +203,10 @@ class CategoryFeatureExtractor (BaseEstimator):
     def __init__(self):
         pass
 
-    def fit(self, x, y=None):
-        raise NotImplementedError
+    def fit(self, X, y=None):
+        return self
     
-    def transform(self):
+    def transform(self, X):
         raise NotImplementedError
 
 class BinCategoryExtractor (MyClassifier):
@@ -219,11 +218,11 @@ class BinCategoryExtractor (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
-        self.cnn_model = None
+        self.model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def _create_model(
+    def _create_ann_model(
         self,
         dropout_rate = 0.6,
         dense_activation = 'relu',
@@ -234,107 +233,109 @@ class BinCategoryExtractor (MyClassifier):
 
         **kwargs
     ):
-        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-
+        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length", 150)
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self.layer_embedding(layer_input)
-        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_embedding)
+        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_input)
         layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
+        layer_softmax = Dense(1, activation=activation)(layer_dense_1)
         
         # Create Model
-        cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
+        ann_model = Model(inputs=layer_input, outputs=layer_softmax)
         
         # Create Optimizer
-        cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
-        return cnn_model
+        ann_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
+        ann_model.summary()
+        return ann_model
 
     
     def fit(self, X, y):
         from sklearn.multiclass import OneVsRestClassifier
-        OneVsRestClassifier
+        from keras.wrappers.scikit_learn import KerasClassifier
+        ann_model_sk = KerasClassifier(build_fn = self._create_ann_model, verbose=0)
+        ovr = OneVsRestClassifier(ann_model_sk)
+        ovr.fit(X, y)
+        self.model = ovr
     
     def predict(self, X):
-        raise NotImplementedError
+        return self.model.predict(X)
 
-    
+    def score(self, X, y, **kwargs):
+        y_pred = self.predict(X)
 
-def main():
+        AVERAGE = None
+        print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
+        print("Precision : {}".format(precision_score(y, y_pred, average=AVERAGE)))
+        print("Recall    : {}".format(recall_score(y, y_pred, average=AVERAGE)))
+        print("Accuracy  : {}".format(accuracy_score(y, y_pred)))
 
-    """
-        Load Tokenizer
-    """
-    # Make Tokenizer (load or from dataset)
-    from keras.preprocessing.text import Tokenizer
-    tokenizer = Tokenizer()
+        f1_score_macro = f1_score(y, y_pred, average='macro')
+        print("F1-Score-Macro:", f1_score_macro)
 
-    with open('../we/tokenizer.pkl', 'rb') as fi:
-        tokenizer = dill.load(fi)
+        # is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
+        # if is_show_confusion_matrix:
+        #     self.plot_all_confusion_matrix(y, y_pred)
+        
+        return f1_score_macro
 
+
+def binDriver():
     """
         Initialize data
     """
-    import pandas as pd
-    import numpy as np
+    X, y, X_test, y_test = utils.get_ce_dataset()
+    
 
-    df = pd.read_csv("data/train_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    df_test = pd.read_csv("data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    """
+        Make the model
+    """
+    np.random.seed(7)
+    bin = BinCategoryExtractor()
+    print(X.shape, y.shape)
+    bin.fit(X, y)
+    bin.score(X_test, y_test)
 
-    df = df.sample(frac=1, random_state=7)
+def main():
+    """
+        Initialize data
+    """
+    X, y, X_test, y_test = utils.get_ce_dataset()
 
-    X = df['review']
-    X_test = df_test['review']
-
-    X = tokenizer.texts_to_sequences(X)
-    X_test = tokenizer.texts_to_sequences(X_test)
-
-    max_review_length = 150
-    PADDING_TYPE = 'post'
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
-
-    y = df[['food', 'service', 'price', 'place']]
-    y = y.replace(to_replace='yes', value=1)
-    y = y.replace(to_replace='no', value=0)
-    y = y.replace(to_replace=np.nan, value=0)
-
-    y_test = df_test[['food', 'service', 'price', 'place']]
-    y_test = y_test.replace(to_replace='yes', value=1)
-    y_test = y_test.replace(to_replace='no', value=0)
-    y_test = y_test.replace(to_replace=np.nan, value=0)
-
-    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
-    print(np.isnan(y_test).any())
+    # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
 
     """
         Make the model
     """
     np.random.seed(7)
 
-    checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=1, save_best_only=True)
+    # checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=1, save_best_only=True)
     ce = CNNCategoryExtractor()
 
     """
         Fit the model
     """
-
-    # grid search hypers
     param_grid = {
         'epochs': [50],
         'batch_size': [64],
         'filters': [320],
         'kernel_size': [5],
-        'conv_activation': ['tanh'],
+        'conv_activation': ['relu', 'tanh'],
         'conv_l2_regularizer': [0.01],
         'dropout_rate': [0.6],
-        'dense_activation': ['relu'],
+        'dense_activation': ['relu', 'tanh'],
         'dense_l2_regularizer': [0.01],
         'activation': ['sigmoid'],
-        'optimizer': ['Nadam'],
+        'optimizer': ['nadam'],
         'loss_function': ['binary_crossentropy']
     }
-    ce._fit_gridsearch_cv(X_train, y_train, param_grid)
+    ce._fit_gridsearch_cv(X, y, param_grid, is_refit=True)
+
+    best_model = None
+    with open('model/cnn/best.model', 'rb') as fi:
+        best_model = dill.load(fi)
+    del ce.cnn_model
+    ce.cnn_model = best_model
+    ce.score(X_test, y_test)
 
 if __name__ == "__main__":
     main()

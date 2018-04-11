@@ -94,16 +94,17 @@ class CNNCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', True)
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1)
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=2, scoring='f1_samples')
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
         means = grid_result.cv_results_['mean_test_score']
         stds = grid_result.cv_results_['std_test_score']
-        params = grid_result.cv_results_['params']
-        for mean, stdev, param in zip(means, stds, params):
-            print("\n%f (%f) with: %r" % (mean, stdev, param))
-        if not IS_REFIT:
+        params = grid_result.best_params_
+        for mean, stdev in zip(means, stds):
+            print("\n%f (%f)" % (mean, stdev))
+        print("with:", params)
+        if IS_REFIT:
             grid.best_estimator_.model.save('best')
 
     def _create_model(
@@ -146,6 +147,7 @@ class CNNCategoryExtractor (MyClassifier):
         return cnn_model
     
     def _get_features(self, x):
+        
         return x
 
     def load_weights(self, path):
@@ -277,7 +279,6 @@ def main():
         'optimizer': ['Nadam'],
         'loss_function': ['binary_crossentropy']
     }
-
     ce._fit_gridsearch_cv(X_train, y_train, param_grid)
 
 if __name__ == "__main__":

@@ -262,7 +262,7 @@ def main():
         'conv_l2_regularizer': [0.01],
         'dropout_rate': [0.6],
         'dense_activation': ['relu', 'tanh'],
-        'dense_l2_regularizer': [0.01, 0.001],
+        'dense_l2_regularizer': [0.01],
         'activation': ['softmax'],
         'optimizer': ['nadam'],
         'loss_function': ['categorical_crossentropy']

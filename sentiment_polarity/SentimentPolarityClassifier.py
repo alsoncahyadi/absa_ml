@@ -4,6 +4,7 @@ sys.path.insert(0, '..')
 from MyClassifier import MyClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
 from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
 from keras.layers.convolutional import Conv1D
@@ -223,7 +224,6 @@ def main():
         from sklearn.preprocessing import LabelEncoder
         le = LabelEncoder()
         y = le.fit_transform(y)
-        print(y)
 
         y_test = df_test[category]
         y_test = y_test[y_test != '-']
@@ -282,7 +282,8 @@ def main():
             params = grid_result.best_params_
             print("with:", params)
             if IS_REFIT:
-                grid.best_estimator_.model.save('best')
+                grid.best_estimator_.model.save('best_{}'.format(category))
+            K.clear_session()
 
 if __name__ == "__main__":
     main()

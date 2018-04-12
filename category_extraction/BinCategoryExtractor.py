@@ -131,7 +131,7 @@ class BinCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
-        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())

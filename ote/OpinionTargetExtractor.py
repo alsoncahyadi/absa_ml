@@ -63,7 +63,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         else:
             rnn_model = self._create_model()
         print(rnn_model.summary())
-        rnn_model.load_weights('model/brnn/weights/blstm_weights.hdf5')
+        rnn_model.load_weights(self.WEIGHTS_PATH)
         scores = rnn_model.evaluate(X, y, verbose=0)
         print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
         y_test = y

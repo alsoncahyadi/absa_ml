@@ -254,9 +254,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
-        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-        ,sample_weight=sample_weight)
+    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
+    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+    #     ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=False)
     
 if __name__ == "__main__":

@@ -131,7 +131,7 @@ class BinCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
-        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=2, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
@@ -143,7 +143,7 @@ class BinCategoryExtractor (MyClassifier):
         print("with:", params)
         if IS_REFIT:
             ann_step_index = len(grid.best_estimator_.steps)-1
-            grid.best_estimator_.steps[ann_step_index].save('model/ann/best.model')
+            grid.best_estimator_.steps[ann_step_index][1].save('model/ann/best.model')
 
 def make_new_count_vectorizer_vocab():
     X, y, X_test, y_test = utils.get_ce_dataset()
@@ -178,7 +178,7 @@ def binary():
     #replace the old model
     steps_len = len(bi.pipeline.steps)
     del bi.pipeline.steps[steps_len-1]
-    bi.pipeline.steps[steps_len-1] = best_ann_model
+    bi.pipeline.steps[steps_len-1] = ('clf', best_ann_model)
     bi.score(X_test, y_test)
 
 if __name__ == "__main__":

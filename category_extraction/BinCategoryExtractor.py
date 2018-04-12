@@ -32,19 +32,24 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.neural_network import MLPClassifier
 
 
 class BinCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.WEIGHTS_PATH = 'model/cnn/weights/CNN.hdf5'
-        self.MODEL_PATH = 'model/cnn/CNN.model'
+        self.WEIGHTS_PATH = 'model/ann/weights/ANN.hdf5'
+        self.MODEL_PATH = 'model/ann/ANN.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
+        self.COUNT_VECTORIZER_VOCAB_PATH = 'data/count_vectorizer_vocabulary.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
         # for key, value in kwargs.items():
         #     setattr(self, key, value)
+        count_vectorizer_vocab = None
+        with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
+            count_vectorizer_vocab = dill.load(fi)
 
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
@@ -54,11 +59,12 @@ class BinCategoryExtractor (MyClassifier):
                         ('cnn_probability', ItemSelector(key='cnn_probability')),
                         ('bag_of_ngram', Pipeline([
                             ('selector', ItemSelector(key='review')),
-                            ('ngram', CountVectorizer(ngram_range=(1, 2))),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab)),
                         ]))
                     ]
                 )
             ),
+            # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
             ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=25), thresh=0.8))
         ])
 
@@ -119,6 +125,25 @@ class BinCategoryExtractor (MyClassifier):
         
         return f1_score_macro
 
+    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
+        from sklearn.model_selection import GridSearchCV
+        np.random.seed(7)
+
+        # train
+        IS_REFIT = kwargs.get('is_refit', 'f1_macro')
+        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid_result = grid.fit(X, y)
+        # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+        print(grid_result.cv_results_.keys())
+        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
+        for mean, stdev in zip(means, stds):
+            print("\n{} ({})".format(mean, stdev))
+        params = grid_result.best_params_
+        print("with:", params)
+        if IS_REFIT:
+            grid.best_estimator_.model.save('model/ann/best.model')
+
 def binary():
     """
         Initialize data
@@ -129,15 +154,19 @@ def binary():
         Make the model
     """
     np.random.seed(7)
-    bin = BinCategoryExtractor()
+    bi = BinCategoryExtractor()
     print(X.shape, y.shape)
-    bin.fit(X, np.array(y))
-    cnt = 0
-    print("CNT", cnt)
-    # print(bin.pipeline.named_steps['clf'].multilabel_)
-    # print(bin.pipeline.named_steps['clf'].classes_)
-    print(bin.predict(X))
-    bin.score(X_test, np.array(y_test))
+    param_grid = {
+        
+    }
+
+    bi._fit_gridsearch_cv(X, y, param_grid)
+    best_ann_model = load_model('model/ann/best.model')
+    #replace the old model
+    steps_len = len(bi.pipeline.steps)
+    del bi.pipeline.steps[steps_len-1]
+    bi.pipeline.steps[steps_len-1] = best_ann_model
+    bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     binary()

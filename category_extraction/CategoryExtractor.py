@@ -246,7 +246,7 @@ class BinCategoryExtractor (MyClassifier):
                     ]
                 )
             ),
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=1, epochs=25, threshold=0.2)))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=1, epochs=25, threshold=0.2), thresh=0.75))
         ])
 
     def _create_ann_model(

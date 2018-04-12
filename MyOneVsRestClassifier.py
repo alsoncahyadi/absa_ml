@@ -130,7 +130,7 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
     multilabel_ : boolean
         Whether a OneVsRestClassifier is a multilabel classifier.
     """
-    def __init__(self, estimator, n_jobs=1):
+    def __init__(self, estimator, n_jobs=1, thresh=0.5):
         self.estimator = estimator
         self.n_jobs = n_jobs
 
@@ -244,9 +244,9 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
         check_is_fitted(self, 'estimators_')
         if (hasattr(self.estimators_[0], "decision_function") and
                 is_classifier(self.estimators_[0])):
-            thresh = 0
+            self.thresh = 0
         else:
-            thresh = .2
+            thresh = self.thresh
 
         n_samples = _num_samples(X)
         if self.label_binarizer_.y_type_ == "multiclass":

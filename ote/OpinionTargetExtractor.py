@@ -130,11 +130,11 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self,
         recurrent_dropout = 0.5,
         dropout_rate = 0.6,
-        dense_activation = 'relu',
+        dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
-        activation = 'sigmoid',
-        optimizer = "Nadam",
-        loss_function = 'binary_crossentropy',
+        activation = 'softmax',
+        optimizer = "nadam",
+        loss_function = 'categorical_crossentropy',
 
         **kwargs
     ):
@@ -143,7 +143,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self.layer_embedding(layer_input)
-        layer_blstm = Bidirectional(LSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        layer_blstm = Bidirectional(RNN(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(0.5, seed=7))(layer_blstm)
         layer_dense_1 = TimeDistributed(Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dense_1)
@@ -230,7 +230,7 @@ def main():
         Initialize data
     """
     X, y, X_test, y_test = utils.get_ote_dataset()
-    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
+    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
     
     """
         Calculate Sample Weight
@@ -253,9 +253,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
-    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-    #     ,sample_weight=sample_weight)
+    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
+        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+        ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=True)
     
 if __name__ == "__main__":

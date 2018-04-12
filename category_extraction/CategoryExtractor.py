@@ -266,7 +266,7 @@ class BinCategoryExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(INPUT_DIM,))
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_input)
-        layer_dense_1 = Dense(4000, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_dense_1 = Dense(128, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
         layer_softmax = Dense(1, activation=activation)(layer_dense_1)
         
         # Create Model

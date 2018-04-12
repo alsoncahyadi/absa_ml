@@ -239,10 +239,10 @@ class BinCategoryExtractor (MyClassifier):
                 'features', FeatureUnion(
                     transformer_list= [
                         ('cnn_probability', ItemSelector(key='cnn_probability')),
-                        # ('bag_of_ngram', Pipeline([
-                        #     ('selector', ItemSelector(key='review')),
-                        #     ('ngram', CountVectorizer(ngram_range=(1, 2))),
-                        # ]))
+                        ('bag_of_ngram', Pipeline([
+                            ('selector', ItemSelector(key='review')),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2))),
+                        ]))
                     ]
                 )
             ),
@@ -264,7 +264,7 @@ class BinCategoryExtractor (MyClassifier):
         n_cnn_proba = 4
         n_bag_of_bigrams = 8016
 
-        total_inputs = n_cnn_proba
+        total_inputs = n_bag_of_bigrams + n_cnn_proba
 
         INPUT_DIM = kwargs.get('input_dim', total_inputs)
 
@@ -307,7 +307,7 @@ class BinCategoryExtractor (MyClassifier):
         return f1_score_macro
 
 
-def binDriver():
+def binary():
     """
         Initialize data
     """
@@ -327,7 +327,7 @@ def binDriver():
     print(bin.predict(X))
     bin.score(X_test, np.array(y_test))
 
-def main():
+def cnn():
     """
         Initialize data
     """
@@ -371,5 +371,5 @@ def main():
     ce.score(X_test, y_test)
 
 if __name__ == "__main__":
-    binDriver()
-    # main()
+    # binary()
+    cnn()

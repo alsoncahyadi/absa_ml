@@ -7,7 +7,7 @@ sys.path.insert(0, '..')
 import utils
 from ItemSelector import ItemSelector
 
-from MyClassifier import MyClassifier, MultilabelKerasClassifier
+from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 from keras import backend as K
@@ -28,6 +28,7 @@ import itertools
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.multiclass import OneVsRestClassifier
 
@@ -203,19 +204,20 @@ class CNNCategoryExtractor (MyClassifier):
 
 class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
     def __init__(self):
-        self.cnn_model = load_model('model/cnn/best.model')
         pass
 
     def fit(self, X, y=None):
         return self
     
     def transform(self, X):
-        features = np.recarray(shape=(len(X),),
-                               dtype=[('cnn_probability', object)])
-        y_pred = self.cnn_model.predict(X)
-        for i, datum in enumerate(X):
-            features['cnn_probability'][i] = y_pred[i]
-
+        cnn_model = load_model('model/cnn/best.model')
+        features = {}
+        y_pred = cnn_model.predict(X)
+        features['cnn_probability'] = y_pred
+        features['review'] = []
+        for datum in X:
+            features['review'].append(" ".join([str(token) for token in datum if token != 0]))
+            
         return features
 
 
@@ -228,38 +230,43 @@ class BinCategoryExtractor (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
-        self.ann_model_sklearn = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        # for key, value in kwargs.items():
+        #     setattr(self, key, value)
 
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
             (
                 'features', FeatureUnion(
                     transformer_list= [
-                        ('cnn_probability', ItemSelector(key='cnn_probability'))
+                        ('cnn_probability', ItemSelector(key='cnn_probability')),
+                        ('bag_of_ngram', Pipeline([
+                            ('selector', ItemSelector(key='review')),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2))),
+                        ]))
                     ]
                 )
             ),
-            ('clf', OneVsRestClassifier(self.ann_model_sklearn))
+            ('clf', OneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=1, epochs=25, threshold=0.2)))
         ])
 
     def _create_ann_model(
         self,
         dropout_rate = 0.6,
-        dense_activation = 'relu',
+        dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
+        threshold = 0.75, #not used
 
         **kwargs
     ):
-        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length", 150)
+        INPUT_DIM = kwargs.get('input_dim', 8020)
+
         # Define Architecture
-        layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
+        layer_input = Input(shape=(INPUT_DIM,))
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_input)
-        layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_dense_1 = Dense(4000, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
         layer_softmax = Dense(1, activation=activation)(layer_dense_1)
         
         # Create Model
@@ -267,17 +274,11 @@ class BinCategoryExtractor (MyClassifier):
         
         # Compile
         ann_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
-        ann_model.summary()
         return ann_model
 
     
     def fit(self, X, y):
-        print(type(X), type(y))
         self.pipeline.fit(X, y)
-        # ann_model_sk = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
-        # ovr = OneVsRestClassifier(ann_model_sk)
-        # ovr.fit(X, y)
-        # self.model = ovr
     
     def predict(self, X):
         return self.pipeline.predict(X)
@@ -313,8 +314,16 @@ def binDriver():
     np.random.seed(7)
     bin = BinCategoryExtractor()
     print(X.shape, y.shape)
-    bin.fit(X, y)
-    bin.score(X_test, y_test)
+    bin.fit(X, np.array(y))
+    cnt = 0
+    for i in np.array(y):
+        if i == 1:
+            cnt += 1
+    print("CNT", cnt)
+    # print(bin.pipeline.named_steps['clf'].multilabel_)
+    # print(bin.pipeline.named_steps['clf'].classes_)
+    print(bin.predict(X))
+    bin.score(X_test, np.array(y_test))
 
 def main():
     """

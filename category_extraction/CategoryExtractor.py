@@ -8,6 +8,7 @@ import utils
 from ItemSelector import ItemSelector
 
 from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
+from MyOneVsRestClassifier import MyOneVsRestClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 from keras import backend as K
@@ -30,7 +31,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import FeatureUnion, Pipeline
-from sklearn.multiclass import OneVsRestClassifier
 
 class CNNCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -246,7 +246,7 @@ class BinCategoryExtractor (MyClassifier):
                     ]
                 )
             ),
-            ('clf', OneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=1, epochs=25, threshold=0.2)))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=1, epochs=25, threshold=0.2)))
         ])
 
     def _create_ann_model(
@@ -317,9 +317,6 @@ def binDriver():
     print(X.shape, y.shape)
     bin.fit(X, np.array(y))
     cnt = 0
-    for i in np.array(y):
-        if i == 1:
-            cnt += 1
     print("CNT", cnt)
     # print(bin.pipeline.named_steps['clf'].multilabel_)
     # print(bin.pipeline.named_steps['clf'].classes_)

@@ -143,8 +143,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self.layer_embedding(layer_input)
-        # layer_blstm = Bidirectional(LSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        layer_blstm = Bidirectional(GRU(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        layer_blstm = Bidirectional(LSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        # layer_blstm = Bidirectional(GRU(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(0.5, seed=7))(layer_blstm)
         layer_dense_1 = TimeDistributed(Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dense_1)
@@ -254,9 +254,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
-    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-    #     ,sample_weight=sample_weight)
+    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
+        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+        ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=False)
     
 if __name__ == "__main__":

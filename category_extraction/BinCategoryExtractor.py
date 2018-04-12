@@ -142,9 +142,8 @@ class BinCategoryExtractor (MyClassifier):
         params = grid_result.best_params_
         print("with:", params)
         if IS_REFIT:
-            ann_step_index = len(grid.best_estimator_.steps)-1
-            with open('model/ann/best.model', 'wb') as fo:
-                dill.dump(grid.best_estimator_.steps[ann_step_index][1], fo)
+            del self.pipeline
+            self.pipeline = grid.best_estimator_
 
 
 def make_new_count_vectorizer_vocab():
@@ -176,13 +175,6 @@ def binary():
     }
 
     bi._fit_gridsearch_cv(X[:100], y[:100], param_grid)
-    best_ann_model = None
-    with open('model/ann/best.model', 'rb') as fi:
-        best_ann_model = dill.load(fi)
-    #replace the old model
-    steps_len = len(bi.pipeline.steps)
-    del bi.pipeline.steps[steps_len-1]
-    bi.pipeline.steps[steps_len-1] = ('clf', best_ann_model)
     bi.score(X_test, y_test)
 
 if __name__ == "__main__":

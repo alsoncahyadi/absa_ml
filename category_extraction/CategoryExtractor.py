@@ -261,6 +261,7 @@ class BinCategoryExtractor (MyClassifier):
 
         **kwargs
     ):
+        K.clear_session()
         INPUT_DIM = kwargs.get('input_dim', 8020)
 
         # Define Architecture

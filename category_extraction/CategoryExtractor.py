@@ -5,9 +5,10 @@ import sys
 sys.path.insert(0, '..')
 
 import utils
+from ItemSelector import ItemSelector
 
 from MyClassifier import MyClassifier, MultilabelKerasClassifier
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
@@ -26,7 +27,9 @@ import matplotlib.pyplot as plt
 import itertools
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.pipeline import FeatureUnion, Pipeline
+from sklearn.multiclass import OneVsRestClassifier
 
 class CNNCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -128,12 +131,10 @@ class CNNCategoryExtractor (MyClassifier):
         **kwargs
     ):
         K.clear_session()
-        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        print(MAX_SEQUENCE_LENGTH)
+        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length", 150)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        # layer_feature = Lambda(self._get_features)(layer_input)
         layer_embedding = self.layer_embedding(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
@@ -200,15 +201,22 @@ class CNNCategoryExtractor (MyClassifier):
         plt.show()
 
 
-class CategoryFeatureExtractor (BaseEstimator):
+class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
     def __init__(self):
+        self.cnn_model = load_model('model/cnn/best.model')
         pass
 
     def fit(self, X, y=None):
         return self
     
     def transform(self, X):
-        raise NotImplementedError
+        features = np.recarray(shape=(len(X),),
+                               dtype=[('cnn_probability', object)])
+        y_pred = self.cnn_model.predict(X)
+        for i, datum in enumerate(X):
+            features['cnn_probability'][i] = y_pred[i]
+
+        return features
 
 
 class BinCategoryExtractor (MyClassifier):
@@ -220,12 +228,20 @@ class BinCategoryExtractor (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
-        self.model = None
+        self.ann_model_sklearn = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
         for key, value in kwargs.items():
             setattr(self, key, value)
 
         self.pipeline = Pipeline([
-
+            ('data', CategoryFeatureExtractor()),
+            (
+                'features', FeatureUnion(
+                    transformer_list= [
+                        ('cnn_probability', ItemSelector(key='cnn_probability'))
+                    ]
+                )
+            ),
+            ('clf', OneVsRestClassifier(self.ann_model_sklearn))
         ])
 
     def _create_ann_model(
@@ -249,22 +265,22 @@ class BinCategoryExtractor (MyClassifier):
         # Create Model
         ann_model = Model(inputs=layer_input, outputs=layer_softmax)
         
-        # Create Optimizer
+        # Compile
         ann_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         ann_model.summary()
         return ann_model
 
     
     def fit(self, X, y):
-        from sklearn.multiclass import OneVsRestClassifier
-        from keras.wrappers.scikit_learn import MultilabelKerasClassifier
-        ann_model_sk = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
-        ovr = OneVsRestClassifier(ann_model_sk)
-        ovr.fit(X, y)
-        self.model = ovr
+        print(type(X), type(y))
+        self.pipeline.fit(X, y)
+        # ann_model_sk = MultilabelKerasClassifier(build_fn = self._create_ann_model, verbose=0)
+        # ovr = OneVsRestClassifier(ann_model_sk)
+        # ovr.fit(X, y)
+        # self.model = ovr
     
     def predict(self, X):
-        return self.model.predict(X)
+        return self.pipeline.predict(X)
 
     def score(self, X, y, **kwargs):
         y_pred = self.predict(X)
@@ -344,5 +360,5 @@ def main():
     ce.score(X_test, y_test)
 
 if __name__ == "__main__":
-    # binDriver()
-    main()
+    binDriver()
+    # main()

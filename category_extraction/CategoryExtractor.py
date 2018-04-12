@@ -238,7 +238,7 @@ class BinCategoryExtractor (MyClassifier):
             (
                 'features', FeatureUnion(
                     transformer_list= [
-                        ('cnn_probability', ItemSelector(key='cnn_probability')),
+                        # ('cnn_probability', ItemSelector(key='cnn_probability')),
                         ('bag_of_ngram', Pipeline([
                             ('selector', ItemSelector(key='review')),
                             ('ngram', CountVectorizer(ngram_range=(1, 2))),
@@ -246,7 +246,7 @@ class BinCategoryExtractor (MyClassifier):
                     ]
                 )
             ),
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=25, threshold=0.2), thresh=0.85))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=25), thresh=0.5))
         ])
 
     def _create_ann_model(
@@ -261,7 +261,7 @@ class BinCategoryExtractor (MyClassifier):
 
         **kwargs
     ):
-        n_cnn_proba = 4
+        # n_cnn_proba = 4
         n_bag_of_bigrams = 8016
 
         total_inputs = n_bag_of_bigrams + n_cnn_proba

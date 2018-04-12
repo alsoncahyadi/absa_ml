@@ -261,7 +261,12 @@ class BinCategoryExtractor (MyClassifier):
 
         **kwargs
     ):
-        INPUT_DIM = kwargs.get('input_dim', 8020)
+        n_cnn_proba = 4
+        n_bag_of_bigrams = 8016
+
+        total_inputs = n_bag_of_bigrams
+
+        INPUT_DIM = kwargs.get('input_dim', total_inputs)
 
         # Define Architecture
         layer_input = Input(shape=(INPUT_DIM,))

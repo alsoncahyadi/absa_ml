@@ -238,7 +238,7 @@ class BinCategoryExtractor (MyClassifier):
             (
                 'features', FeatureUnion(
                     transformer_list= [
-                        # ('cnn_probability', ItemSelector(key='cnn_probability')),
+                        ('cnn_probability', ItemSelector(key='cnn_probability')),
                         ('bag_of_ngram', Pipeline([
                             ('selector', ItemSelector(key='review')),
                             ('ngram', CountVectorizer(ngram_range=(1, 2))),
@@ -264,7 +264,7 @@ class BinCategoryExtractor (MyClassifier):
         n_cnn_proba = 4
         n_bag_of_bigrams = 8016
 
-        total_inputs = n_bag_of_bigrams
+        total_inputs = n_bag_of_bigrams + n_cnn_proba
 
         INPUT_DIM = kwargs.get('input_dim', total_inputs)
 

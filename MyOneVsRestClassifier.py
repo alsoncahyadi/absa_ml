@@ -133,6 +133,7 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
     def __init__(self, estimator, n_jobs=1, thresh=0.5):
         self.estimator = estimator
         self.n_jobs = n_jobs
+        self.thresh = thresh
 
     def fit(self, X, y):
         """Fit underlying estimators.

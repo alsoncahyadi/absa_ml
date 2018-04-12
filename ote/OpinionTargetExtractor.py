@@ -58,7 +58,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
     
     def score(self, X, y, **kwargs):
         from keras.models import load_model
-        rnn_model = self._create_model(n_batch=1)
+        rnn_model = self.rnn_model
         print(rnn_model.summary())
         rnn_model.load_weights('model/brnn/weights/blstm_weights.hdf5')
         scores = rnn_model.evaluate(X, y, verbose=0)
@@ -250,9 +250,9 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
-        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-        ,sample_weight=sample_weight)
+    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=81,
+    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+    #     ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=True)
     
 if __name__ == "__main__":

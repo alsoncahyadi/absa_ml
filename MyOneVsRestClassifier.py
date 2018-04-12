@@ -154,6 +154,8 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
         # outpreform or match a dense label binarizer in all cases and has also
         # resulted in less or equal memory consumption in the fit_ovr function
         # overall.
+        from keras import backend as K
+        K.clear_session()
         self.label_binarizer_ = LabelBinarizer(sparse_output=True)
         Y = self.label_binarizer_.fit_transform(y)
         Y = Y.tocsc()

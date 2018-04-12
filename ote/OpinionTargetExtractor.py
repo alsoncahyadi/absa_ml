@@ -242,7 +242,7 @@ def main():
     checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
-    n_epoch = 20
+    n_epoch = 50
     # for i in range(n_epoch):
     #     print('Epoch #', i)
     #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,

@@ -251,7 +251,7 @@ class BinCategoryExtractor (MyClassifier):
 
     def _create_ann_model(
         self,
-        dropout_rate = 0.6,
+        dropout_rate = 0.,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
         activation = 'sigmoid',

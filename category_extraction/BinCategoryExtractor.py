@@ -131,7 +131,7 @@ class BinCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
-        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=2, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
@@ -142,8 +142,8 @@ class BinCategoryExtractor (MyClassifier):
         params = grid_result.best_params_
         print("with:", params)
         if IS_REFIT:
-            with open('model/ann/best_pipeline.pkl', 'wb') as fo:
-                dill.dump(grid.best_estimator_, fo)
+            ann_step_index = len(grid.best_estimator_.steps)-1
+            grid.best_estimator_.steps[ann_step_index].save('model/ann/best.model')
 
 def make_new_count_vectorizer_vocab():
     X, y, X_test, y_test = utils.get_ce_dataset()
@@ -174,17 +174,11 @@ def binary():
     }
 
     bi._fit_gridsearch_cv(X, y, param_grid)
-
-    #load the best pipeline
-    best_pipeline = None
-    with open('model/ann/best_pipeline.pkl', 'rb') as fi:
-        best_pipeline = dill.load(fi)
-
-    #replace the old pipeline
-    del bi.pipeline
-    bi.pipeline = best_pipeline
-
-    #score it
+    best_ann_model = load_model('model/ann/best.model')
+    #replace the old model
+    steps_len = len(bi.pipeline.steps)
+    del bi.pipeline.steps[steps_len-1]
+    bi.pipeline.steps[steps_len-1] = best_ann_model
     bi.score(X_test, y_test)
 
 if __name__ == "__main__":

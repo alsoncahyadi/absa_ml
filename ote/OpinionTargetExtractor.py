@@ -58,7 +58,10 @@ class RNNOpinionTargetExtractor (MyClassifier):
     
     def score(self, X, y, **kwargs):
         from keras.models import load_model
-        rnn_model = self.rnn_model
+        if self.rnn_model != None:
+            rnn_model = self.rnn_model
+        else:
+            self.rnn_model = self._create_model()
         print(rnn_model.summary())
         rnn_model.load_weights('model/brnn/weights/blstm_weights.hdf5')
         scores = rnn_model.evaluate(X, y, verbose=0)

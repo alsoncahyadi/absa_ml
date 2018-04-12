@@ -144,6 +144,18 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             grid.best_estimator_.model.save('model/ann/best.model')
 
+def make_new_count_vectorizer_vocab():
+    X, y, X_test, y_test = utils.get_ce_dataset()
+    review = []
+    for datum in X:
+        review.append(" ".join([str(token) for token in datum if token != 0]))
+
+    cv = CountVectorizer(ngram_range=(1, 2))
+    cv.fit(review)
+    vocab = cv.vocabulary_
+    with open('data/count_vectorizer_vocabulary.pkl', 'wb') as fo:
+        dill.dump(vocab, fo)
+
 def binary():
     """
         Initialize data

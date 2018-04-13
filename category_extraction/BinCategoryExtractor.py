@@ -60,6 +60,8 @@ class BinCategoryExtractor (MyClassifier):
         with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
             count_vectorizer_vocab_cluster = dill.load(fi)
 
+        print(len(count_vectorizer_vocab_cluster.items()))
+
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
             (
@@ -71,7 +73,7 @@ class BinCategoryExtractor (MyClassifier):
                             ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab)),
                         ])),
                         ('bag_of_bigram_word_cluster', Pipeline([
-                            ('selector', ItemSelector(key='review')),
+                            ('selector', ItemSelector(key='review_cluster')),
                             ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab_cluster)),
                         ]))
                     ]

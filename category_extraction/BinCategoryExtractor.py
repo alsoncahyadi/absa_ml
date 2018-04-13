@@ -148,6 +148,7 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
+            self.save_estimators()
 
     def load_estimators(self, n_estimators = 4, load_path='model/ann/best_{}.model'):
         estimators = []

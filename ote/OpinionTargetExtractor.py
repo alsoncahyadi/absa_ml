@@ -6,7 +6,7 @@ sys.path.insert(0, '..')
 
 import utils
 
-from MyClassifier import MyClassifier
+from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 from keras import backend as K
@@ -125,6 +125,25 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
     def _fit_train_validate_split(self, X, y):
         pass
+
+    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
+        from sklearn.model_selection import GridSearchCV
+        np.random.seed(7)
+        # Wrap in sklearn wrapper
+        model = KerasClassifier(build_fn = self._create_model, verbose=0, thresh=0.7)
+        # train
+        IS_REFIT = kwargs.get('is_refit', 'f1_macro')
+        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid_result = grid.fit(X, y)
+        print(grid_result.cv_results_.keys())
+        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
+        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
+        for mean, stdev in zip(means, stds):
+            print("\n{} ({})".format(mean, stdev))
+        params = grid_result.best_params_
+        print("with:", params)
+        if IS_REFIT:
+            grid.best_estimator_.model.save('model/cnn/best.model')
 
     def _create_model(
         self,
@@ -266,7 +285,26 @@ def main():
     # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
     #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
     #     ,sample_weight=sample_weight)
-    ote.score(X_test, y_test, show_confusion_matrix=False)
+    param_grid = {
+        'epochs': [25, 50],
+        'batch_size': [64],
+        'recurrent_dropout': [0.5, 0.2],
+        'dropout_rate': [0.6],
+        'dense_activation': ['tanh', 'relu'],
+        'dense_l2_regularizer': [0.01],
+        'activation': ['softmax'],
+        'optimizer': ["nadam"],
+        'loss_function': ['categorical_crossentropy']
+    }
+    ote._fit_gridsearch_cv(X, y, param_grid)
+
+    """
+        Load best estimator and score it
+    """
+    best_model = load_model('model/cnn/best.model')
+    del ote.rnn_model
+    ote.rnn_model = best_model
+    ote.score(X_test, y_test)
     
 if __name__ == "__main__":
     main()

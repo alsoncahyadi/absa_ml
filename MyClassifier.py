@@ -176,6 +176,7 @@ class KerasClassifier(BaseWrapper):
     """
 
     def __init__(self, build_fn=None, **sk_params):
+        self.model = None
         self.THRESHOLD = sk_params.get('threshold', 0.2)
         super(KerasClassifier, self).__init__(build_fn, **sk_params)
 

@@ -188,7 +188,7 @@ def binary():
         
     }
 
-    bi._fit_gridsearch_cv(X[:10], y[:10], param_grid)
+    bi._fit_gridsearch_cv(X, y, param_grid)
     # bi._fit_gridsearch_cv(X, y, param_grid)
     bi.score(X_test, y_test)
 

@@ -167,7 +167,7 @@ def load_estimators(build_fn, n_estimators = 4, load_path='model/ann/best_{}.mod
     estimators = []
     for i in range(n_estimators):
         ann_model = load_model(load_path.format(i))
-        new_estimator = KerasClassifier(build_fn=build_fn, verbose=0, epochs=25).model
+        new_estimator = KerasClassifier(build_fn=build_fn, verbose=0, epochs=25)
         new_estimator.model = ann_model
         estimators.append(new_estimator)
     return estimators

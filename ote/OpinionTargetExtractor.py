@@ -128,9 +128,11 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
         from sklearn.model_selection import GridSearchCV
+        # y = np.argmax(y, axis=2)
+        # print(y)
         np.random.seed(7)
         # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = self._create_model, verbose=0, threshold=0.7)
+        model = KerasClassifier(build_fn = self._create_model, verbose=0)
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
         grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
@@ -151,9 +153,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
         dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
-        activation = 'softmax',
+        activation = 'sigmoid',
         optimizer = "nadam",
-        loss_function = 'categorical_crossentropy',
+        loss_function = 'binary_crossentropy',
         threshold = 0.7,
 
         **kwargs
@@ -293,9 +295,9 @@ def main():
         'dropout_rate': [0.6],
         'dense_activation': ['tanh', 'relu'],
         'dense_l2_regularizer': [0.01],
-        'activation': ['softmax'],
+        'activation': ['sigmoid'],
         'optimizer': ["nadam"],
-        'loss_function': ['categorical_crossentropy']
+        'loss_function': ['binary_crossentropy']
     }
     ote._fit_gridsearch_cv(X, y, param_grid)
 

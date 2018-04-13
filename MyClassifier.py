@@ -205,6 +205,8 @@ class KerasClassifier(BaseWrapper):
         elif (len(y.shape) == 2 and y.shape[1] == 1) or len(y.shape) == 1:
             self.classes_ = np.unique(y)
             y = np.searchsorted(self.classes_, y)
+        elif len(y.shape) == 3 and y.shape[2] > 1:
+            self.classes_ = np.arange(y.shape[2])
         else:
             raise ValueError('Invalid shape for y: ' + str(y.shape))
         self.n_classes_ = len(self.classes_)

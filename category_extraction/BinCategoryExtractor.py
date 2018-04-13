@@ -65,7 +65,7 @@ class BinCategoryExtractor (MyClassifier):
                 )
             ),
             # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=25), thresh=0.8))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=1), thresh=0.8))
         ])
 
     def _create_ann_model(
@@ -131,7 +131,7 @@ class BinCategoryExtractor (MyClassifier):
 
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
-        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
+        grid = GridSearchCV(estimator=self.pipeline, param_grid=param_grid, cv=2, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
         grid_result = grid.fit(X, y)
         # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
         print(grid_result.cv_results_.keys())
@@ -144,6 +144,8 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
+            with open('model/ann/best.pipeline') as fo:
+                dill.dump(self.pipeline, fo)
 
 
 def make_new_count_vectorizer_vocab():

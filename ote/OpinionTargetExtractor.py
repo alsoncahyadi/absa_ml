@@ -130,7 +130,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         from sklearn.model_selection import GridSearchCV
         np.random.seed(7)
         # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = self._create_model, verbose=0, thresh=0.7)
+        model = KerasClassifier(build_fn = self._create_model, verbose=0, threshold=0.7)
         # train
         IS_REFIT = kwargs.get('is_refit', 'f1_macro')
         grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
@@ -154,6 +154,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         activation = 'softmax',
         optimizer = "nadam",
         loss_function = 'categorical_crossentropy',
+        threshold = 0.7,
 
         **kwargs
     ):

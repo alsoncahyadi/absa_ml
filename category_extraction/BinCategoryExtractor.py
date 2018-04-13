@@ -35,7 +35,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.neural_network import MLPClassifier
 
-N_EPOCHS = 25
+N_EPOCHS = 50
 N_CV = 5
 
 
@@ -80,7 +80,7 @@ class BinCategoryExtractor (MyClassifier):
                 )
             ),
             # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=N_EPOCHS), thresh=0.8))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=N_EPOCHS), thresh=0.6))
         ])
 
     def _create_ann_model(

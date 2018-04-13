@@ -159,6 +159,19 @@ def make_new_count_vectorizer_vocab():
     with open('data/count_vectorizer_vocabulary.pkl', 'wb') as fo:
         dill.dump(vocab, fo)
 
+def save_estimators(estimators, save_path='model/ann/best_{}.model'):
+    for i, estimator in enumerate(estimators):
+        estimator.model.save(save_path.format(i))
+
+def load_estimators(build_fn, n_estimators = 4, load_path='model/ann/best_{}.model'):
+    estimators = []
+    for i in range(n_estimators):
+        ann_model = load_model(load_path.format(i))
+        new_estimator = KerasClassifier(build_fn=build_fn, verbose=0, epochs=25).model
+        new_estimator.model = ann_model
+        estimators.append(new_estimator)
+    return estimators
+
 def binary():
     """
         Initialize data
@@ -182,8 +195,12 @@ def binary():
     #save the best OneVsRest model (ovr = OneVsRest)
     ann_sklearn_model_index = len(bi.pipeline.steps) - 1
     print(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_)
-    with open('model/ann/best_ovr.model', 'wb') as fo:
-        dill.dump(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_, fo)
+    save_estimators(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_)
+    print("DONE SAVING")
+    new_estimators = load_estimators(bi._create_ann_model)
+    print("DONE LOADING")
+    bi.pipeline.steps[ann_sklearn_model_index][1].estimators_ = new_estimators
+    bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     binary()

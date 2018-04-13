@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
 from keras.layers.convolutional import Conv1D
-from keras.layers import Dense, LSTM, Dropout, Lambda, Bidirectional, TimeDistributed, RepeatVector, RNN, GRU
+from keras.layers import Dense, LSTM, Dropout, Lambda, Bidirectional, TimeDistributed, RepeatVector, RNN, GRU, CuDNNGRU, CuDNNLSTM
 from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence, text
@@ -57,7 +57,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         return y_pred
     
     def score(self, X, y, **kwargs):
-        from keras.models import load_model
         if self.rnn_model != None:
             rnn_model = self.rnn_model
         else:
@@ -77,16 +76,17 @@ class RNNOpinionTargetExtractor (MyClassifier):
                     val_max = y
             return i_max
 
-        def get_decreased_dimension(y):
+        def get_decreased_dimension(y, end):
             tmp = []
-            for y_sents in y:
-                for y_tokens in y_sents:
+            for i, y_sents in enumerate(y):
+                for y_tokens in y_sents[end[i]]:
                     tmp.append(y_tokens)
             tmp = np.array(tmp)
             return tmp
 
         y_pred_raw = rnn_model.predict(X)
         y_pred = []
+
         for y_pred_raw_sents in y_pred_raw:
             y_pred_sents = []
             for y_pred_raw_tokens in y_pred_raw_sents:
@@ -96,13 +96,13 @@ class RNNOpinionTargetExtractor (MyClassifier):
                 y_pred_sents.append(y)
             y_pred.append(y_pred_sents)
         y_pred = np.array(y_pred)
-        # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=1)
-        # y_test = np.argmax(get_decreased_dimension(y_test), axis=1)
-        # print(y_pred)
-
-        y_pred = get_decreased_dimension(y_pred)
-        print(y)
-        y_test = get_decreased_dimension(y_test)
+        # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=-1)
+        # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
+        print(y_pred)
+        
+        end = get_sentence_end_index(X)
+        y_pred = get_decreased_dimension(y_pred, end)
+        y_test = get_decreased_dimension(y_test, end)
         print(y_test.shape, y_pred.shape)
 
         from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
@@ -143,8 +143,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self.layer_embedding(layer_input)
-        layer_blstm = Bidirectional(LSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        # layer_blstm = Bidirectional(GRU(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        # layer_blstm = Bidirectional(CuDNNLSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        layer_blstm = Bidirectional(CuDNNGRU(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(0.5, seed=7))(layer_blstm)
         layer_dense_1 = TimeDistributed(Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dense_1)
@@ -224,6 +224,15 @@ class CategoryFeatureExtractor (BaseEstimator):
     def transform(self):
         raise NotImplementedError
 
+def get_sentence_end_index(X):
+    end = []
+    for datum in X:
+        for i, token in enumerate(datum):
+            if token == -1:
+                end.append(i)
+                break
+    return np.array(end)
+
 def main():
     import numpy as np
 
@@ -246,7 +255,7 @@ def main():
     checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
-    n_epoch = 50
+    n_epoch = 25
     # for i in range(n_epoch):
     #     print('Epoch #', i)
     #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,

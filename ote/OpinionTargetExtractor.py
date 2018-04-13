@@ -78,7 +78,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         def get_decreased_dimension(y, end):
             tmp = []
             for i, y_sents in enumerate(y):
-                for y_tokens in y_sents[end[i]]:
+                for y_tokens in y_sents[:end[i]]:
                     tmp.append(y_tokens)
             tmp = np.array(tmp)
             return tmp
@@ -252,7 +252,6 @@ def main():
     """
     np.random.seed(7)
 
-    checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
     ote = RNNOpinionTargetExtractor()
 
     n_epoch = 25
@@ -263,9 +262,10 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
-        validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-        ,sample_weight=sample_weight)
+    # checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
+    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
+    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
+    #     ,sample_weight=sample_weight)
     ote.score(X_test, y_test, show_confusion_matrix=False)
     
 if __name__ == "__main__":

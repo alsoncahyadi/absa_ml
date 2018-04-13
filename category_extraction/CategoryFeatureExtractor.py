@@ -29,7 +29,7 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
         
         #
         cluster_list = None
-        with open('../we/cluster/cluster_list.pkl', 'rb') as fi:
+        with open('../we/cluster/cluster_list_1000.pkl', 'rb') as fi:
             cluster_list = dill.load(fi)
         X_cluster = transform(X, cluster_list)
         features['review_cluster'] = []

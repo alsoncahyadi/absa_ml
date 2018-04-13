@@ -149,7 +149,7 @@ class BinCategoryExtractor (MyClassifier):
             ann_sklearn_model_index = len(self.pipeline.steps) - 1
             print(self.pipeline.steps[ann_sklearn_model_index])
             with open('model/ann/best_ovr.model', 'wb') as fo:
-                dill.dump(self.pipeline.steps[ann_sklearn_model_index], fo)
+                dill.dump(grid.best_estimator_.steps[ann_sklearn_model_index], fo)
 
 
 def make_new_count_vectorizer_vocab():

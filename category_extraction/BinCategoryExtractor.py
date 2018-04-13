@@ -35,7 +35,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.neural_network import MLPClassifier
 
-N_EPOCHS = 50
+N_EPOCHS = 35
 N_CV = 5
 
 
@@ -74,7 +74,7 @@ class BinCategoryExtractor (MyClassifier):
 
     def _create_ann_model(
         self,
-        dropout_rate = 0.,
+        dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
         activation = 'sigmoid',
@@ -93,9 +93,9 @@ class BinCategoryExtractor (MyClassifier):
 
         # Define Architecture
         layer_input = Input(shape=(INPUT_DIM,))
-        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_input)
-        layer_dense_1 = Dense(128, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_softmax = Dense(1, activation=activation)(layer_dense_1)
+        layer_dense_1 = Dense(128, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_input)
+        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_dense_1)
+        layer_softmax = Dense(1, activation=activation)(layer_dropout_1)
         
         # Create Model
         ann_model = Model(inputs=layer_input, outputs=layer_softmax)

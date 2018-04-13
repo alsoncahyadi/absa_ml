@@ -3,7 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 sys.path.insert(0, '..')
-sys
+sys.setrecursionlimit(999999999)
 
 import utils
 from ItemSelector import ItemSelector
@@ -69,7 +69,7 @@ class BinCategoryExtractor (MyClassifier):
             ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=1), thresh=0.8))
         ])
 
-    def _create_ann_model(25
+    def _create_ann_model(
         self,
         dropout_rate = 0.,
         dense_activation = 'tanh',
@@ -145,8 +145,11 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
-            with open('model/ann/best.pipeline', 'wb') as fo:
-                dill.dump(self.pipeline, fo)
+            #save the best OneVsRest model (ovr = OneVsRest)
+            ann_sklearn_model_index = len(self.pipeline.steps) - 1
+            print(self.pipeline.steps[ann_sklearn_model_index])
+            with open('model/ann/best_ovr.model', 'wb') as fo:
+                dill.dump(self.pipeline.steps[ann_sklearn_model_index], fo)
 
 
 def make_new_count_vectorizer_vocab():

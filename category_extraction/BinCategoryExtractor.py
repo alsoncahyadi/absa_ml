@@ -3,7 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 sys.path.insert(0, '..')
-sys
+sys.setrecursionlimit(999999999)
 
 import utils
 from ItemSelector import ItemSelector

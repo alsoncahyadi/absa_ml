@@ -158,8 +158,8 @@ class BinCategoryExtractor (MyClassifier):
         return estimators
 
     def save_estimators(self, save_path='model/ann/best_{}.model'):
-        ann_sklearn_model_index = len(bi.pipeline.steps) - 1
-        estimators = bi.pipeline.steps[ann_sklearn_model_index][1].estimators_
+        ann_sklearn_model_index = len(self.pipeline.steps) - 1
+        estimators = self.pipeline.steps[ann_sklearn_model_index][1].estimators_
         for i, estimator in enumerate(estimators):
             estimator.model.save(save_path.format(i))
 

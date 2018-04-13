@@ -57,7 +57,7 @@ class BinCategoryExtractor (MyClassifier):
             count_vectorizer_vocab = dill.load(fi)
         
         count_vectorizer_vocab_cluster = None
-        with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
+        with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
             count_vectorizer_vocab_cluster = dill.load(fi)
 
         print(len(count_vectorizer_vocab_cluster.items()))

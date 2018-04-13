@@ -71,7 +71,7 @@ class BinCategoryExtractor (MyClassifier):
                             ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab)),
                         ])),
                         ('bag_of_bigram_word_cluster', Pipeline([
-                            ('selector', ItemSelector(key='word_cluster')),
+                            ('selector', ItemSelector(key='review')),
                             ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab_cluster)),
                         ]))
                     ]

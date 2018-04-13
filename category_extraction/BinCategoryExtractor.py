@@ -3,6 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 sys.path.insert(0, '..')
+sys
 
 import utils
 from ItemSelector import ItemSelector
@@ -68,7 +69,7 @@ class BinCategoryExtractor (MyClassifier):
             ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=1), thresh=0.8))
         ])
 
-    def _create_ann_model(
+    def _create_ann_model(25
         self,
         dropout_rate = 0.,
         dense_activation = 'tanh',
@@ -144,7 +145,7 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
-            with open('model/ann/best.pipeline') as fo:
+            with open('model/ann/best.pipeline', 'wb') as fo:
                 dill.dump(self.pipeline, fo)
 
 

@@ -61,7 +61,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
             rnn_model = self.rnn_model
         else:
             rnn_model = self._create_model()
-        print(rnn_model.summary())
         rnn_model.load_weights(self.WEIGHTS_PATH)
         scores = rnn_model.evaluate(X, y, verbose=0)
         print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
@@ -98,7 +97,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = np.array(y_pred)
         # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=-1)
         # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
-        print(y_pred)
         
         end = get_sentence_end_index(X)
         y_pred = get_decreased_dimension(y_pred, end)
@@ -116,6 +114,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
         y_test = np.array(y_test)
         y_pred = np.array(y_pred)
+
+        print(confusion_matrix(y_test, y_pred))
 
         is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
         if is_show_confusion_matrix:

@@ -72,6 +72,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         f1_score_macro = f1_score(y, y_pred, average='macro')
         print("F1-Score-Macro:", f1_score_macro)
 
+        print(confusion_matrix(y, y_pred))
+    
         is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
         if is_show_confusion_matrix:
             self.plot_all_confusion_matrix(y, y_pred)

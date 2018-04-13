@@ -47,6 +47,7 @@ class BinCategoryExtractor (MyClassifier):
         self.MODEL_PATH = 'model/ann/ANN.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
         self.COUNT_VECTORIZER_VOCAB_PATH = 'data/count_vectorizer_vocabulary.pkl'
+        self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = 'data/count_vectorizer_vocabulary_cluster.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
         # for key, value in kwargs.items():
@@ -54,6 +55,10 @@ class BinCategoryExtractor (MyClassifier):
         count_vectorizer_vocab = None
         with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
             count_vectorizer_vocab = dill.load(fi)
+        
+        count_vectorizer_vocab_cluster = None
+        with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
+            count_vectorizer_vocab_cluster = dill.load(fi)
 
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
@@ -61,9 +66,13 @@ class BinCategoryExtractor (MyClassifier):
                 'features', FeatureUnion(
                     transformer_list= [
                         ('cnn_probability', ItemSelector(key='cnn_probability')),
-                        ('bag_of_ngram', Pipeline([
+                        ('bag_of_bigram', Pipeline([
                             ('selector', ItemSelector(key='review')),
                             ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab)),
+                        ])),
+                        ('bag_of_bigram_word_cluster', Pipeline([
+                            ('selector', ItemSelector(key='word_cluster')),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab_cluster)),
                         ]))
                     ]
                 )
@@ -86,14 +95,15 @@ class BinCategoryExtractor (MyClassifier):
     ):
         n_cnn_proba = 4
         n_bag_of_bigrams = 8016
+        n_bag_of_bigrams_cluster = 3755
 
-        total_inputs = n_bag_of_bigrams + n_cnn_proba
+        total_inputs = n_bag_of_bigrams + n_cnn_proba + n_bag_of_bigrams_cluster
 
         INPUT_DIM = kwargs.get('input_dim', total_inputs)
 
         # Define Architecture
         layer_input = Input(shape=(INPUT_DIM,))
-        layer_dense_1 = Dense(128, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_input)
+        layer_dense_1 = Dense(64, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_input)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_dense_1)
         layer_softmax = Dense(1, activation=activation)(layer_dropout_1)
         

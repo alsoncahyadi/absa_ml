@@ -5,7 +5,7 @@ import numpy as np
 import dill
 
 
-def get_tokenizer():
+def get_tokenizer(tokenizer_path='../we/tokenizer.pkl'):
     """
         Load Tokenizer
     """
@@ -13,12 +13,12 @@ def get_tokenizer():
     from keras.preprocessing.text import Tokenizer
     tokenizer = Tokenizer()
 
-    with open('../we/tokenizer.pkl', 'rb') as fi:
+    with open(tokenizer_path, 'rb') as fi:
         tokenizer = dill.load(fi)
     return tokenizer
 
-def get_ce_dataset():
-    tokenizer = get_tokenizer()
+def get_ce_dataset(tokenizer_path='../we/tokenizer.pkl'):
+    tokenizer = get_tokenizer(tokenizer_path)
     
     """
         Construct X and y
@@ -51,8 +51,8 @@ def get_ce_dataset():
 
     return X, y, X_test, y_test
 
-def get_spc_dataset(category):
-    tokenizer = get_tokenizer()
+def get_spc_dataset(category, tokenizer_path='../we/tokenizer.pkl'):
+    tokenizer = get_tokenizer(tokenizer_path)
 
     """
         Construct X and y
@@ -85,7 +85,7 @@ def get_spc_dataset(category):
 
     return X, y, X_test, y_test
 
-def get_ote_dataset():
+def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     def read_data_from_file(path):
         data = {
             'all' : [],
@@ -134,7 +134,7 @@ def get_ote_dataset():
     print("mean:", np.mean(sentence_lengths))
     print("mode:", stats.mode(sentence_lengths))
 
-    tokenizer = get_tokenizer()
+    tokenizer = get_tokenizer(tokenizer_path)
 
     """
         Create X and Y

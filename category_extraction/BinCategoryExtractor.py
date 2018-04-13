@@ -175,14 +175,15 @@ def binary():
         
     }
 
-    bi._fit_gridsearch_cv(X, y, param_grid)
+    bi._fit_gridsearch_cv(X[:10], y[:10], param_grid)
+    # bi._fit_gridsearch_cv(X, y, param_grid)
     bi.score(X_test, y_test)
 
     #save the best OneVsRest model (ovr = OneVsRest)
     ann_sklearn_model_index = len(bi.pipeline.steps) - 1
-    print(bi.pipeline.steps[ann_sklearn_model_index])
+    print(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_)
     with open('model/ann/best_ovr.model', 'wb') as fo:
-        dill.dump(bi.pipeline.steps[ann_sklearn_model_index][1], fo)
+        dill.dump(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_, fo)
 
 if __name__ == "__main__":
     binary()

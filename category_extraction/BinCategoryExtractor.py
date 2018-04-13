@@ -147,6 +147,7 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
+
     def load_estimators(self, n_estimators = 4, load_path='model/ann/best_{}.model'):
         estimators = []
         for i in range(n_estimators):
@@ -154,7 +155,8 @@ class BinCategoryExtractor (MyClassifier):
             new_estimator = KerasClassifier(build_fn=self._create_ann_model, verbose=0, epochs=N_EPOCHS)
             new_estimator.model = ann_model
             estimators.append(new_estimator)
-        self.pipeline.steps[ann_sklearn_model_index][1].estimators_ = new_estimators
+        ann_sklearn_model_index = len(self.pipeline.steps) - 1
+        self.pipeline.steps[ann_sklearn_model_index][1].estimators_ = estimators
         return estimators
 
     def save_estimators(self, save_path='model/ann/best_{}.model'):

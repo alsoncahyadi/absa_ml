@@ -115,7 +115,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_test = np.array(y_test)
         y_pred = np.array(y_pred)
 
-        print(confusion_matrix(y_test, y_pred))
+        print(confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1)))
 
         is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
         if is_show_confusion_matrix:

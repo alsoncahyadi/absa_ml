@@ -35,6 +35,8 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.neural_network import MLPClassifier
 
+N_EPOCHS = 50
+
 
 class BinCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -66,7 +68,7 @@ class BinCategoryExtractor (MyClassifier):
                 )
             ),
             # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=1), thresh=0.8))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=N_EPOCHS), thresh=0.8))
         ])
 
     def _create_ann_model(
@@ -145,6 +147,21 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
+    def load_estimators(self, n_estimators = 4, load_path='model/ann/best_{}.model'):
+        estimators = []
+        for i in range(n_estimators):
+            ann_model = load_model(load_path.format(i))
+            new_estimator = KerasClassifier(build_fn=self._create_ann_model, verbose=0, epochs=N_EPOCHS)
+            new_estimator.model = ann_model
+            estimators.append(new_estimator)
+        self.pipeline.steps[ann_sklearn_model_index][1].estimators_ = new_estimators
+        return estimators
+
+    def save_estimators(self, save_path='model/ann/best_{}.model'):
+        ann_sklearn_model_index = len(bi.pipeline.steps) - 1
+        estimators = bi.pipeline.steps[ann_sklearn_model_index][1].estimators_
+        for i, estimator in enumerate(estimators):
+            estimator.model.save(save_path.format(i))
 
 
 def make_new_count_vectorizer_vocab():
@@ -158,19 +175,6 @@ def make_new_count_vectorizer_vocab():
     vocab = cv.vocabulary_
     with open('data/count_vectorizer_vocabulary.pkl', 'wb') as fo:
         dill.dump(vocab, fo)
-
-def save_estimators(estimators, save_path='model/ann/best_{}.model'):
-    for i, estimator in enumerate(estimators):
-        estimator.model.save(save_path.format(i))
-
-def load_estimators(build_fn, n_estimators = 4, load_path='model/ann/best_{}.model'):
-    estimators = []
-    for i in range(n_estimators):
-        ann_model = load_model(load_path.format(i))
-        new_estimator = KerasClassifier(build_fn=build_fn, verbose=0, epochs=25)
-        new_estimator.model = ann_model
-        estimators.append(new_estimator)
-    return estimators
 
 def binary():
     """
@@ -187,19 +191,14 @@ def binary():
     param_grid = {
         
     }
-
     bi._fit_gridsearch_cv(X, y, param_grid)
     # bi._fit_gridsearch_cv(X, y, param_grid)
     bi.score(X_test, y_test)
-
     #save the best OneVsRest model (ovr = OneVsRest)
-    ann_sklearn_model_index = len(bi.pipeline.steps) - 1
-    print(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_)
-    save_estimators(bi.pipeline.steps[ann_sklearn_model_index][1].estimators_)
+    bi.save_estimators()
     print("DONE SAVING")
-    new_estimators = load_estimators(bi._create_ann_model)
+    new_estimators = bi.load_estimators()
     print("DONE LOADING")
-    bi.pipeline.steps[ann_sklearn_model_index][1].estimators_ = new_estimators
     bi.score(X_test, y_test)
 
 if __name__ == "__main__":

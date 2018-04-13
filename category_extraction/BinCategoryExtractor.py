@@ -145,11 +145,6 @@ class BinCategoryExtractor (MyClassifier):
         if IS_REFIT:
             del self.pipeline
             self.pipeline = grid.best_estimator_
-            #save the best OneVsRest model (ovr = OneVsRest)
-            ann_sklearn_model_index = len(self.pipeline.steps) - 1
-            print(self.pipeline.steps[ann_sklearn_model_index])
-            with open('model/ann/best_ovr.model', 'wb') as fo:
-                dill.dump(grid.best_estimator_.steps[ann_sklearn_model_index][1], fo)
 
 
 def make_new_count_vectorizer_vocab():
@@ -182,6 +177,12 @@ def binary():
 
     bi._fit_gridsearch_cv(X, y, param_grid)
     bi.score(X_test, y_test)
+
+    #save the best OneVsRest model (ovr = OneVsRest)
+    ann_sklearn_model_index = len(bi.pipeline.steps) - 1
+    print(bi.pipeline.steps[ann_sklearn_model_index])
+    with open('model/ann/best_ovr.model', 'wb') as fo:
+        dill.dump(bi.pipeline.steps[ann_sklearn_model_index][1], fo)
 
 if __name__ == "__main__":
     binary()

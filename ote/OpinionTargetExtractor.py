@@ -1,3 +1,17 @@
+param_grid = {
+        'epochs': [25, 50],
+        'batch_size': [64],
+        'recurrent_dropout': [0.6, 0.2],
+        'dropout_rate': [0.6],
+        'dense_activation': ['tanh', 'relu'],
+        'dense_l2_regularizer': [0.01],
+        'activation': ['sigmoid'],
+        'optimizer': ["nadam"],
+        'loss_function': ['binary_crossentropy'],
+        'gru_units': [256, 16],
+        'units': [256, 16]
+    }
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -144,6 +158,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
             print("\n{} ({})".format(mean, stdev))
         params = grid_result.best_params_
         print("with:", params)
+        with open('output/gridsearch_lstm.pkl', 'wb') as fo:
+            dill.dump(grid_result.cv_results_, fo)
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best.model')
 
@@ -157,6 +173,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         threshold = 0.7,
+        gru_units = 256,
+        units = 256,
+        
 
         **kwargs
     ):
@@ -165,10 +184,10 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self.layer_embedding(layer_input)
-        # layer_blstm = Bidirectional(LSTM(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        layer_blstm = Bidirectional(GRU(256, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        # layer_blstm = Bidirectional(GRU(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(0.5, seed=7))(layer_blstm)
-        layer_dense_1 = TimeDistributed(Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
+        layer_dense_1 = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dense_1)
         rnn_model = Model(inputs=layer_input, outputs=layer_softmax)
 
@@ -288,17 +307,7 @@ def main():
     # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
     #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
     #     ,sample_weight=sample_weight)
-    param_grid = {
-        'epochs': [25, 50],
-        'batch_size': [64],
-        'recurrent_dropout': [0.5, 0.2],
-        'dropout_rate': [0.6],
-        'dense_activation': ['tanh', 'relu'],
-        'dense_l2_regularizer': [0.01],
-        'activation': ['sigmoid'],
-        'optimizer': ["nadam"],
-        'loss_function': ['binary_crossentropy']
-    }
+    
     ote._fit_gridsearch_cv(X, y, param_grid)
 
     """

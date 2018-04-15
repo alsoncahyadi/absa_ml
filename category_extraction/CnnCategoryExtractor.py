@@ -1,8 +1,8 @@
 param_grid = {
-        'epochs': [25, 50],
+        'epochs': [1],
         'batch_size': [64],
         'filters': [320, 64],
-        'kernel_size': [5],
+        'kernel_size': [5, 3],
         'conv_activation': ['relu', 'tanh'],
         'conv_l2_regularizer': [0.01, 0.001],
         'dropout_rate': [0.6],
@@ -13,6 +13,24 @@ param_grid = {
         'loss_function': ['binary_crossentropy'],
         'units': [256, 16]
     }
+
+"""
+param_grid = {
+        'epochs': [1],
+        'batch_size': [64],
+        'filters': [64],
+        'kernel_size': [3],
+        'conv_activation': ['relu'],
+        'conv_l2_regularizer': [0.01],
+        'dropout_rate': [0.6],
+        'dense_activation': ['relu'],
+        'dense_l2_regularizer': [0.01],
+        'activation': ['sigmoid'],
+        'optimizer': ['nadam'],
+        'loss_function': ['binary_crossentropy'],
+        'units': [256]
+    }
+"""
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -128,6 +146,8 @@ class CNNCategoryExtractor (MyClassifier):
             print("\n{} ({})".format(mean, stdev))
         params = grid_result.best_params_
         print("with:", params)
+        with open('output/gridsearch_cnn.pkl', 'wb') as fo:
+            dill.dump(grid_result.cv_results_, fo)
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best.model')
 
@@ -144,7 +164,7 @@ class CNNCategoryExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        units = 256
+        units = 256,
 
         **kwargs
     ):

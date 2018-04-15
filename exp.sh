@@ -1,3 +1,8 @@
-python category_extraction/CnnCategoryExtractor.py > category_extraction/output/output_cnn.txt
-python ote/OpinionTargetExtractor.py > ote/output/output_lstm.txt
-python sentiment_polarity/SentimentPolarityClassifier.py > sentiment_polarity/output/output_cnn.txt
+cd category_extraction
+python CnnCategoryExtractor.py > output/output_cnn.txt
+
+cd ../ote
+python OpinionTargetExtractor.py > output/output_lstm.txt
+
+cd ../sentiment_polarity
+python SentimentPolarityClassifier.py > output/output_cnn.txt

@@ -1,5 +1,5 @@
 param_grid = {
-        'epochs': [1],
+        'epochs': [25, 50],
         'batch_size': [64],
         'filters': [320, 64],
         'kernel_size': [5, 3],
@@ -11,7 +11,7 @@ param_grid = {
         'activation': ['sigmoid'],
         'optimizer': ['nadam'],
         'loss_function': ['binary_crossentropy'],
-        'units': [256, 16]
+        'units': [256, 64, 16]
     }
 
 """

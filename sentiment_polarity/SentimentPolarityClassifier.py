@@ -1,3 +1,20 @@
+# grid search hypers
+param_grid = {
+    'epochs': [25, 50],
+    'batch_size': [64],
+    'filters': [320, 64],
+    'kernel_size': [5, 3],
+    'conv_activation': ['relu', 'tanh'],
+    'conv_l2_regularizer': [0.01, 0.001],
+    'dropout_rate': [0.6],
+    'dense_activation': ['relu', 'tanh'],
+    'dense_l2_regularizer': [0.01, 0.001],
+    'activation': ['sigmoid'],
+    'optimizer': ['nadam'],
+    'loss_function': ['binary_crossentropy'],
+    'units': [256, 64, 16]
+}
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -104,6 +121,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             print("\n{} ({})".format(mean, stdev))
         params = grid_result.best_params_
         print("with:", params)
+        with open('output/gridsearch_cnn_{}.pkl'.format(category), 'wb') as fo:
+            dill.dump(grid_result.cv_results_, fo)
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best_{}.model'.format(category))
 
@@ -120,6 +139,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         activation = 'softmax',
         optimizer = "nadam",
         loss_function = 'categorical_crossentropy',
+        units = 256,
 
         **kwargs
     ):
@@ -135,7 +155,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
-        layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
         layer_softmax = Dense(n_class, activation=activation)(layer_dense_1)
         
         # Create Model
@@ -222,21 +242,7 @@ def main():
         """
             Fit the model
         """
-        # grid search hypers
-        param_grid = {
-            'epochs': [50],
-            'batch_size': [64],
-            'filters': [320],
-            'kernel_size': [5],
-            'conv_activation': ['relu', 'tanh'],
-            'conv_l2_regularizer': [0.01, 0.001],
-            'dropout_rate': [0.6],
-            'dense_activation': ['relu', 'tanh'],
-            'dense_l2_regularizer': [0.01],
-            'activation': ['softmax'],
-            'optimizer': ['nadam'],
-            'loss_function': ['categorical_crossentropy']
-        }
+        
 
         spc._fit_gridsearch_cv(X, y, param_grid, category)
         

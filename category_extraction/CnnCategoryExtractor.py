@@ -1,3 +1,19 @@
+param_grid = {
+        'epochs': [25, 50],
+        'batch_size': [64],
+        'filters': [320, 64],
+        'kernel_size': [5],
+        'conv_activation': ['relu', 'tanh'],
+        'conv_l2_regularizer': [0.01, 0.001],
+        'dropout_rate': [0.6],
+        'dense_activation': ['relu', 'tanh'],
+        'dense_l2_regularizer': [0.01, 0.001],
+        'activation': ['sigmoid'],
+        'optimizer': ['nadam'],
+        'loss_function': ['binary_crossentropy'],
+        'units': [256, 16]
+    }
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -128,6 +144,7 @@ class CNNCategoryExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
+        units = 256
 
         **kwargs
     ):
@@ -141,7 +158,7 @@ class CNNCategoryExtractor (MyClassifier):
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
-        layer_dense_1 = Dense(256, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
+        layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
         layer_softmax = Dense(4, activation=activation)(layer_dense_1)
         
         # Create Model
@@ -221,20 +238,7 @@ def cnn():
     """
         Fit the model
     """
-    param_grid = {
-        'epochs': [50],
-        'batch_size': [64],
-        'filters': [320],
-        'kernel_size': [5],
-        'conv_activation': ['relu', 'tanh'],
-        'conv_l2_regularizer': [0.01],
-        'dropout_rate': [0.6],
-        'dense_activation': ['relu', 'tanh'],
-        'dense_l2_regularizer': [0.01],
-        'activation': ['sigmoid'],
-        'optimizer': ['nadam'],
-        'loss_function': ['binary_crossentropy']
-    }
+    
     ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
 
     """

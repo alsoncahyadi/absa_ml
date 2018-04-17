@@ -1,4 +1,5 @@
 # grid search hypers
+
 param_grid = {
     'epochs': [25, 50],
     'batch_size': [64],
@@ -14,6 +15,24 @@ param_grid = {
     'loss_function': ['binary_crossentropy'],
     'units': [256, 64, 16]
 }
+
+"""
+param_grid = {
+    'epochs': [1],
+    'batch_size': [64],
+    'filters': [1],
+    'kernel_size': [3],
+    'conv_activation': ['relu'],
+    'conv_l2_regularizer': [0.],
+    'dropout_rate': [0.9],
+    'dense_activation': ['relu'],
+    'dense_l2_regularizer': [0.],
+    'activation': ['sigmoid'],
+    'optimizer': ['nadam'],
+    'loss_function': ['binary_crossentropy'],
+    'units': [4]
+}
+"""
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -145,7 +164,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     ):
         K.clear_session()
         MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        n_class = kwargs.get('n_class', 2)
+        n_class = kwargs.get('n_class', 1)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))

@@ -90,7 +90,13 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     
     def predict(self, X, **kwargs):
         y_pred = self.cnn_model.predict(X)
-        return y_pred.argmax(axis=-1)
+        if len(y_pred.shape) > 2:
+            return y_pred.argmax(axis=-1)
+        else:
+            THRESHOLD = kwargs.get('threshold', 0.75)
+            y_pred[y_pred >= THRESHOLD] = 1.
+            y_pred[y_pred < THRESHOLD] = 0.
+            return y_pred
     
     def score(self, X, y, **kwargs):
         # del self.cnn_model
@@ -263,7 +269,7 @@ def main():
         """
         
 
-        spc._fit_gridsearch_cv(X, y, param_grid, category)
+        # spc._fit_gridsearch_cv(X, y, param_grid, category)
         
         """
             Load best estimator and score it

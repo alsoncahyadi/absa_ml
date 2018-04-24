@@ -1,3 +1,4 @@
+"""
 param_grid = {
         'epochs': [25, 50],
         'batch_size': [64],
@@ -11,35 +12,61 @@ param_grid = {
         'gru_units': [256, 16],
         'units': [256, 16]
     }
+"""
 
+param_grid = {
+    'epochs': [1],
+    'batch_size': [64],
+    'recurrent_dropout': [0.9],
+    'dropout_rate': [0.9],
+    'dense_activation': ['relu'],
+    'dense_l2_regularizer': [0.],
+    'activation': ['sigmoid'],
+    'optimizer': ["nadam"],
+    'loss_function': ['binary_crossentropy'],
+    'gru_units': [3],
+    'units': [3],
+}
+
+import itertools
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-
 import sys
+
 sys.path.insert(0, '..')
 
-import utils
-
-from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
-from sklearn.base import BaseEstimator, ClassifierMixin
-
-from keras import backend as K
-from keras.models import Sequential, Input, Model, load_model
-from keras.layers.convolutional import Conv1D
-from keras.layers import Dense, LSTM, Dropout, Lambda, Bidirectional, TimeDistributed, RepeatVector, RNN, GRU, CuDNNGRU, CuDNNLSTM
-from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence, text
-from keras import regularizers, optimizers
-from keras.callbacks import ModelCheckpoint
 
 import dill
-import numpy as np
-
 import matplotlib.pyplot as plt
-import itertools
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
+import numpy as np
+from keras import backend as K
+from keras import optimizers, regularizers
+from keras.callbacks import ModelCheckpoint
+from keras.layers import (GRU, LSTM, RNN, Bidirectional, CuDNNGRU, CuDNNLSTM,
+                          Dense, Dropout, Lambda, RepeatVector,
+                          TimeDistributed)
+from keras.layers.convolutional import Conv1D
+from keras.layers.embeddings import Embedding
+from keras.layers.pooling import (AveragePooling1D, GlobalMaxPooling1D,
+                                  MaxPooling1D)
+from keras.models import Input, Model, Sequential, load_model
+from keras.preprocessing import sequence, text
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
+                             precision_score, recall_score)
 from sklearn.model_selection import train_test_split
+
+import utils
+from MyClassifier import (KerasClassifier, MultilabelKerasClassifier,
+                          MyClassifier)
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
+sys.path.insert(0, '..')
+
+
+
+
+
 
 class RNNOpinionTargetExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -75,9 +102,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
             rnn_model = self.rnn_model
         else:
             rnn_model = self._create_model()
-        rnn_model.load_weights(self.WEIGHTS_PATH)
-        scores = rnn_model.evaluate(X, y, verbose=0)
-        print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
         y_test = y
 
         def max_index(cat):
@@ -115,27 +139,31 @@ class RNNOpinionTargetExtractor (MyClassifier):
         end = get_sentence_end_index(X)
         y_pred = get_decreased_dimension(y_pred, end)
         y_test = get_decreased_dimension(y_test, end)
-        print(y_test.shape, y_pred.shape)
 
         from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
         AVERAGE = None
-        print("F1-Score  : {}".format(f1_score(y_test, y_pred, average=AVERAGE)))
-        print("Precision : {}".format(precision_score(y_test, y_pred, average=AVERAGE)))
-        print("Recall    : {}".format(recall_score(y_test, y_pred, average=AVERAGE)))
+        if kwargs.get('verbose', 0) > 0:
+            print("F1-Score  : {}".format(f1_score(y_test, y_pred, average=AVERAGE)))
+            print("Precision : {}".format(precision_score(y_test, y_pred, average=AVERAGE)))
+            print("Recall    : {}".format(recall_score(y_test, y_pred, average=AVERAGE)))
+            f1_score_macro = f1_score(y_test, y_pred, average='macro')
+            print("F1-Score-Macro:", f1_score_macro)
 
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
-        print("F1-Score-Macro:", f1_score_macro)
+        precision_macro = precision_score(y_test, y_pred, average='macro')
+        recall_macro = recall_score(y_test, y_pred, average='macro')
 
         y_test = np.array(y_test)
         y_pred = np.array(y_pred)
 
-        print(confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1)))
+        if kwargs.get('verbose', 0) > 0:
+            print(confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1)))
 
         is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
         if is_show_confusion_matrix:
             self.plot_all_confusion_matrix(y_test, y_pred)
         
-        return f1_score_macro
+        return f1_score_macro, precision_macro, recall_macro
 
     def _fit_train_validate_split(self, X, y):
         pass
@@ -161,7 +189,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         with open('output/gridsearch_lstm.pkl', 'wb') as fo:
             dill.dump(grid_result.cv_results_, fo)
         if IS_REFIT:
-            grid.best_estimator_.model.save('model/cnn/best.model')
+            grid.best_estimator_.model.save('model/rnn/best.model')
 
     def _create_model(
         self,
@@ -265,6 +293,12 @@ class CategoryFeatureExtractor (BaseEstimator):
     def transform(self):
         raise NotImplementedError
 
+def get_params_from_grid(param_grid):
+    import itertools as it
+    all_names = sorted(param_grid)
+    combinations = it.product(*(param_grid[Name] for Name in all_names))
+    return combinations
+
 def get_sentence_end_index(X):
     end = []
     for datum in X:
@@ -282,6 +316,8 @@ def main():
     """
     X, y, X_test, y_test = utils.get_ote_dataset()
     X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
+    new_y = y.reshape(-1, y.shape[-1])
+    y = new_y
     
     """
         Calculate Sample Weight

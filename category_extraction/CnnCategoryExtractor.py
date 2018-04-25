@@ -309,4 +309,7 @@ def cnn():
     ce.score(X_test, y_test, verbose=1)
 
 if __name__ == "__main__":
+    import time
+    start_time = time.time()
     cnn()
+    print("DONE IN {} seconds".format(time.time() - start_time))

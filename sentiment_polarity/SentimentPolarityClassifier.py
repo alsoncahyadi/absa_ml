@@ -10,9 +10,9 @@ param_grid = {
     'dropout_rate': [0.6],
     'dense_activation': ['relu', 'tanh'],
     'dense_l2_regularizer': [0.01, 0.001],
-    'activation': ['sigmoid'],
+    'activation': ['softmax'],
     'optimizer': ['nadam'],
-    'loss_function': ['binary_crossentropy'],
+    'loss_function': ['categorical_crossentropy'],
     'units': [256, 64, 16]
 }
 
@@ -97,30 +97,6 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             y_pred[y_pred >= THRESHOLD] = 1.
             y_pred[y_pred < THRESHOLD] = 0.
             return y_pred
-    
-    def score(self, X, y, **kwargs):
-        # del self.cnn_model
-        # self.cnn_model = load_model(self.MODEL_PATH)
-        # self.cnn_model.load_weights(self.WEIGHTS_PATH)
-
-        y_pred = self.predict(X)
-
-        AVERAGE = None
-        print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
-        print("Precision : {}".format(precision_score(y, y_pred, average=AVERAGE)))
-        print("Recall    : {}".format(recall_score(y, y_pred, average=AVERAGE)))
-        print("Accuracy  : {}".format(accuracy_score(y, y_pred)))
-
-        f1_score_macro = f1_score(y, y_pred, average='macro')
-        print("F1-Score-Macro:", f1_score_macro)
-
-        print(confusion_matrix(y, y_pred))
-    
-        is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
-        if is_show_confusion_matrix:
-            self.plot_all_confusion_matrix(y, y_pred)
-        
-        return f1_score_macro
 
     def _fit_train_validate_split(self, X, y):
         pass

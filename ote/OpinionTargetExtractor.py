@@ -1,18 +1,18 @@
-"""
+
 param_grid = {
-        'epochs': [25, 50],
-        'batch_size': [64],
-        'recurrent_dropout': [0.6, 0.2],
-        'dropout_rate': [0.6],
-        'dense_activation': ['tanh', 'relu'],
-        'dense_l2_regularizer': [0.01],
-        'activation': ['sigmoid'],
-        'optimizer': ["nadam"],
-        'loss_function': ['binary_crossentropy'],
-        'gru_units': [256, 16],
-        'units': [256, 16]
-    }
-"""
+    'epochs': [25, 50],
+    'batch_size': [64],
+    'recurrent_dropout': [0.6, 0.2],
+    'dropout_rate': [0.6],
+    'dense_activation': ['tanh', 'relu'],
+    'dense_l2_regularizer': [0.01],
+    'activation': ['sigmoid'],
+    'optimizer': ["nadam"],
+    'loss_function': ['binary_crossentropy'],
+    'gru_units': [256, 16],
+    'units': [256, 16]
+}
+
 
 param_grid = {
     'epochs': [1],

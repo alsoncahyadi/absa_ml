@@ -41,7 +41,7 @@ sys.path.insert(0, '..')
 import utils
 from ItemSelector import ItemSelector
 
-from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
+from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier, MyModel
 from MyOneVsRestClassifier import MyOneVsRestClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
@@ -74,7 +74,7 @@ class CNNCategoryExtractor (MyClassifier):
         self.MODEL_PATH = 'model/cnn/CNN.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
-        self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
+        self.target_names = ['food', 'service', 'price', 'place']
         self.cnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -89,39 +89,12 @@ class CNNCategoryExtractor (MyClassifier):
                 X, y,
                 **kwargs
             )
-            self.cnn_model.load_weights(self.WEIGHTS_PATH)
     
-    def predict(self, X, **kwargs):
+    def predict(self, X, threshold = 0.75):
         y_pred = self.cnn_model.predict(X)
-        THRESHOLD = kwargs.get('threshold', 0.75)
-        y_pred[y_pred >= THRESHOLD] = 1.
-        y_pred[y_pred < THRESHOLD] = 0.
+        y_pred[y_pred >= threshold] = 1.
+        y_pred[y_pred < threshold] = 0.
         return y_pred
-    
-    def score(self, X, y, **kwargs):
-        # del self.cnn_model
-        # self.cnn_model = load_model(self.MODEL_PATH)
-        # self.cnn_model.load_weights(self.WEIGHTS_PATH)
-        # Final evaluation of the model
-        scores = self.cnn_model.evaluate(X, y, verbose=0)
-        print("Test Set Accuracy: %.2f%%" % (scores[1]*100))
-
-        y_pred = self.predict(X)
-
-        AVERAGE = None
-        print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
-        print("Precision : {}".format(precision_score(y, y_pred, average=AVERAGE)))
-        print("Recall    : {}".format(recall_score(y, y_pred, average=AVERAGE)))
-        print("Accuracy  : {}".format(accuracy_score(y, y_pred)))
-
-        f1_score_macro = f1_score(y, y_pred, average='macro')
-        print("F1-Score-Macro:", f1_score_macro)
-
-        is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
-        if is_show_confusion_matrix:
-            self.plot_all_confusion_matrix(y, y_pred)
-        
-        return f1_score_macro
 
     def _fit_train_validate_split(self, X, y):
         pass
@@ -151,6 +124,70 @@ class CNNCategoryExtractor (MyClassifier):
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best.model')
 
+    def _fit_cv(self, X, y, k=5, verbose=0, **kwargs):
+        X_folds = np.array_split(X, k)
+        y_folds = np.array_split(y, k)
+
+        precision_scores = [[], [], [], []]
+        recall_scores = [[], [], [], []]
+        f1_scores = [[], [], [], []]
+        precision_means = []
+        recall_means = []
+        f1_means = []
+
+        for i in range(k):
+            X_train = list(X_folds)
+            X_test  = X_train.pop(i)
+            X_train = np.concatenate(X_train)
+
+            y_train = list(y_folds)
+            y_test  = y_train.pop(i)
+            y_train = np.concatenate(y_train)
+
+            self.fit(X_train, y_train
+                , validation_split = 0.2
+                # , validation_data = (X_test, y_test) 
+            )
+            scores = self.score(X_test, y_test, verbose=0)
+
+            # print classification_report(y_test, predicted, target_names=self.target_names)
+            for j in range(4):
+                precision_scores[j].append(scores['precision_scores'][j])
+                recall_scores[j].append(scores['recall_scores'][j])
+                f1_scores[j].append(scores['f1_scores'][j])
+
+        for i in range(4):
+            precision_mean = np.array(precision_scores[i]).mean()
+            recall_mean = np.array(recall_scores[i]).mean()
+            f1_mean = np.array(f1_scores[i]).mean()
+
+            precision_means.append(precision_mean)
+            recall_means.append(recall_mean)
+            f1_means.append(f1_mean)
+
+            if verbose > 0:
+                print("Category: ", self.target_names[i])
+                print("\tPrecision: ", precision_mean)
+                print("\tRecall: ", recall_mean)
+                print("\tF1-score: ", f1_mean)
+
+        if verbose > 0:
+            print()
+
+        scores = {
+            'precision_means': precision_means,
+            'recall_means': recall_means,
+            'f1_means': f1_means,
+            'precision_macro': np.array(precision_means).mean(),
+            'recall_macro': np.array(recall_means).mean(),
+            'f1_macro': np.array(f1_means).mean(),
+            'precision_scores': precision_scores,
+            'recall_scores': recall_scores,
+            'f1_scores': f1_scores,
+        }
+
+        return scores
+
     def _create_model(
         self,
 
@@ -173,7 +210,7 @@ class CNNCategoryExtractor (MyClassifier):
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self.layer_embedding(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
@@ -182,7 +219,7 @@ class CNNCategoryExtractor (MyClassifier):
         layer_softmax = Dense(4, activation=activation)(layer_dense_1)
         
         # Create Model
-        cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
+        cnn_model = MyModel(inputs=layer_input, outputs=layer_softmax)
         
         # Create Optimizer
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
@@ -245,7 +282,7 @@ def cnn():
     """
     X, y, X_test, y_test = utils.get_ce_dataset()
 
-    # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
+    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
 
     """
         Make the model
@@ -258,8 +295,9 @@ def cnn():
     """
         Fit the model
     """
-    
+    # ce._fit_cv(X, y)
     ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
+    # ce.fit(X, y, verbose=1, validation_data=(X_validate, y_validate))
 
     """
         Load best estimator and score it
@@ -267,7 +305,7 @@ def cnn():
     best_model = load_model('model/cnn/best.model')
     del ce.cnn_model
     ce.cnn_model = best_model
-    ce.score(X_test, y_test)
+    ce.score(X_test, y_test, verbose=1)
 
 if __name__ == "__main__":
     cnn()

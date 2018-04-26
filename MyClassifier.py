@@ -16,7 +16,7 @@ class MyModel (Model):
 
         best_weights_path = kwargs.get('best_weights_path', '/tmp/weights.hdf5')
         
-        checkpointer = ModelCheckpoint(filepath=best_weights_path, verbose=1, save_best_only=True, verbose=0)
+        checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0)
 
         super(MyModel, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer],
             validation_split=validation_split, validation_data=validation_data, shuffle=shuffle, class_weight=class_weight,

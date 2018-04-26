@@ -15,6 +15,23 @@ param_grid = {
     'units': [256, 64, 16]
 }
 
+param_grid = {
+    'epochs': [25],
+    'batch_size': [64],
+    'validation_split': [0.15],
+    'filters': [320, 64],
+    'kernel_size': [5],
+    'conv_activation': ['relu'],
+    'conv_l2_regularizer': [0.001],
+    'dropout_rate': [0.6, 0.8, 0.9],
+    'dense_activation': ['tanh'],
+    'dense_l2_regularizer': [0.001],
+    'activation': ['sigmoid'],
+    'optimizer': ['nadam'],
+    'loss_function': ['binary_crossentropy'],
+    'units': [256, 64]
+}
+
 """
 param_grid = {
         'epochs': [1],
@@ -68,7 +85,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import FeatureUnion, Pipeline
 
 class CNNCategoryExtractor (MyClassifier):
-    def __init__(self, **kwargs):
+    def __init__(self, threshold = 0.75, **kwargs):
         super().__init__(**kwargs)
 
         self.WEIGHTS_PATH = 'model/cnn/weights/CNN.hdf5'
@@ -77,11 +94,38 @@ class CNNCategoryExtractor (MyClassifier):
        
         self.target_names = ['food', 'service', 'price', 'place']
         self.cnn_model = None
+        self.threshold = threshold
         for key, value in kwargs.items():
             setattr(self, key, value)
     
-    def fit(self, X, y, **kwargs):
-        self.cnn_model = self._create_model()
+    def fit(self, X, y,
+        
+        filters = 320,
+        kernel_size = 5,
+        conv_activation = 'tanh',
+        conv_l2_regularizer = 0.01,
+        dropout_rate = 0.6,
+        dense_activation = 'relu',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 256,
+        
+        **kwargs):
+        self.cnn_model = self._create_model(
+            filters,
+            kernel_size,
+            conv_activation,
+            conv_l2_regularizer,
+            dropout_rate,
+            dense_activation,
+            dense_l2_regularizer,
+            activation,
+            optimizer,
+            loss_function,
+            units,
+        )
         self.cnn_model.save(self.MODEL_PATH)
         # self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
@@ -91,7 +135,8 @@ class CNNCategoryExtractor (MyClassifier):
                 **kwargs
             )
     
-    def predict(self, X, threshold = 0.75):
+    def predict(self, X):
+        threshold = self.threshold
         y_pred = self.cnn_model.predict(X)
         y_pred[y_pred >= threshold] = 1.
         y_pred[y_pred < threshold] = 0.
@@ -298,16 +343,40 @@ def cnn():
     """
     # ce._fit_cv(X, y)
     ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
-    # ce.fit(X, y, verbose=1, validation_data=(X_validate, y_validate))
+    # ce.fit(X, y, verbose=1,
+    #     epochs = 25,
+    #     batch_size = 64,
+    #     # validation_split = 0.15,
+    #     filters = 320,
+    #     kernel_size = 5,
+    #     conv_activation = 'relu',
+    #     conv_l2_regularizer = 0.001,
+    #     dropout_rate = 0.8,
+    #     dense_activation = 'tanh',
+    #     dense_l2_regularizer = 0.001,
+    #     activation = 'sigmoid',
+    #     optimizer = "nadam",
+    #     loss_function = 'binary_crossentropy',
+    #     units = 256,
+    # )
 
     """
         Load best estimator and score it
     """
-    best_model = load_model('model/cnn/best.model')
-    del ce.cnn_model
-    ce.cnn_model = best_model
+    # best_model = load_model('model/cnn/best.model')
+    # del ce.cnn_model
+    # ce.cnn_model = best_model
     ce.score(X_test, y_test, verbose=1)
-
+    ce.threshold = 0.5
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.6
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.7
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.8
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.85
+    ce.score(X_test, y_test, verbose=1)
 if __name__ == "__main__":
     import time
     start_time = time.time()

@@ -218,4 +218,7 @@ def binary():
     bi.score(X_test, y_test)
 
 if __name__ == "__main__":
+    import time
+    start_time = time.time()
     binary()
+    print("DONE IN {} seconds".format(time.time() - start_time))

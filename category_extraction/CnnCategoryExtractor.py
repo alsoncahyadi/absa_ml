@@ -16,7 +16,7 @@ param_grid = {
 }
 
 param_grid = {
-    'epochs': [25],
+    'epochs': [50],
     'batch_size': [64],
     'validation_split': [0.15],
     'filters': [320, 64],

@@ -1,6 +1,7 @@
 params = [
     ('epochs', [25, 50]),
     ('batch_size', [64]),
+    ('validation_split', [0.15]),
     ('recurrent_dropout', [0.6, 0.2]),
     ('dropout_rate', [0.6]),
     ('dense_activation', ['tanh', 'relu']),
@@ -12,21 +13,23 @@ params = [
     ('units', [256, 16]),
 ]
 
-param_grid = dict(params)
+"""
+params = [
+    ('epochs', [1]),
+    ('batch_size', [64]),
+    ('recurrent_dropout', [0.9]),
+    ('dropout_rate', [0.9]),
+    ('dense_activation', ['relu']),
+    ('dense_l2_regularizer', [0.01]),
+    ('activation', ['sigmoid']),
+    ('optimizer', ["nadam"]),
+    ('loss_function', ['binary_crossentropy']),
+    ('gru_units', [1]),
+    ('units', [1]),
+]
+"""
 
-param_grid = {
-    'epochs': [1],
-    'batch_size': [64],
-    'recurrent_dropout': [0.9],
-    'dropout_rate': [0.9],
-    'dense_activation': ['relu'],
-    'dense_l2_regularizer': [0.],
-    'activation': ['sigmoid'],
-    'optimizer': ["nadam"],
-    'loss_function': ['binary_crossentropy'],
-    'gru_units': [3],
-    'units': [3],
-}
+param_grid = dict(params)
 
 import itertools
 import os
@@ -76,6 +79,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
+        self.target_names = ['O', 'B-ASPECT', 'I-ASPECT']
         self.rnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -101,13 +105,12 @@ class RNNOpinionTargetExtractor (MyClassifier):
                 X, y,
                 **kwargs
             )
-            self.rnn_model.load_weights(self.WEIGHTS_PATH)
     
     def predict(self, X, **kwargs):
         y_pred = self.rnn_model.predict(X)
         return y_pred
     
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, verbose=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
         else:
@@ -125,9 +128,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
         def get_decreased_dimension(y, end):
             tmp = []
-            for i, y_sents in enumerate(y):
-                for y_tokens in y_sents[:end[i]]:
-                    tmp.append(y_tokens)
+            for i, y_sent in enumerate(y):
+                for y_token in y_sent[:end[i]]:
+                    tmp.append(y_token)
             tmp = np.array(tmp)
             return tmp
 
@@ -146,7 +149,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=-1)
         # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
         
-        end = get_sentence_end_index(X)
+        end = utils.get_sentence_end_index(X)
         y_pred = get_decreased_dimension(y_pred, end)
         y_test = get_decreased_dimension(y_test, end)
 
@@ -160,20 +163,32 @@ class RNNOpinionTargetExtractor (MyClassifier):
             print("F1-Score-Macro:", f1_score_macro)
 
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
-        precision_macro = precision_score(y_test, y_pred, average='macro')
-        recall_macro = recall_score(y_test, y_pred, average='macro')
+        precision_score_macro = precision_score(y_test, y_pred, average='macro')
+        recall_score_macro = recall_score(y_test, y_pred, average='macro')
+        f1_scores = f1_score(y_test, y_pred, average=None)
+        precision_scores = precision_score(y_test, y_pred, average=None)
+        recall_scores = recall_score(y_test, y_pred, average=None)
+        accuracy = accuracy_score(y_test, y_pred)
 
-        y_test = np.array(y_test)
-        y_pred = np.array(y_pred)
+        scores = {
+            'f1_score_macro': f1_score_macro,
+            'precision_score_macro': precision_score_macro,
+            'recall_score_macro': recall_score_macro,
+            'f1_scores': f1_scores,
+            'precision_scores': precision_scores,
+            'recall_scores': recall_scores,
+            'accuracy': accuracy
+        }
 
-        if kwargs.get('verbose', 0) > 0:
-            print(confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1)))
-
-        is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
-        if is_show_confusion_matrix:
-            self.plot_all_confusion_matrix(y_test, y_pred)
-        
-        return f1_score_macro, precision_macro, recall_macro
+        if verbose == 1:
+            print("F1-Score  : {}".format(f1_scores))
+            print("Precision : {}".format(precision_scores))
+            print("Recall    : {}".format(recall_scores))
+            print("Accuracy  : {}".format(accuracy))
+            print("F1-Score-Macro:", f1_score_macro)
+            print("P -Score-Macro:", precision_score_macro)
+            print("R -Score-Macro:", recall_score_macro)
+        return scores
 
     def _fit_train_validate_split(self, X, y):
         pass
@@ -309,15 +324,6 @@ def get_params_from_grid(param_grid):
     combinations = it.product(*(param_grid[Name] for Name in all_names))
     return combinations
 
-def get_sentence_end_index(X):
-    end = []
-    for datum in X:
-        for i, token in enumerate(datum):
-            if token == -1:
-                end.append(i)
-                break
-    return np.array(end)
-
 def main():
     import numpy as np
 
@@ -341,7 +347,7 @@ def main():
 
     ote = RNNOpinionTargetExtractor()
 
-    n_epoch = 25
+    # n_epoch = 25
     # for i in range(n_epoch):
     #     print('Epoch #', i)
     #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,
@@ -354,15 +360,15 @@ def main():
     #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
     #     ,sample_weight=sample_weight)
     
-    ote._fit_new_gridsearch_cv(X, y, params)
+    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
 
     """
         Load best estimator and score it
     """
-    best_model = load_model('model/cnn/best.model')
-    del ote.rnn_model
-    ote.rnn_model = best_model
-    ote.score(X_test, y_test)
+    # best_model = load_model('model/cnn/best.model')
+    # del ote.rnn_model
+    # ote.rnn_model = best_model
+    # ote.score(X_test, y_test)
     
 if __name__ == "__main__":
     main()

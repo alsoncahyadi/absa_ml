@@ -219,3 +219,13 @@ def get_sample_weight(X_train, y_train):
                         sample_weight[i][j] = class_weight[k]
                         break
     return sample_weight
+
+def get_sentence_end_index(X):
+    end = []
+    for j, datum in enumerate(X):
+        end.append(datum.shape[0])
+        for i, token in enumerate(datum):
+            if token == -1:
+                end[j] = i
+                break
+    return np.array(end)

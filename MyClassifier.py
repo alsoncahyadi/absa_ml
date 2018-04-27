@@ -34,7 +34,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         with open('../we/tokenizer.pkl', 'rb') as fi:
             self.tokenizer = dill.load(fi)
         self.kwargs = kwargs
-        self.target_names = None
+        self.target_names = []
         self.VOCABULARY_SIZE = min(98806, kwargs.get('vocabulary_size', 15000))
         self.EMBEDDING_VECTOR_LENGTH = kwargs.get('embedding_vector_length', 500)
 
@@ -87,11 +87,11 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                                     trainable=kwargs.get('trainable', False))
         return layer_embedding
 
-    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0):
+    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, **kwargs):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
         with open('output/gridsearch_cv_result.csv', 'w') as fo:
-            fo.write('  '.join(score_metrics + list(param_names)) + '\n')
+            fo.write(",".join(score_metrics + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
         for i, current_param_value in enumerate(param_value_combinations):
@@ -102,20 +102,24 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             # Fit
             current_param = dict(zip(param_names, current_param_value))
-            current_cv_score = self._fit_cv(X, y, k=k, verbose=verbose, **current_param)
+            current_cv_score = self._fit_cv(X, y, k=k, verbose=verbose, **current_param, **kwargs)
+
+            # Write result
             with open('output/gridsearch_cv_result.csv', 'a') as fo:
-                current_param_value_str = " ".join([str(v) for v in current_param_value])
-                score_str = "   ".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
-                line = score_str + "    " + current_param_value_str + "\n"
+                current_param_value_str = ",".join([str(v) for v in current_param_value])
+                score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
+                line = score_str + "," + current_param_value_str + "\n"
                 fo.write(line)
 
-    def _fit_cv(self, X, y, k=5, verbose=0, **kwargs):
+    def _fit_cv(self, X, y, k=5, verbose=0, sample_weight=None, **kwargs):
+        if type(sample_weight).__name__ != "NoneType":
+            sample_weight_folds = np.array_split(sample_weight, k)
         X_folds = np.array_split(X, k)
         y_folds = np.array_split(y, k)
 
-        precision_scores = [[], [], [], []]
-        recall_scores = [[], [], [], []]
-        f1_scores = [[], [], [], []]
+        precision_scores = [[]] * len(self.target_names)
+        recall_scores = [[]] * len(self.target_names)
+        f1_scores = [[]] * len(self.target_names)
         precision_means = []
         recall_means = []
         f1_means = []
@@ -129,19 +133,26 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             y_test  = y_train.pop(i)
             y_train = np.concatenate(y_train)
 
+            sample_weight_train = None
+            if type(sample_weight).__name__ != "NoneType":
+                sample_weight_train = list(sample_weight_folds)
+                sample_weight_train.pop(i)
+                sample_weight_train = np.concatenate(sample_weight_train)
+
             self.fit(X_train, y_train
                 , verbose = 0
                 , **kwargs
+                , sample_weight = sample_weight_train
             )
             scores = self.score(X_test, y_test, verbose=0)
 
             # print classification_report(y_test, predicted, target_names=self.target_names)
-            for j in range(4):
+            for j in range(len(self.target_names)):
                 precision_scores[j].append(scores['precision_scores'][j])
                 recall_scores[j].append(scores['recall_scores'][j])
                 f1_scores[j].append(scores['f1_scores'][j])
 
-        for i in range(4):
+        for i in range(len(self.target_names)):
             precision_mean = np.array(precision_scores[i]).mean()
             recall_mean = np.array(recall_scores[i]).mean()
             f1_mean = np.array(f1_scores[i]).mean()

@@ -18,7 +18,7 @@ class Model (Model):
         
         checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0)
 
-        super(MyModel, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer],
+        super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer],
             validation_split=validation_split, validation_data=validation_data, shuffle=shuffle, class_weight=class_weight,
             sample_weight=sample_weight, initial_epoch=initial_epoch, steps_per_epoch=steps_per_epoch, validation_steps=validation_steps)
 

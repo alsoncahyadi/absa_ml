@@ -59,12 +59,12 @@ sys.path.insert(0, '..')
 import utils
 from ItemSelector import ItemSelector
 
-from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier, MyModel
+from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier, Model
 from MyOneVsRestClassifier import MyOneVsRestClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
 from keras import backend as K
-from keras.models import Sequential, Input, Model, load_model
+from keras.models import Sequential, Input, load_model
 from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
 from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
@@ -262,10 +262,11 @@ class CNNCategoryExtractor (MyClassifier):
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
         layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
+        layer_dropout_2 = Dropout(dropout_rate, seed=7)(layer_dense_1)
+        layer_softmax = Dense(4, activation=activation)(layer_dropout_2)
         
         # Create Model
-        cnn_model = MyModel(inputs=layer_input, outputs=layer_softmax)
+        cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
         
         # Create Optimizer
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)

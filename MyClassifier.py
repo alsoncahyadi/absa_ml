@@ -9,7 +9,7 @@ from keras.utils import to_categorical
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint
 
-class MyModel (Model):
+class Model (Model):
     def fit(self, x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None,
         validation_split=0.0, validation_data=None, shuffle=True, class_weight=None,
         sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None, **kwargs):

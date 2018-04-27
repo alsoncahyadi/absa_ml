@@ -1,0 +1,40 @@
+
+
+========= CHECKING CATEGORY: food ==========
+F1-Score  : [0.63636364 0.95698925]
+Precision : [0.875      0.92708333]
+Recall    : [0.5        0.98888889]
+Accuracy  : 0.9230769230769231
+F1-Score-Macro: 0.7966764418377321
+[[ 7  7]
+ [ 1 89]]
+
+
+========= CHECKING CATEGORY: service ==========
+F1-Score  : [1. 1.]
+Precision : [1. 1.]
+Recall    : [1. 1.]
+Accuracy  : 1.0
+F1-Score-Macro: 1.0
+[[ 7  0]
+ [ 0 14]]
+
+
+========= CHECKING CATEGORY: price ==========
+F1-Score  : [0.86956522 0.91428571]
+Precision : [0.83333333 0.94117647]
+Recall    : [0.90909091 0.88888889]
+Accuracy  : 0.896551724137931
+F1-Score-Macro: 0.8919254658385093
+[[10  1]
+ [ 2 16]]
+
+
+========= CHECKING CATEGORY: place ==========
+F1-Score  : [0.80851064 0.95927602]
+Precision : [0.82608696 0.95495495]
+Recall    : [0.79166667 0.96363636]
+Accuracy  : 0.9328358208955224
+F1-Score-Macro: 0.88389332819871
+[[ 19   5]
+ [  4 106]]

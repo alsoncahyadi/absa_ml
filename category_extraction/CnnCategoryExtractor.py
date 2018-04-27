@@ -1,36 +1,40 @@
-param_grid = {
-    'epochs': [25, 50],
-    'batch_size': [64],
-    'validation_split': [0.15],
-    'filters': [320, 64],
-    'kernel_size': [5, 3],
-    'conv_activation': ['relu', 'tanh'],
-    'conv_l2_regularizer': [0.01, 0.001],
-    'dropout_rate': [0.6],
-    'dense_activation': ['relu', 'tanh'],
-    'dense_l2_regularizer': [0.01, 0.001],
-    'activation': ['sigmoid'],
-    'optimizer': ['nadam'],
-    'loss_function': ['binary_crossentropy'],
-    'units': [256, 64, 16]
-}
+params = [
+    ('epochs', [50]),
+    ('batch_size', [64]),
+    ('validation_split', [0.15]),
+    ('filters', [320, 64]),
+    ('kernel_size', [5, 3]),
+    ('conv_activation', ['relu', 'tanh']),
+    ('conv_l2_regularizer', [0.01, 0.001]),
+    ('dropout_rate', [0.6, 0.8]),
+    ('dense_activation', ['relu', 'tanh']),
+    ('dense_l2_regularizer', [0.01, 0.001]),
+    ('activation', ['sigmoid']),
+    ('optimizer', ['nadam']),
+    ('loss_function', ['binary_crossentropy']),
+    ('units', [256, 64, 16]),
+]
 
+param_grid = dict(params)
+
+"""
 param_grid = {
     'epochs': [50],
     'batch_size': [64],
     'validation_split': [0.15],
-    'filters': [320, 64],
+    'filters': [320],
     'kernel_size': [5],
     'conv_activation': ['relu'],
     'conv_l2_regularizer': [0.001],
-    'dropout_rate': [0.6, 0.8, 0.9],
+    'dropout_rate': [0.6, 0.8],
     'dense_activation': ['tanh'],
     'dense_l2_regularizer': [0.001],
     'activation': ['sigmoid'],
     'optimizer': ['nadam'],
     'loss_function': ['binary_crossentropy'],
-    'units': [256, 64]
+    'units': [256]
 }
+"""
 
 """
 param_grid = {
@@ -113,6 +117,7 @@ class CNNCategoryExtractor (MyClassifier):
         units = 256,
         
         **kwargs):
+
         self.cnn_model = self._create_model(
             filters,
             kernel_size,
@@ -169,70 +174,6 @@ class CNNCategoryExtractor (MyClassifier):
             dill.dump(grid_result.cv_results_, fo)
         if IS_REFIT:
             grid.best_estimator_.model.save('model/cnn/best.model')
-
-    def _fit_cv(self, X, y, k=5, verbose=0, **kwargs):
-        X_folds = np.array_split(X, k)
-        y_folds = np.array_split(y, k)
-
-        precision_scores = [[], [], [], []]
-        recall_scores = [[], [], [], []]
-        f1_scores = [[], [], [], []]
-        precision_means = []
-        recall_means = []
-        f1_means = []
-
-        for i in range(k):
-            X_train = list(X_folds)
-            X_test  = X_train.pop(i)
-            X_train = np.concatenate(X_train)
-
-            y_train = list(y_folds)
-            y_test  = y_train.pop(i)
-            y_train = np.concatenate(y_train)
-
-            self.fit(X_train, y_train
-                , validation_split = 0.2
-                # , validation_data = (X_test, y_test) 
-            )
-            scores = self.score(X_test, y_test, verbose=0)
-
-            # print classification_report(y_test, predicted, target_names=self.target_names)
-            for j in range(4):
-                precision_scores[j].append(scores['precision_scores'][j])
-                recall_scores[j].append(scores['recall_scores'][j])
-                f1_scores[j].append(scores['f1_scores'][j])
-
-        for i in range(4):
-            precision_mean = np.array(precision_scores[i]).mean()
-            recall_mean = np.array(recall_scores[i]).mean()
-            f1_mean = np.array(f1_scores[i]).mean()
-
-            precision_means.append(precision_mean)
-            recall_means.append(recall_mean)
-            f1_means.append(f1_mean)
-
-            if verbose > 0:
-                print("Category: ", self.target_names[i])
-                print("\tPrecision: ", precision_mean)
-                print("\tRecall: ", recall_mean)
-                print("\tF1-score: ", f1_mean)
-
-        if verbose > 0:
-            print()
-
-        scores = {
-            'precision_means': precision_means,
-            'recall_means': recall_means,
-            'f1_means': f1_means,
-            'precision_macro': np.array(precision_means).mean(),
-            'recall_macro': np.array(recall_means).mean(),
-            'f1_macro': np.array(f1_means).mean(),
-            'precision_scores': precision_scores,
-            'recall_scores': recall_scores,
-            'f1_scores': f1_scores,
-        }
-
-        return scores
 
     def _create_model(
         self,
@@ -364,20 +305,23 @@ def cnn():
     """
         Load best estimator and score it
     """
-    best_model = load_model('model/cnn/best.model')
-    del ce.cnn_model
-    ce.cnn_model = best_model
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.5
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.6
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.7
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.8
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.85
-    ce.score(X_test, y_test, verbose=1)
+    ce._fit_new_gridsearch_cv(X, y, params)
+    # best_model = load_model('model/cnn/best.model')
+    # del ce.cnn_model
+    # ce.cnn_model = best_model
+    # ce.score(X_test, y_test, verbose=1)
+    # ce.threshold = 0.5
+    # ce.score(X_test, y_test, verbose=1)
+    # ce.threshold = 0.6
+    # ce.score(X_test, y_test, verbose=1)
+    # ce.threshold = 0.7
+    # ce.score(X_test, y_test, verbose=1)
+    # ce.threshold = 0.8
+    # ce.score(X_test, y_test, verbose=1)
+    # ce.threshold = 0.85
+    # ce.score(X_test, y_test, verbose=1)
+
+
 if __name__ == "__main__":
     import time
     start_time = time.time()

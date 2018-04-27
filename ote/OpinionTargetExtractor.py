@@ -1,18 +1,18 @@
+params = [
+    ('epochs', [25, 50]),
+    ('batch_size', [64]),
+    ('recurrent_dropout', [0.6, 0.2]),
+    ('dropout_rate', [0.6]),
+    ('dense_activation', ['tanh', 'relu']),
+    ('dense_l2_regularizer', [0.01]),
+    ('activation', ['sigmoid']),
+    ('optimizer', ["nadam"]),
+    ('loss_function', ['binary_crossentropy']),
+    ('gru_units', [256, 16]),
+    ('units', [256, 16]),
+]
 
-param_grid = {
-    'epochs': [25, 50],
-    'batch_size': [64],
-    'recurrent_dropout': [0.6, 0.2],
-    'dropout_rate': [0.6],
-    'dense_activation': ['tanh', 'relu'],
-    'dense_l2_regularizer': [0.01],
-    'activation': ['sigmoid'],
-    'optimizer': ["nadam"],
-    'loss_function': ['binary_crossentropy'],
-    'gru_units': [256, 16],
-    'units': [256, 16]
-}
-
+param_grid = dict(params)
 
 param_grid = {
     'epochs': [1],
@@ -48,7 +48,7 @@ from keras.layers.convolutional import Conv1D
 from keras.layers.embeddings import Embedding
 from keras.layers.pooling import (AveragePooling1D, GlobalMaxPooling1D,
                                   MaxPooling1D)
-from keras.models import Input, Model, Sequential, load_model
+from keras.models import Input, Sequential, load_model
 from keras.preprocessing import sequence, text
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
@@ -56,8 +56,7 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
 from sklearn.model_selection import train_test_split
 
 import utils
-from MyClassifier import (KerasClassifier, MultilabelKerasClassifier,
-                          MyClassifier)
+from MyClassifier import KerasClassifier, MultilabelKerasClassifier, MyClassifier, Model
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -81,10 +80,21 @@ class RNNOpinionTargetExtractor (MyClassifier):
         for key, value in kwargs.items():
             setattr(self, key, value)
     
-    def fit(self, X, y, **kwargs):
+    def fit(self, X, y,
+        recurrent_dropout = 0.5,
+        dropout_rate = 0.6,
+        dense_activation = 'tanh',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        threshold = 0.7,
+        gru_units = 256,
+        units = 256,
+        **kwargs):
+
         self.rnn_model = self._create_model()
         self.rnn_model.save(self.MODEL_PATH)
-        self.rnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.rnn_model.fit(
@@ -203,20 +213,20 @@ class RNNOpinionTargetExtractor (MyClassifier):
         threshold = 0.7,
         gru_units = 256,
         units = 256,
-        
 
         **kwargs
     ):
         K.clear_session()
-        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
+        MAX_SEQUENCE_LENGTH = 81
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self.layer_embedding(layer_input)
+        layer_embedding = self._load_embedding('../we/embedding_matrix.pkl')(layer_input)
         layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         # layer_blstm = Bidirectional(GRU(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        layer_dropout_1 = TimeDistributed(Dropout(0.5, seed=7))(layer_blstm)
+        layer_dropout_1 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         layer_dense_1 = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
-        layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dense_1)
+        layer_dropout_2 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense_1)
+        layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout_2)
         rnn_model = Model(inputs=layer_input, outputs=layer_softmax)
 
         # Create Optimizer
@@ -315,14 +325,14 @@ def main():
         Initialize data
     """
     X, y, X_test, y_test = utils.get_ote_dataset()
-    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
-    new_y = y.reshape(-1, y.shape[-1])
-    y = new_y
+    # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
+    # new_y = y.reshape(-1, y.shape[-1])
+    # y = new_y
     
     """
         Calculate Sample Weight
     """
-    sample_weight = utils.get_sample_weight(X_train, y_train)
+    sample_weight = utils.get_sample_weight(X, y)
     
     """
         Make and fit the model
@@ -344,7 +354,7 @@ def main():
     #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
     #     ,sample_weight=sample_weight)
     
-    ote._fit_gridsearch_cv(X, y, param_grid)
+    ote._fit_new_gridsearch_cv(X, y, params)
 
     """
         Load best estimator and score it

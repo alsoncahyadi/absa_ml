@@ -343,7 +343,7 @@ def cnn():
         Fit the model
     """
     # ce._fit_cv(X, y)
-    ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
+    # ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
     # ce.fit(X, y, verbose=1,
     #     epochs = 25,
     #     batch_size = 64,
@@ -364,9 +364,9 @@ def cnn():
     """
         Load best estimator and score it
     """
-    # best_model = load_model('model/cnn/best.model')
-    # del ce.cnn_model
-    # ce.cnn_model = best_model
+    best_model = load_model('model/cnn/best.model')
+    del ce.cnn_model
+    ce.cnn_model = best_model
     ce.score(X_test, y_test, verbose=1)
     ce.threshold = 0.5
     ce.score(X_test, y_test, verbose=1)

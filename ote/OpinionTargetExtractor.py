@@ -154,13 +154,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_test = get_decreased_dimension(y_test, end)
 
         from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
-        AVERAGE = None
-        if kwargs.get('verbose', 0) > 0:
-            print("F1-Score  : {}".format(f1_score(y_test, y_pred, average=AVERAGE)))
-            print("Precision : {}".format(precision_score(y_test, y_pred, average=AVERAGE)))
-            print("Recall    : {}".format(recall_score(y_test, y_pred, average=AVERAGE)))
-            f1_score_macro = f1_score(y_test, y_pred, average='macro')
-            print("F1-Score-Macro:", f1_score_macro)
 
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
         precision_score_macro = precision_score(y_test, y_pred, average='macro')
@@ -180,7 +173,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             'accuracy': accuracy
         }
 
-        if verbose == 1:
+        if verbose > 0:
             print("F1-Score  : {}".format(f1_scores))
             print("Precision : {}".format(precision_scores))
             print("Recall    : {}".format(recall_scores))
@@ -355,12 +348,24 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # checkpointer = ModelCheckpoint(filepath='model/brnn/weights/BRNN.hdf5', verbose=1, save_best_only=True)
-    # ote.fit(X_train, y_train, epochs=n_epoch, batch_size=32,
-    #     validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-    #     ,sample_weight=sample_weight)
+    ote.fit(
+        X, y,
+        epochs = 75,
+        batch_size = 64,
+        validation_split = 0.15,
+        recurrent_dropout= 0.6,
+        dropout_rate=0.8,
+        dense_activation='relu',
+        dense_l2_regularizer=0.01,
+        activation='softmax',
+        optimizer='nadam',
+        loss_function='categorical_crossentropy',
+        gru_units=256,
+        units=256,
+    )
+    ote.score(X_test, y_test)
     
-    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
+    # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
 
     """
         Load best estimator and score it

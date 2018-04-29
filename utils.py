@@ -206,7 +206,7 @@ def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     max_review_length = 81
 
     class_weight = create_class_weight(labels_dict, mu=mu, threshold=threshold, scale=5)
-    class_weight = {0: 1.0, 1: 5.5, 2: 6.5}
+    # class_weight = {0: 1.0, 1: 5.5, 2: 6.5}
     sample_weight = np.zeros((len(y_train), max_review_length))
 
     for i, samples in enumerate(sample_weight):

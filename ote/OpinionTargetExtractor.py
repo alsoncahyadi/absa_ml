@@ -111,7 +111,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
         return y_pred
     
     def score(self, X, y, verbose=1, **kwargs):
+        print("HI, SCORING NOW")
         if self.rnn_model != None:
+            print("Scoring using current rnn model")
             rnn_model = self.rnn_model
         else:
             rnn_model = self._create_model()
@@ -141,7 +143,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             y_pred_sents = []
             for y_pred_raw_tokens in y_pred_raw_sents:
                 max_i = max_index(y_pred_raw_tokens)
-                y = [0.] * 3 #number of classes to be predicted
+                y = [0.] * len(self.target_names) #number of classes to be predicted
                 y[max_i] = 1.
                 y_pred_sents.append(y)
             y_pred.append(y_pred_sents)
@@ -152,8 +154,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         end = utils.get_sentence_end_index(X)
         y_pred = get_decreased_dimension(y_pred, end)
         y_test = get_decreased_dimension(y_test, end)
-
-        from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
 
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
         precision_score_macro = precision_score(y_test, y_pred, average='macro')
@@ -362,6 +362,7 @@ def main():
         loss_function='categorical_crossentropy',
         gru_units=256,
         units=256,
+        sample_weight = sample_weight
     )
     ote.score(X_test, y_test)
     

@@ -210,9 +210,13 @@ def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     sample_weight = np.zeros((len(y_train), max_review_length))
 
     for i, samples in enumerate(sample_weight):
+        first_padding = True
         for j, _ in enumerate(samples):
             if X_train[i][j] == -1: #if is padding
-                sample_weight[i][j] = 0
+                if first_padding:
+                    sample_weight[i][j] = class_weight[k]
+                else:
+                    sample_weight[i][j] = 0
             else:
                 for k, value in enumerate(y_train[i][j]):
                     if value == 1.:

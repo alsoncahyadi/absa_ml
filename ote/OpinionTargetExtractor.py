@@ -215,7 +215,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
     def _create_model(
         self,
-        # recurrent_dropout = 0.5,
+        recurrent_dropout = 0.5,
         dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
@@ -233,8 +233,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self._load_embedding('../we/embedding_matrix.pkl')(layer_input)
-        # layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        layer_blstm = Bidirectional(CuDNNLSTM(gru_units, return_sequences=True, stateful=False))(layer_embedding)
+        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
+        # layer_blstm = Bidirectional(CuDNNLSTM(gru_units, return_sequences=True, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         layer_dense_1 = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
         layer_dropout_2 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense_1)
@@ -358,7 +358,7 @@ def main():
         epochs = 100,
         batch_size = 64,
         # validation_split = 0.15,
-        # recurrent_dropout= 0.,
+        recurrent_dropout= 0.,
         dropout_rate=0.8,
         dense_activation='relu',
         dense_l2_regularizer=0.01,

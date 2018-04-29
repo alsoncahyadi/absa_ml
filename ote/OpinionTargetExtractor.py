@@ -162,6 +162,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
         precision_scores = precision_score(y_test, y_pred, average=None)
         recall_scores = recall_score(y_test, y_pred, average=None)
         accuracy = accuracy_score(y_test, y_pred)
+        conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1), labels=self.target_names)
+
+        from sklearn.metrics import confusion_matrix
 
         scores = {
             'f1_score_macro': f1_score_macro,
@@ -170,7 +173,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
             'f1_scores': f1_scores,
             'precision_scores': precision_scores,
             'recall_scores': recall_scores,
-            'accuracy': accuracy
+            'accuracy': accuracy,
+            'confusion_matrix': conf_mat
         }
 
         if verbose > 0:
@@ -181,6 +185,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
             print("F1-Score-Macro:", f1_score_macro)
             print("P -Score-Macro:", precision_score_macro)
             print("R -Score-Macro:", recall_score_macro)
+            print("Confusion Matrix:\n", conf_mat)
+            print()
         return scores
 
     def _fit_train_validate_split(self, X, y):

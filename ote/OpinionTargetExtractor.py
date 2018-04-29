@@ -1,16 +1,16 @@
 params = [
-    ('epochs', [25, 50]),
+    ('epochs', [75]),
     ('batch_size', [64]),
     ('validation_split', [0.15]),
-    ('recurrent_dropout', [0.6, 0.2]),
-    ('dropout_rate', [0.6]),
+    ('recurrent_dropout', [0.6, 0.8]),
+    ('dropout_rate', [0.6, 0.8]),
     ('dense_activation', ['tanh', 'relu']),
-    ('dense_l2_regularizer', [0.01]),
-    ('activation', ['sigmoid']),
+    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
+    ('activation', ['sigmoid', 'softmax']),
     ('optimizer', ["nadam"]),
-    ('loss_function', ['binary_crossentropy']),
-    ('gru_units', [256, 16]),
-    ('units', [256, 16]),
+    ('loss_function', ['binary_crossentropy', 'categorical_crossentropy']),
+    ('gru_units', [256]),
+    ('units', [256]),
 ]
 
 """

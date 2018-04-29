@@ -164,8 +164,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         accuracy = accuracy_score(y_test, y_pred)
         conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1), labels=self.target_names)
 
-        from sklearn.metrics import confusion_matrix
-
         scores = {
             'f1_score_macro': f1_score_macro,
             'precision_score_macro': precision_score_macro,

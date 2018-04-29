@@ -215,7 +215,7 @@ def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
             if X_train[i][j] == -1: #if is padding
                 if first_padding:
                     sample_weight[i][j] = class_weight[0]
-                    first_padding = False
+                    # first_padding = False
                 else:
                     sample_weight[i][j] = 0
             else:

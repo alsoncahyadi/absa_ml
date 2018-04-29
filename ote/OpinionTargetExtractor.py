@@ -355,7 +355,7 @@ def main():
 
     ote.fit(
         X, y,
-        epochs = 100,
+        epochs = 75,
         batch_size = 64,
         # validation_split = 0.15,
         recurrent_dropout= 0.,

@@ -172,7 +172,7 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     return X, y, X_test, y_test
 
-def get_sample_weight(X_train, y_train, mu=0.15):
+def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     import math
 
     labels_dict = {}
@@ -183,11 +183,10 @@ def get_sample_weight(X_train, y_train, mu=0.15):
                     if value == 1:
                         labels_dict[i] = labels_dict.get(i,0) + 1
 
-    def create_class_weight(labels_dict,mu=0.15, **kwargs):
+    def create_class_weight(labels_dict,mu=2.5, threshold=0.1, **kwargs):
         total = np.sum(list(labels_dict.values()))
         keys = labels_dict.keys()
         class_weight = dict()
-        threshold = kwargs.get('threshold', 1.)
         scale = kwargs.get('scale', 1.)
         
         """ OLD """
@@ -200,13 +199,13 @@ def get_sample_weight(X_train, y_train, mu=0.15):
         """ NEW """
         for key in keys:
             score = math.log(mu*total/float(labels_dict[key]))
-            class_weight[key] = score if score > 1.0 else 1.0
+            class_weight[key] = score if score > threshold else threshold
 
         return class_weight
 
     max_review_length = 81
 
-    class_weight = create_class_weight(labels_dict, 2.5, threshold=0.1, scale=5)
+    class_weight = create_class_weight(labels_dict, mu=mu, threshold=threshold, scale=5)
     sample_weight = np.zeros((len(y_train), max_review_length))
 
     for i, samples in enumerate(sample_weight):

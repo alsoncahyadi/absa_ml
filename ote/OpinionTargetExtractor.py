@@ -335,7 +335,7 @@ def main():
     """
         Calculate Sample Weight
     """
-    sample_weight = utils.get_sample_weight(X, y)
+    sample_weight = utils.get_sample_weight(X, y, mu=0.1)
     
     """
         Make and fit the model

@@ -191,16 +191,16 @@ def get_sample_weight(X_train, y_train, mu=0.15):
         scale = kwargs.get('scale', 1.)
         
         """ OLD """
-        for key in keys:
-            score = (total-float(labels_dict[key]))/total * scale
-            class_weight[key] = score if score > threshold else threshold
+        # for key in keys:
+        #     score = (total-float(labels_dict[key]))/total * scale
+        #     class_weight[key] = score if score > threshold else threshold
 
-        return class_weight
+        # return class_weight
 
         """ NEW """
-        # for key in keys:
-        #     score = math.log(mu*total/float(labels_dict[key]))
-        #     class_weight[key] = score if score > 1.0 else 1.0
+        for key in keys:
+            score = math.log(mu*total/float(labels_dict[key]))
+            class_weight[key] = score if score > 1.0 else 1.0
 
         return class_weight
 

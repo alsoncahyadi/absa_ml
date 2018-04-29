@@ -162,7 +162,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         precision_scores = precision_score(y_test, y_pred, average=None)
         recall_scores = recall_score(y_test, y_pred, average=None)
         accuracy = accuracy_score(y_test, y_pred)
-        conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1), labels=self.target_names)
+        conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
 
         scores = {
             'f1_score_macro': f1_score_macro,

@@ -203,8 +203,8 @@ class CNNCategoryExtractor (MyClassifier):
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
         layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
         layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_dropout_2 = Dropout(dropout_rate, seed=7)(layer_dense_1)
-        layer_softmax = Dense(4, activation=activation)(layer_dropout_2)
+        # layer_dropout_2 = Dropout(dropout_rate, seed=7)(layer_dense_1)
+        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)

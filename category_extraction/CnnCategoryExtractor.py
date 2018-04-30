@@ -285,41 +285,41 @@ def cnn():
     """
     # ce._fit_cv(X, y)
     # ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
-    # ce.fit(X, y, verbose=1,
-    #     epochs = 25,
-    #     batch_size = 64,
-    #     # validation_split = 0.15,
-    #     filters = 320,
-    #     kernel_size = 5,
-    #     conv_activation = 'relu',
-    #     conv_l2_regularizer = 0.001,
-    #     dropout_rate = 0.8,
-    #     dense_activation = 'tanh',
-    #     dense_l2_regularizer = 0.001,
-    #     activation = 'sigmoid',
-    #     optimizer = "nadam",
-    #     loss_function = 'binary_crossentropy',
-    #     units = 256,
-    # )
+    ce.fit(X, y, verbose=1,
+        epochs = 50,
+        batch_size = 64,
+        # validation_split = 0.15,
+        filters = 320,
+        kernel_size = 5,
+        conv_activation = 'relu',
+        conv_l2_regularizer = 0.001,
+        dropout_rate = 0.5,
+        dense_activation = 'tanh',
+        dense_l2_regularizer = 0.001,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 256,
+    )
 
     """
         Load best estimator and score it
     """
-    ce._fit_new_gridsearch_cv(X, y, params)
+    # ce._fit_new_gridsearch_cv(X, y, params)
     # best_model = load_model('model/cnn/best.model')
     # del ce.cnn_model
     # ce.cnn_model = best_model
-    # ce.score(X_test, y_test, verbose=1)
-    # ce.threshold = 0.5
-    # ce.score(X_test, y_test, verbose=1)
-    # ce.threshold = 0.6
-    # ce.score(X_test, y_test, verbose=1)
-    # ce.threshold = 0.7
-    # ce.score(X_test, y_test, verbose=1)
-    # ce.threshold = 0.8
-    # ce.score(X_test, y_test, verbose=1)
-    # ce.threshold = 0.85
-    # ce.score(X_test, y_test, verbose=1)
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.5
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.6
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.7
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.8
+    ce.score(X_test, y_test, verbose=1)
+    ce.threshold = 0.85
+    ce.score(X_test, y_test, verbose=1)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,15 @@
+params = [
+    ("epochs", [50]),
+    ("dropout_rate", [0.6]),
+    ("dense_activation", ['tanh']),
+    ("dense_l2_regularizer", [0.01]),
+    ("activation", ['sigmoid']),
+    ("optimizer", ["nadam"]),
+    ("loss_function", ['binary_crossentropy']),
+    ("threshold", [0.2]),
+    ("included_features", [[0], [0,1], [0,2], [1,2]])
+]
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -35,7 +47,6 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.neural_network import MLPClassifier
 
-N_EPOCHS = 50
 N_CV = 5
 
 
@@ -48,19 +59,20 @@ class BinCategoryExtractor (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
         self.COUNT_VECTORIZER_VOCAB_PATH = 'data/count_vectorizer_vocabulary.pkl'
         self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = 'data/count_vectorizer_vocabulary_cluster.pkl'
+        self.target_names = ['food', 'service', 'price', 'place']
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
         # for key, value in kwargs.items():
         #     setattr(self, key, value)
-        count_vectorizer_vocab = None
+        self.count_vectorizer_vocab = None
         with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
-            count_vectorizer_vocab = dill.load(fi)
+            self.count_vectorizer_vocab = dill.load(fi)
         
-        count_vectorizer_vocab_cluster = None
+        self.count_vectorizer_vocab_cluster = None
         with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
-            count_vectorizer_vocab_cluster = dill.load(fi)
+            self.count_vectorizer_vocab_cluster = dill.load(fi)
 
-        print(len(count_vectorizer_vocab_cluster.items()))
+        print(len(self.count_vectorizer_vocab_cluster.items()))
 
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
@@ -70,17 +82,17 @@ class BinCategoryExtractor (MyClassifier):
                         ('cnn_probability', ItemSelector(key='cnn_probability')),
                         ('bag_of_bigram', Pipeline([
                             ('selector', ItemSelector(key='review')),
-                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab)),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab)),
                         ])),
                         ('bag_of_bigram_word_cluster', Pipeline([
                             ('selector', ItemSelector(key='review_cluster')),
-                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=count_vectorizer_vocab_cluster)),
+                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab_cluster)),
                         ]))
                     ]
                 )
             ),
             # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=N_EPOCHS), thresh=0.6))
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=50)))
         ])
 
     def _create_ann_model(
@@ -91,7 +103,7 @@ class BinCategoryExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        threshold = 0.75, #not used
+        included_features = [0,1,2],
 
         **kwargs
     ):
@@ -99,7 +111,14 @@ class BinCategoryExtractor (MyClassifier):
         n_bag_of_bigrams = 8016
         n_bag_of_bigrams_cluster = 3755
 
-        total_inputs = n_bag_of_bigrams + n_cnn_proba + n_bag_of_bigrams_cluster
+        sums = [n_cnn_proba, n_bag_of_bigrams, n_bag_of_bigrams_cluster]
+        included_features = included_features
+        included_sums = []
+        for included_feature in included_features:
+            included_sums.append(sums[included_feature])
+        sum_input = np.array(included_sums).sum()
+
+        total_inputs = sum_input
 
         INPUT_DIM = kwargs.get('input_dim', total_inputs)
 
@@ -117,29 +136,56 @@ class BinCategoryExtractor (MyClassifier):
         return ann_model
 
     
-    def fit(self, X, y):
+    def fit(self, X, y,
+            epochs = 50,
+            batch_size = 64,
+            dropout_rate = 0.6,
+            dense_activation = 'tanh',
+            dense_l2_regularizer = 0.01,
+            activation = 'sigmoid',
+            optimizer = "nadam",
+            loss_function = 'binary_crossentropy',
+            threshold = 0.5,
+            included_features = [0, 1, 2],
+
+            **kwargs
+        ):
+        transformer_list = [
+            ('cnn_probability', ItemSelector(key='cnn_probability')),
+            ('bag_of_bigram', Pipeline([
+                ('selector', ItemSelector(key='review')),
+                ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab)),
+            ])),
+            ('bag_of_bigram_word_cluster', Pipeline([
+                ('selector', ItemSelector(key='review_cluster')),
+                ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab_cluster)),
+            ]))
+        ]
+
+        self.pipeline = Pipeline([
+            ('data', CategoryFeatureExtractor()),
+            (
+                'features', FeatureUnion(
+                    transformer_list= [transformer_list[included_feature] for included_feature in included_features]
+                )
+            ),
+            ('clf', MyOneVsRestClassifier(KerasClassifier(
+                build_fn = self._create_ann_model,
+                verbose=0, epochs=epochs, batch_size=batch_size,
+                dropout_rate = dropout_rate,
+                dense_activation = dense_activation,
+                dense_l2_regularizer = dense_l2_regularizer,
+                activation = activation,
+                optimizer = optimizer,
+                loss_function = loss_function,
+                included_features = included_features,
+                ), thresh=threshold
+            ))
+        ])
         self.pipeline.fit(X, y)
     
-    def predict(self, X):
+    def predict(self, X, thresh=0.75):
         return self.pipeline.predict(X)
-
-    def score(self, X, y, **kwargs):
-        y_pred = self.predict(X)
-
-        AVERAGE = None
-        print("F1-Score  : {}".format(f1_score(y, y_pred, average=AVERAGE)))
-        print("Precision : {}".format(precision_score(y, y_pred, average=AVERAGE)))
-        print("Recall    : {}".format(recall_score(y, y_pred, average=AVERAGE)))
-        print("Accuracy  : {}".format(accuracy_score(y, y_pred)))
-
-        f1_score_macro = f1_score(y, y_pred, average='macro')
-        print("F1-Score-Macro:", f1_score_macro)
-
-        # is_show_confusion_matrix = kwargs.get('show_confusion_matrix', False)
-        # if is_show_confusion_matrix:
-        #     self.plot_all_confusion_matrix(y, y_pred)
-        
-        return f1_score_macro
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
         from sklearn.model_selection import GridSearchCV
@@ -204,18 +250,15 @@ def binary():
     np.random.seed(7)
     bi = BinCategoryExtractor()
     print(X.shape, y.shape)
-    param_grid = {
-        
-    }
-    bi._fit_gridsearch_cv(X, y, param_grid)
+    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
     # bi._fit_gridsearch_cv(X, y, param_grid)
     bi.score(X_test, y_test)
-    #save the best OneVsRest model (ovr = OneVsRest)
-    bi.save_estimators()
-    print("DONE SAVING")
-    new_estimators = bi.load_estimators()
-    print("DONE LOADING")
-    bi.score(X_test, y_test)
+    # #save the best OneVsRest model (ovr = OneVsRest)
+    # bi.save_estimators()
+    # print("DONE SAVING")_grid
+    # new_estimators = bi.load_estimators()
+    # print("DONE LOADING")
+    # bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     import time

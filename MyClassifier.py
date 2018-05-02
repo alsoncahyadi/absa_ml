@@ -45,7 +45,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         pass
     
     def score(self, X, y, verbose=1, **kwargs):
-        y_pred = self.predict(X)
+        y_pred = self.predict(X, **kwargs)
         f1_score_macro = f1_score(y, y_pred, average='macro')
         precision_score_macro = precision_score(y, y_pred, average='macro')
         recall_score_macro = recall_score(y, y_pred, average='macro')
@@ -87,13 +87,14 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                                     trainable=kwargs.get('trainable', False))
         return layer_embedding
 
-    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, **kwargs):
+    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, result_path="output/gridsearch_cv_result.csv", **kwargs):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
-        with open('output/gridsearch_cv_result.csv', 'w') as fo:
+        with open(result_path, 'w') as fo:
             fo.write(",".join(score_metrics + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
+        print("FITTING {}x FOR {} COMBINATIONS and {} CV".format(len(param_value_combinations)*k, len(param_value_combinations), k))
         for i, current_param_value in enumerate(param_value_combinations):
             # Print log
             print('\n===========', i, '===========')
@@ -102,16 +103,16 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             # Fit
             current_param = dict(zip(param_names, current_param_value))
-            current_cv_score = self._fit_cv(X, y, k=k, verbose=verbose, **current_param, **kwargs)
+            current_cv_score = self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, **current_param, **kwargs)
 
             # Write result
-            with open('output/gridsearch_cv_result.csv', 'a') as fo:
+            with open(result_path, 'a') as fo:
                 current_param_value_str = ",".join([str(v) for v in current_param_value])
                 score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
                 line = score_str + "," + current_param_value_str + "\n"
                 fo.write(line)
 
-    def _fit_cv(self, X, y, k=5, verbose=0, sample_weight=None, **kwargs):
+    def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, **kwargs):
         if type(sample_weight).__name__ != "NoneType":
             sample_weight_folds = np.array_split(sample_weight, k)
         X_folds = np.array_split(X, k)
@@ -140,7 +141,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 sample_weight_train = np.concatenate(sample_weight_train)
 
             self.fit(X_train, y_train
-                , verbose = 0
+                , verbose = verbose
                 , **kwargs
                 , sample_weight = sample_weight_train
             )
@@ -161,22 +162,23 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             recall_means.append(recall_mean)
             f1_means.append(f1_mean)
 
-            if verbose > 0:
-                print("Category: ", self.target_names[i])
-                print("\tPrecision: ", precision_mean)
-                print("\tRecall: ", recall_mean)
-                print("\tF1-score: ", f1_mean)
+        precision_macro = np.array(precision_means).mean()
+        recall_macro = np.array(recall_means).mean()
+        f1_macro = np.array(f1_means).mean()
 
         if verbose > 0:
-            print()
+            print("\t>>> SCORE <<<")
+            print("\tPrecision: {0:.2f}".format(precision_macro))
+            print("\tRecall:    {0:.2f}".format(recall_macro))
+            print("\tF1-score:  {0:.2f}".format(f1_macro))
 
         scores = {
             'precision_means': precision_means,
             'recall_means': recall_means,
             'f1_means': f1_means,
-            'precision_macro': np.array(precision_means).mean(),
-            'recall_macro': np.array(recall_means).mean(),
-            'f1_macro': np.array(f1_means).mean(),
+            'precision_macro': precision_macro,
+            'recall_macro': recall_macro,
+            'f1_macro': f1_macro,
             'precision_scores': precision_scores,
             'recall_scores': recall_scores,
             'f1_scores': f1_scores,

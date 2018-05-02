@@ -293,7 +293,7 @@ def cnn():
         kernel_size = 5,
         conv_activation = 'relu',
         conv_l2_regularizer = 0.001,
-        dropout_rate = 0.5,
+        dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.001,
         activation = 'sigmoid',

@@ -256,27 +256,27 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
-    bi.fit(X, y, 
-        epochs= 50,
-        dropout_rate= 0.6,
-        dense_activation= 'tanh',
-        dense_l2_regularizer= 0.01,
-        activation= 'sigmoid',
-        optimizer= "nadam",
-        loss_function= 'binary_crossentropy',
-        threshold= 0.2,
-        included_features= [0, 1],
-        verbose = 1
-    )
+    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
+    # bi.fit(X, y, 
+    #     epochs= 50,
+    #     dropout_rate= 0.6,
+    #     dense_activation= 'tanh',
+    #     dense_l2_regularizer= 0.01,
+    #     activation= 'sigmoid',
+    #     optimizer= "nadam",
+    #     loss_function= 'binary_crossentropy',
+    #     threshold= 0.2,
+    #     included_features= [0, 1],
+    #     verbose = 1
+    # )
 
-    bi.save_estimators()
-    bi.load_estimators()
+    # bi.save_estimators()
+    # bi.load_estimators()
     
-    thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.7875, 0.8, 0.825, 0.85, 0.875, 0.9]
-    for thresh in thresh_to_try:
-        print("\nTHRESH: {}".format(thresh))
-        bi.set_threshold(thresh); bi.score(X_test, y_test)
+    # thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.7875, 0.8, 0.825, 0.85, 0.875, 0.9]
+    # for thresh in thresh_to_try:
+    #     print("\nTHRESH: {}".format(thresh))
+    #     bi.set_threshold(thresh); bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     import time

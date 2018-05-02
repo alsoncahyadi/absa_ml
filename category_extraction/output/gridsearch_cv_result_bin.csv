@@ -1,3 +1,1 @@
 f1_macro,precision_macro,recall_macro,epochs,dropout_rate,dense_activation,dense_l2_regularizer,activation,optimizer,loss_function,threshold,included_features
-0.3911057589003738,0.26502386882523865,1.0,50,0.5,tanh,0.01,softmax,nadam,binary_crossentropy,0.8,[0]
-0.3911057589003738,0.26502386882523865,1.0,50,0.5,tanh,0.01,softmax,nadam,binary_crossentropy,0.8,[0, 1]

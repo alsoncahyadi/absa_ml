@@ -268,7 +268,7 @@ def binary():
     bi.save_estimators()
     bi.load_estimators()
     
-    thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.8, 0.825, 0.85, 0.875, 0.9]
+    thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.7875, 0.8, 0.825, 0.85, 0.875, 0.9]
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
         bi.set_threshold(thresh); bi.score(X_test, y_test)

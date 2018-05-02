@@ -1,7 +1,3 @@
-category_extraction/output/
-ote/output/
-sentiment_classification/output/
-
 we/sswe/
 .idea/
 *.ipynb

@@ -190,6 +190,7 @@ class BinCategoryExtractor (MyClassifier):
         self.pipeline.fit(X, y)
     
     def predict(self, X):
+        # print(self.get_threshold())
         return self.pipeline.predict(X)
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
@@ -233,6 +234,9 @@ class BinCategoryExtractor (MyClassifier):
     def set_threshold(self, thresh):
         self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh = thresh
 
+    def get_threshold(self):
+        return self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh
+
 def make_new_count_vectorizer_vocab():
     X, y, X_test, y_test = utils.get_ce_dataset()
     review = []
@@ -256,7 +260,7 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
+    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
     # bi.fit(X, y, 
     #     epochs= 50,
     #     dropout_rate= 0.6,

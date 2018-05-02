@@ -166,7 +166,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         recall_macro = np.array(recall_means).mean()
         f1_macro = np.array(f1_means).mean()
 
-        if verbose > 0:
+        if score_verbose > 0:
             print("\t>>> SCORE <<<")
             print("\tPrecision: {0:.2f}".format(precision_macro))
             print("\tRecall:    {0:.2f}".format(recall_macro))

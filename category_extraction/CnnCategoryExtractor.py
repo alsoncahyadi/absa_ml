@@ -115,6 +115,8 @@ class CNNCategoryExtractor (MyClassifier):
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         units = 256,
+
+        is_save = False,
         
         **kwargs):
 
@@ -139,6 +141,8 @@ class CNNCategoryExtractor (MyClassifier):
                 X, y,
                 **kwargs
             )
+        if is_save:
+            self.cnn_model.save(self.MODEL_PATH)
     
     def predict(self, X):
         threshold = self.threshold
@@ -283,8 +287,6 @@ def cnn():
     """
         Fit the model
     """
-    # ce._fit_cv(X, y)
-    # ce._fit_gridsearch_cv(X, y, param_grid, is_refit='f1_macro')
     ce.fit(X, y, verbose=1,
         epochs = 50,
         batch_size = 64,
@@ -300,15 +302,16 @@ def cnn():
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         units = 256,
+        is_save = True
     )
+    # ce._fit_new_gridsearch_cv(X, y, params)
 
     """
         Load best estimator and score it
     """
-    # ce._fit_new_gridsearch_cv(X, y, params)
-    # best_model = load_model('model/cnn/best.model')
-    # del ce.cnn_model
-    # ce.cnn_model = best_model
+    best_model = load_model(ce.MODEL_PATH)
+    del ce.cnn_model
+    ce.cnn_model = best_model
     ce.score(X_test, y_test, verbose=1)
     ce.threshold = 0.5
     ce.score(X_test, y_test, verbose=1)

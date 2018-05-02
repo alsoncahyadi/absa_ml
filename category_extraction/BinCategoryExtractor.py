@@ -249,9 +249,8 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    print(X.shape, y.shape)
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
-    # bi._fit_gridsearch_cv(X, y, param_grid)
+    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
+    bi.fit(X, y, )
     bi.score(X_test, y_test)
     # #save the best OneVsRest model (ovr = OneVsRest)
     # bi.save_estimators()

@@ -6,7 +6,7 @@ params = [
     ("activation", ['softmax', 'sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy', 'categorical_crossentropy']),
-    ("threshold", [0.7]),
+    ("threshold", [0.8]),
     ("included_features", [[0], [0,1], [0,2], [1,2], [1,2,3]])
 ]
 
@@ -189,7 +189,7 @@ class BinCategoryExtractor (MyClassifier):
         ])
         self.pipeline.fit(X, y)
     
-    def predict(self, X, thresh=0.75):
+    def predict(self, X):
         return self.pipeline.predict(X)
 
     def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):

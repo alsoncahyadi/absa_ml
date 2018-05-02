@@ -171,6 +171,9 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("\tPrecision: {0:.2f}".format(precision_macro))
             print("\tRecall:    {0:.2f}".format(recall_macro))
             print("\tF1-score:  {0:.2f}".format(f1_macro))
+            print("\tP -means:  {}".format(precision_means))
+            print("\tR -means:  {}".format(recall_means))
+            print("\tF1-means:  {}".format(f1_means))
 
         scores = {
             'precision_means': precision_means,

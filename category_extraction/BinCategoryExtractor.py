@@ -256,19 +256,19 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
-    # bi.fit(X, y, 
-    #     epochs= 50,
-    #     dropout_rate= 0.6,
-    #     dense_activation= 'tanh',
-    #     dense_l2_regularizer= 0.01,
-    #     activation= 'sigmoid',
-    #     optimizer= "nadam",
-    #     loss_function= 'binary_crossentropy',
-    #     threshold= 0.2,
-    #     included_features= [0, 1],
-    #     verbose = 1
-    # )
+    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose=1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
+    bi.fit(X, y, 
+        epochs= 50,
+        dropout_rate= 0.6,
+        dense_activation= 'tanh',
+        dense_l2_regularizer= 0.01,
+        activation= 'sigmoid',
+        optimizer= "nadam",
+        loss_function= 'binary_crossentropy',
+        threshold= 0.2,
+        included_features= [0, 1],
+        verbose = 1
+    )
 
     # bi.save_estimators()
     # bi.load_estimators()

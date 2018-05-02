@@ -212,7 +212,7 @@ class BinCategoryExtractor (MyClassifier):
         estimators = []
         for i in range(n_estimators):
             ann_model = load_model(load_path.format(i))
-            new_estimator = KerasClassifier(build_fn=self._create_ann_model, verbose=0, epochs=N_EPOCHS)
+            new_estimator = KerasClassifier(build_fn=self._create_ann_model, verbose=0, epochs=50)
             new_estimator.model = ann_model
             estimators.append(new_estimator)
         ann_sklearn_model_index = len(self.pipeline.steps) - 1

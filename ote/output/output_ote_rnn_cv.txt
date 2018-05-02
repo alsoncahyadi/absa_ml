@@ -1,0 +1,5 @@
+max : 81
+min : 2
+mean: 12.555443548387096
+mode: ModeResult(mode=array([5]), count=array([72]))
+Fitting 5 folds for each of 8 candidates, totalling 40 fits

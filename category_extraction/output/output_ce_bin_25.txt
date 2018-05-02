@@ -1,0 +1,22 @@
+(1099, 150) (1099, 4)
+Fitting 5 folds for each of 1 candidates, totalling 5 fits
+dict_keys(['mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time', 'params', 'split0_test_f1_macro', 'split1_test_f1_macro', 'split2_test_f1_macro', 'split3_test_f1_macro', 'split4_test_f1_macro', 'mean_test_f1_macro', 'std_test_f1_macro', 'rank_test_f1_macro', 'split0_train_f1_macro', 'split1_train_f1_macro', 'split2_train_f1_macro', 'split3_train_f1_macro', 'split4_train_f1_macro', 'mean_train_f1_macro', 'std_train_f1_macro', 'split0_test_precision_macro', 'split1_test_precision_macro', 'split2_test_precision_macro', 'split3_test_precision_macro', 'split4_test_precision_macro', 'mean_test_precision_macro', 'std_test_precision_macro', 'rank_test_precision_macro', 'split0_train_precision_macro', 'split1_train_precision_macro', 'split2_train_precision_macro', 'split3_train_precision_macro', 'split4_train_precision_macro', 'mean_train_precision_macro', 'std_train_precision_macro', 'split0_test_recall_macro', 'split1_test_recall_macro', 'split2_test_recall_macro', 'split3_test_recall_macro', 'split4_test_recall_macro', 'mean_test_recall_macro', 'std_test_recall_macro', 'rank_test_recall_macro', 'split0_train_recall_macro', 'split1_train_recall_macro', 'split2_train_recall_macro', 'split3_train_recall_macro', 'split4_train_recall_macro', 'mean_train_recall_macro', 'std_train_recall_macro'])
+
+[0.98446314] ([0.01395598])
+
+[0.99945603] ([0.00108733])
+
+[0.9714418] ([0.02539663])
+with: {}
+F1-Score  : [0.7766323  0.86956522 0.98245614 0.8       ]
+Precision : [0.64942529 0.83333333 1.         0.73619632]
+Recall    : [0.96581197 0.90909091 0.96551724 0.87591241]
+Accuracy  : 0.7132701421800948
+F1-Score-Macro: 0.8571634150369198
+DONE SAVING
+DONE LOADING
+F1-Score  : [0.7766323  0.86956522 0.98245614 0.8       ]
+Precision : [0.64942529 0.83333333 1.         0.73619632]
+Recall    : [0.96581197 0.90909091 0.96551724 0.87591241]
+Accuracy  : 0.7132701421800948
+F1-Score-Macro: 0.8571634150369198

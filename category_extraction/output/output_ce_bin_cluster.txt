@@ -1,0 +1,24 @@
+25
+3755
+(1099, 150) (1099, 4)
+Fitting 5 folds for each of 1 candidates, totalling 5 fits
+dict_keys(['mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time', 'params', 'split0_test_f1_macro', 'split1_test_f1_macro', 'split2_test_f1_macro', 'split3_test_f1_macro', 'split4_test_f1_macro', 'mean_test_f1_macro', 'std_test_f1_macro', 'rank_test_f1_macro', 'split0_train_f1_macro', 'split1_train_f1_macro', 'split2_train_f1_macro', 'split3_train_f1_macro', 'split4_train_f1_macro', 'mean_train_f1_macro', 'std_train_f1_macro', 'split0_test_precision_macro', 'split1_test_precision_macro', 'split2_test_precision_macro', 'split3_test_precision_macro', 'split4_test_precision_macro', 'mean_test_precision_macro', 'std_test_precision_macro', 'rank_test_precision_macro', 'split0_train_precision_macro', 'split1_train_precision_macro', 'split2_train_precision_macro', 'split3_train_precision_macro', 'split4_train_precision_macro', 'mean_train_precision_macro', 'std_train_precision_macro', 'split0_test_recall_macro', 'split1_test_recall_macro', 'split2_test_recall_macro', 'split3_test_recall_macro', 'split4_test_recall_macro', 'mean_test_recall_macro', 'std_test_recall_macro', 'rank_test_recall_macro', 'split0_train_recall_macro', 'split1_train_recall_macro', 'split2_train_recall_macro', 'split3_train_recall_macro', 'split4_train_recall_macro', 'mean_train_recall_macro', 'std_train_recall_macro'])
+
+[0.9079931] ([0.05615262])
+
+[0.90456716] ([0.07639911])
+
+[0.93791244] ([0.0357419])
+with: {}
+F1-Score  : [0.46336634 0.83333333 0.92857143 0.80936455]
+Precision : [0.30154639 0.76923077 0.96296296 0.74691358]
+Recall    : [1.         0.90909091 0.89655172 0.88321168]
+Accuracy  : 0.3080568720379147
+F1-Score-Macro: 0.7586589117583521
+DONE SAVING
+DONE LOADING
+F1-Score  : [0.46336634 0.83333333 0.92857143 0.80936455]
+Precision : [0.30154639 0.76923077 0.96296296 0.74691358]
+Recall    : [1.         0.90909091 0.89655172 0.88321168]
+Accuracy  : 0.3080568720379147
+F1-Score-Macro: 0.7586589117583521

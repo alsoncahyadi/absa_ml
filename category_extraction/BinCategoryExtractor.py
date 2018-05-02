@@ -225,6 +225,8 @@ class BinCategoryExtractor (MyClassifier):
         for i, estimator in enumerate(estimators):
             estimator.model.save(save_path.format(i))
 
+    def set_thresh(self, thresh):
+        self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh = thresh
 
 def make_new_count_vectorizer_vocab():
     X, y, X_test, y_test = utils.get_ce_dataset()
@@ -266,18 +268,16 @@ def binary():
     bi.save_estimators()
     bi.load_estimators()
     
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.5
-    bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.55
-    bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.6
-    bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.65
-    bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.7
-    bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.8
-    bi.score(X_test, y_test)
+    bi.set_thresh(0.5); bi.score(X_test, y_test)
+    bi.set_thresh(0.55); bi.score(X_test, y_test)
+    bi.set_thresh(0.6); bi.score(X_test, y_test)
+    bi.set_thresh(0.65); bi.score(X_test, y_test)
+    bi.set_thresh(0.7); bi.score(X_test, y_test)
+    bi.set_thresh(0.8); bi.score(X_test, y_test)
+    bi.set_thresh(0.825); bi.score(X_test, y_test)
+    bi.set_thresh(0.85); bi.score(X_test, y_test)
+    bi.set_thresh(0.875); bi.score(X_test, y_test)
+    bi.set_thresh(0.9); bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     import time

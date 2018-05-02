@@ -10,6 +10,9 @@ params = [
     ("included_features", [[0], [0,1], [0,2], [1,2], [1,2,3]])
 ]
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 

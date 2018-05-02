@@ -10,8 +10,10 @@ params = [
     ("included_features", [[0], [0,1], [0,2], [1,2], [1,2,3]])
 ]
 
+def warn(*args, **kwargs):
+    pass
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.warn = warn
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 

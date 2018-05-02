@@ -261,7 +261,7 @@ def binary():
         optimizer= "nadam",
         loss_function= 'binary_crossentropy',
         threshold= 0.2,
-        included_features= [0],
+        included_features= [0, 1],
         verbose = 1
     )
 

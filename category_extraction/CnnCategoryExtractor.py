@@ -267,6 +267,9 @@ class CNNCategoryExtractor (MyClassifier):
         self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
         plt.show()
 
+    def set_threshold(self, thresh):
+        self.threshold = thresh
+
 
 def cnn():
     """
@@ -287,23 +290,23 @@ def cnn():
     """
         Fit the model
     """
-    ce.fit(X, y, verbose=1,
-        epochs = 50,
-        batch_size = 64,
-        # validation_split = 0.15,
-        filters = 320,
-        kernel_size = 5,
-        conv_activation = 'relu',
-        conv_l2_regularizer = 0.001,
-        dropout_rate = 0.6,
-        dense_activation = 'tanh',
-        dense_l2_regularizer = 0.001,
-        activation = 'sigmoid',
-        optimizer = "nadam",
-        loss_function = 'binary_crossentropy',
-        units = 256,
-        is_save = True
-    )
+    # ce.fit(X, y, verbose=1,
+    #     epochs = 50,
+    #     batch_size = 64,
+    #     # validation_split = 0.15,
+    #     filters = 320,
+    #     kernel_size = 5,
+    #     conv_activation = 'relu',
+    #     conv_l2_regularizer = 0.001,
+    #     dropout_rate = 0.6,
+    #     dense_activation = 'tanh',
+    #     dense_l2_regularizer = 0.001,
+    #     activation = 'sigmoid',
+    #     optimizer = "nadam",
+    #     loss_function = 'binary_crossentropy',
+    #     units = 256,
+    #     is_save = True
+    # )
     # ce._fit_new_gridsearch_cv(X, y, params)
 
     """
@@ -312,17 +315,10 @@ def cnn():
     best_model = load_model(ce.MODEL_PATH)
     del ce.cnn_model
     ce.cnn_model = best_model
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.5
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.6
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.7
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.8
-    ce.score(X_test, y_test, verbose=1)
-    ce.threshold = 0.85
-    ce.score(X_test, y_test, verbose=1)
+    thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9]
+    for thresh in thresh_to_try:
+        print("\nTHRESH: {}".format(thresh))
+        ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

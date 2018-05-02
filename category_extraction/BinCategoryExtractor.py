@@ -225,7 +225,7 @@ class BinCategoryExtractor (MyClassifier):
         for i, estimator in enumerate(estimators):
             estimator.model.save(save_path.format(i))
 
-    def set_thresh(self, thresh):
+    def set_threshold(self, thresh):
         self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh = thresh
 
 def make_new_count_vectorizer_vocab():
@@ -261,7 +261,7 @@ def binary():
         optimizer= "nadam",
         loss_function= 'binary_crossentropy',
         threshold= 0.2,
-        included_features= [0,1],
+        included_features= [0],
         verbose = 1
     )
 
@@ -271,7 +271,7 @@ def binary():
     thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.8, 0.825, 0.85, 0.875, 0.9]
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
-        bi.set_thresh(thresh); bi.score(X_test, y_test)
+        bi.set_threshold(thresh); bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     import time

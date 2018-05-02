@@ -262,24 +262,22 @@ def binary():
         included_features= [0,1],
         verbose = 1
     )
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.5
+
+    bi.save_estimators()
+    bi.load_estimators()
+    
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.5
     bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.55
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.55
     bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.6
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.6
     bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.65
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.65
     bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.7
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.7
     bi.score(X_test, y_test)
-    bi.pipeline.steps[len(bi.pipeline.steps)-1].thresh = 0.8
+    bi.pipeline.steps[len(bi.pipeline.steps)-1][1].thresh = 0.8
     bi.score(X_test, y_test)
-    # #save the best OneVsRest model (ovr = OneVsRest)
-    # bi.save_estimators()
-    # print("DONE SAVING")_grid
-    # new_estimators = bi.load_estimators()
-    # print("DONE LOADING")
-    # bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     import time

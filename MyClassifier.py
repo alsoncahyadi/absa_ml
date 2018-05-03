@@ -133,6 +133,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         precision_means = []
         recall_means = []
         f1_means = []
+        thresholds_used = []
 
         for i in range(k):
             X_train = list(X_folds)
@@ -167,7 +168,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 max_f1_idx = f1_temp.argmax()
                 
                 scores = scoress[max_f1_idx]
-                threshold = thresholds[max_f1_idx]
+                thresholds_used.append(thresholds[max_f1_idx])
             else:
                 scores = self.score(X_test, y_test, verbose=0)
                 threshold = self.get_threshold
@@ -210,6 +211,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             'precision_scores': precision_scores,
             'recall_scores': recall_scores,
             'f1_scores': f1_scores,
+            'thresholds_used': thresholds_used,
         }
 
         return scores

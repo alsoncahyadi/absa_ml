@@ -95,7 +95,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             fo.write(",".join(score_metrics + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
-        print("FITTING {}x FOR {} COMBINATIONS and {} CV".format(len(param_value_combinations)*k, len(param_value_combinations), k))
+        print("FITTING {}x FOR {} combinations, {} folds".format(len(param_value_combinations)*k, len(param_value_combinations), k))
         for i, current_param_value in enumerate(param_value_combinations):
             # Print log
             print('\n===========', i+1, '/', len(param_value_combinations), '===========')

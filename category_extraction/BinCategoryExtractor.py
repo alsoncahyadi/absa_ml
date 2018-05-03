@@ -7,7 +7,7 @@ params = [
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy', 'categorical_crossentropy']),
     ("threshold", [0.8]),
-    ("included_features", [[0], [0,1], [0,2], [1,2], [1,2,3]])
+    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2]])
 ]
 
 def warn(*args, **kwargs):

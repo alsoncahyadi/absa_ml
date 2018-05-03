@@ -311,6 +311,7 @@ class MultilabelKerasClassifier(BaseWrapper):
             loss_name = loss_name.__name__
         if loss_name == 'categorical_crossentropy' and len(y.shape) != 2:
             # y = to_categorical(y)
+            pass
 
         outputs = self.model.evaluate(x, y, **kwargs)
         if not isinstance(outputs, list):
@@ -447,6 +448,7 @@ class KerasClassifier(BaseWrapper):
             loss_name = loss_name.__name__
         if loss_name == 'categorical_crossentropy' and len(y.shape) != 2:
             # y = to_categorical(y)
+            pass
 
         outputs = self.model.evaluate(x, y, **kwargs)
         if not isinstance(outputs, list):

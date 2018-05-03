@@ -110,7 +110,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             with open(result_path, 'a') as fo:
                 current_param_value_str = ",".join([str(v) for v in current_param_value])
                 score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
-                line = score_str + "," + threshold + "," current_param_value_str + "\n"
+                line = score_str + "," + threshold + "," + current_param_value_str + "\n"
                 fo.write(line)
 
     @abc.abstractmethod

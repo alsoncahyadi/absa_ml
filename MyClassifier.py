@@ -3,9 +3,9 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 import numpy as np
 import dill
 import itertools
+from MyBaseWrapper import BaseWrapper
 from keras import Sequential
 from keras.layers.embeddings import Embedding
-from keras.wrappers.scikit_learn import BaseWrapper
 from keras.utils import to_categorical
 from keras.models import Model as KerasModel
 from keras.callbacks import ModelCheckpoint

@@ -5,7 +5,7 @@ params = [
     ("dense_l2_regularizer", [0.01, 0.]),
     ("activation", ['sigmoid', 'softmax']),
     ("optimizer", ["nadam"]),
-    ("loss_function", ['binary_crossentropy', 'categorical_crossentropy']),
+    ("loss_function", ['categorical_crossentropy', 'binary_crossentropy']),
     ("threshold", [0.8]),
     ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2]])
 ]

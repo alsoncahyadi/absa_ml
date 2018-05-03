@@ -3,6 +3,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 import numpy as np
 import dill
 import itertools
+import abc
 from keras import Sequential
 from keras.layers.embeddings import Embedding
 from keras.wrappers.scikit_learn import BaseWrapper
@@ -87,11 +88,11 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                                     trainable=kwargs.get('trainable', False))
         return layer_embedding
 
-    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, result_path="output/gridsearch_cv_result.csv", **kwargs):
+    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, thresholds=None, result_path="output/gridsearch_cv_result.csv", **kwargs):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
         with open(result_path, 'w') as fo:
-            fo.write(",".join(score_metrics + list(param_names)) + '\n')
+            fo.write(",".join(score_metrics + ['threshold'] + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
         print("FITTING {}x FOR {} COMBINATIONS and {} CV".format(len(param_value_combinations)*k, len(param_value_combinations), k))
@@ -103,16 +104,24 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             # Fit
             current_param = dict(zip(param_names, current_param_value))
-            current_cv_score = self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, **current_param, **kwargs)
+            current_cv_score, threshold = self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, thresholds=thresholds, **current_param, **kwargs)
 
             # Write result
             with open(result_path, 'a') as fo:
                 current_param_value_str = ",".join([str(v) for v in current_param_value])
                 score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
-                line = score_str + "," + current_param_value_str + "\n"
+                line = score_str + "," + threshold + "," current_param_value_str + "\n"
                 fo.write(line)
 
-    def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, **kwargs):
+    @abc.abstractmethod
+    def set_threshold(self, thresh):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_threshold(self):
+        raise NotImplementedError
+
+    def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, thresholds=None, **kwargs):
         if type(sample_weight).__name__ != "NoneType":
             sample_weight_folds = np.array_split(sample_weight, k)
         X_folds = np.array_split(X, k)
@@ -145,7 +154,23 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 , **kwargs
                 , sample_weight = sample_weight_train
             )
-            scores = self.score(X_test, y_test, verbose=0)
+            if thresholds != None:
+                if len(thresholds) == 0:
+                    raise ValueError('thresholds should not be empty')
+                scoress = []
+                f1_temp = []
+                for j, threshold in enumerate(thresholds):
+                    self.set_threshold(threshold)
+                    scoress.append(self.score(X_test,y_test, verbose=0))
+                    f1_temp.append(scoress[j]['f1_score_macro'])
+                f1_temp = np.array(f1_temp)
+                max_f1_idx = f1_temp.argmax()
+                
+                scores = scoress[max_f1_idx]
+                threshold = thresholds[max_f1_idx]
+            else:
+                scores = self.score(X_test, y_test, verbose=0)
+                threshold = self.get_threshold
 
             # print classification_report(y_test, predicted, target_names=self.target_names)
             for j in range(len(self.target_names)):

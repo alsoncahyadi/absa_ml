@@ -9,6 +9,7 @@ params = [
     ("threshold", [0.8]),
     ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2]])
 ]
+thresholds = [0.5, 0.6, 0.7, 0.75, 0.8]
 
 def warn(*args, **kwargs):
     pass
@@ -238,7 +239,7 @@ class BinCategoryExtractor (MyClassifier):
         return self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh
 
 def make_new_count_vectorizer_vocab():
-    X, y, X_test, y_test = utils.get_ce_dataset()
+    X, _, _, _ = utils.get_ce_dataset()
     review = []
     for datum in X:
         review.append(" ".join([str(token) for token in datum if token != 0]))
@@ -260,7 +261,7 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, result_path='output/gridsearch_cv_result_bin.csv')
+    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
     # bi.fit(X, y, 
     #     epochs= 50,
     #     dropout_rate= 0.6,

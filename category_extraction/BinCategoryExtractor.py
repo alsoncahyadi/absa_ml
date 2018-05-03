@@ -6,7 +6,6 @@ params = [
     ("activation", ['sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),
-    ("threshold", [0.8]),
     ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2]])
 ]
 thresholds = [0.5, 0.6, 0.7, 0.75, 0.8]
@@ -151,7 +150,6 @@ class BinCategoryExtractor (MyClassifier):
             activation = 'sigmoid',
             optimizer = "nadam",
             loss_function = 'binary_crossentropy',
-            threshold = 0.5,
             included_features = [0, 1, 2],
 
             **kwargs
@@ -185,7 +183,7 @@ class BinCategoryExtractor (MyClassifier):
                 optimizer = optimizer,
                 loss_function = loss_function,
                 included_features = included_features,
-                ), thresh=threshold
+                ),
             ))
         ])
         self.pipeline.fit(X, y)

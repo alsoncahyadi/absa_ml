@@ -235,3 +235,16 @@ def get_sentence_end_index(X):
                 end[j] = i
                 break
     return np.array(end)
+
+def time_log(func):
+    import time, datetime
+    print("===============================")
+    print("Started on:", time.strftime("%d-%m-%Y %H:%M:%S", time.localtime()))
+    print("===============================")
+    start_time = time.time()
+    func()
+    print("================================")
+    print("DONE IN {}".format(datetime.timedelta(seconds=(int(time.time() - start_time)))))
+    print("Finished on:", time.strftime("%d-%m-%Y %H:%M:%S", time.localtime()))
+    print("================================")
+    

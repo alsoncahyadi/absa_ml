@@ -382,7 +382,4 @@ def main():
     # ote.score(X_test, y_test)
     
 if __name__ == "__main__":
-    import time
-    start_time = time.time()
-    main()
-    print("DONE IN {} seconds".format(time.time() - start_time))
+    utils.time_log(main)

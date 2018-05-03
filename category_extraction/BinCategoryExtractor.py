@@ -6,7 +6,8 @@ params = [
     ("activation", ['sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),
-    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2]])
+    ("units", [16, 256]),
+    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2], [1], [2]])
 ]
 thresholds = [0.5, 0.6, 0.7, 0.75, 0.8]
 
@@ -108,6 +109,7 @@ class BinCategoryExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
+        units = 64,
         included_features = [0,1,2],
 
         **kwargs
@@ -282,7 +284,4 @@ def binary():
     #     bi.set_threshold(thresh); bi.score(X_test, y_test)
 
 if __name__ == "__main__":
-    import time
-    start_time = time.time()
-    binary()
-    print("DONE IN {} seconds".format(time.time() - start_time))
+    utils.time_log(binary)

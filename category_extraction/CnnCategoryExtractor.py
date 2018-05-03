@@ -15,44 +15,24 @@ params = [
     ('units', [256, 64, 16]),
 ]
 
+params = [
+    ('epochs', [1]),
+    ('batch_size', [128]),
+    ('validation_split', [0.]),
+    ('filters', [1]),
+    ('kernel_size', [3]),
+    ('conv_activation', ['relu']),
+    ('conv_l2_regularizer', [0.]),
+    ('dropout_rate', [0.9]),
+    ('dense_activation', ['relu']),
+    ('dense_l2_regularizer', [0.]),
+    ('activation', ['sigmoid']),
+    ('optimizer', ['nadam']),
+    ('loss_function', ['binary_crossentropy']),
+    ('units', [4]),
+]
+
 param_grid = dict(params)
-
-"""
-param_grid = {
-    'epochs': [50],
-    'batch_size': [64],
-    'validation_split': [0.15],
-    'filters': [320],
-    'kernel_size': [5],
-    'conv_activation': ['relu'],
-    'conv_l2_regularizer': [0.001],
-    'dropout_rate': [0.6, 0.8],
-    'dense_activation': ['tanh'],
-    'dense_l2_regularizer': [0.001],
-    'activation': ['sigmoid'],
-    'optimizer': ['nadam'],
-    'loss_function': ['binary_crossentropy'],
-    'units': [256]
-}
-"""
-
-"""
-param_grid = {
-        'epochs': [1],
-        'batch_size': [64],
-        'filters': [64],
-        'kernel_size': [3],
-        'conv_activation': ['relu'],
-        'conv_l2_regularizer': [0.01],
-        'dropout_rate': [0.6],
-        'dense_activation': ['relu'],
-        'dense_l2_regularizer': [0.01],
-        'activation': ['sigmoid'],
-        'optimizer': ['nadam'],
-        'loss_function': ['binary_crossentropy'],
-        'units': [256]
-    }
-"""
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -283,7 +263,4 @@ def cnn():
 
 
 if __name__ == "__main__":
-    import time
-    start_time = time.time()
-    cnn()
-    print("DONE IN {} seconds".format(time.time() - start_time))
+    utils.time_log(cnn)

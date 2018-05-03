@@ -3,7 +3,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 import numpy as np
 import dill
 import itertools
-import abc
+import abc, time
 from keras import Sequential
 from keras.layers.embeddings import Embedding
 from keras.wrappers.scikit_learn import BaseWrapper
@@ -98,11 +98,12 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         print("FITTING {}x FOR {} COMBINATIONS and {} CV".format(len(param_value_combinations)*k, len(param_value_combinations), k))
         for i, current_param_value in enumerate(param_value_combinations):
             # Print log
-            print('\n===========', i, '===========')
+            print('\n===========', i+1, '/', len(param_value_combinations), '===========')
             for key, value in zip(param_names, current_param_value):
                 print(" ", key, ":", value)
 
             # Fit
+            start_time = time.time()
             current_param = dict(zip(param_names, current_param_value))
             current_cv_score= self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, thresholds=thresholds, **current_param, **kwargs)
 
@@ -112,6 +113,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
                 line = score_str + "," + current_param_value_str + "\n"
                 fo.write(line)
+            print("Done in: {0:.2f} s".format(time.time() - start_time))
 
     @abc.abstractmethod
     def set_threshold(self, thresh):
@@ -134,8 +136,11 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         recall_means = []
         f1_means = []
         thresholds_used = []
+        
+        total_score_time = 0.
 
         for i in range(k):
+
             X_train = list(X_folds)
             X_test  = X_train.pop(i)
             X_train = np.concatenate(X_train)
@@ -155,6 +160,8 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 , **kwargs
                 , sample_weight = sample_weight_train
             )
+
+            start_time = time.time()
             if thresholds != None:
                 if len(thresholds) == 0:
                     raise ValueError('thresholds should not be empty')
@@ -171,8 +178,8 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 thresholds_used.append(thresholds[max_f1_idx])
             else:
                 scores = self.score(X_test, y_test, verbose=0)
-                threshold = self.get_threshold
-
+                thresholds_used.append(self.get_threshold())
+            total_score_time += time.time() - start_time
             # print classification_report(y_test, predicted, target_names=self.target_names)
             for j in range(len(self.target_names)):
                 precision_scores[j].append(scores['precision_scores'][j])
@@ -193,13 +200,14 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         f1_macro = np.array(f1_means).mean()
 
         if score_verbose > 0:
-            print("\t>>> SCORE <<<")
+            print("\t>>> SCORE {0:.2f}s <<<".format(total_score_time))
             print("\tPrecision: {0:.2f}".format(precision_macro))
             print("\tRecall:    {0:.2f}".format(recall_macro))
             print("\tF1-score:  {0:.2f}".format(f1_macro))
             print("\tP -means:  {}".format(precision_means))
             print("\tR -means:  {}".format(recall_means))
             print("\tF1-means:  {}".format(f1_means))
+            print("\tThresh  :  {}".format(thresholds_used))
 
         scores = {
             'precision_means': precision_means,

@@ -92,7 +92,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
         with open(result_path, 'w') as fo:
-            fo.write(",".join(score_metrics + ['threshold'] + list(param_names)) + '\n')
+            fo.write(",".join(score_metrics + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
         print("FITTING {}x FOR {} COMBINATIONS and {} CV".format(len(param_value_combinations)*k, len(param_value_combinations), k))
@@ -104,13 +104,13 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             # Fit
             current_param = dict(zip(param_names, current_param_value))
-            current_cv_score, threshold = self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, thresholds=thresholds, **current_param, **kwargs)
+            current_cv_score= self._fit_cv(X, y, k=k, verbose=fit_verbose, score_verbose=score_verbose, thresholds=thresholds, **current_param, **kwargs)
 
             # Write result
             with open(result_path, 'a') as fo:
                 current_param_value_str = ",".join([str(v) for v in current_param_value])
                 score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
-                line = score_str + "," + threshold + "," + current_param_value_str + "\n"
+                line = score_str + "," + current_param_value_str + "\n"
                 fo.write(line)
 
     @abc.abstractmethod

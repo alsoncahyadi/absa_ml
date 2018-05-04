@@ -235,7 +235,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         MAX_SEQUENCE_LENGTH = 81
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self._load_embedding('../we/embedding_matrix.pkl')(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         # layer_blstm = Bidirectional(CuDNNLSTM(gru_units, return_sequences=True, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)

@@ -93,17 +93,17 @@ class CNNSentimentPolarityClassifier (MyClassifier):
 
         **kwargs):
         self.cnn_model = self._create_model(
-        	filters,
-	        kernel_size,
-	        conv_activation,
-	        conv_l2_regularizer,
-	        dropout_rate,
-	        dense_activation,
-	        dense_l2_regularizer,
-	        activation,
-	        optimizer,
-	        loss_function,
-	        units,
+        	filters=filters,
+	        kernel_size=kernel_size,
+	        conv_activation=conv_activation,
+	        conv_l2_regularizer=conv_l2_regularizer,
+	        dropout_rate=dropout_rate,
+	        dense_activation=dense_activation,
+	        dense_l2_regularizer=dense_l2_regularizer,
+	        activation=activation,
+	        optimizer=optimizer,
+	        loss_function=loss_function,
+	        units=units,
         )
         self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')

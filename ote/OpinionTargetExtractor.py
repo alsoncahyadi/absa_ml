@@ -65,11 +65,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.insert(0, '..')
 
-
-
-
-
-
 class RNNOpinionTargetExtractor (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -92,13 +87,21 @@ class RNNOpinionTargetExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        threshold = 0.7,
         gru_units = 256,
         units = 256,
         is_save = False,
         **kwargs):
-
-        self.rnn_model = self._create_model()
+        self.rnn_model = self._create_model(
+            recurrent_dropout = recurrent_dropout,
+            dropout_rate = dropout_rate,
+            dense_activation = dense_activation,
+            dense_l2_regularizer = dense_l2_regularizer,
+            activation = activation,
+            optimizer = optimizer,
+            loss_function = loss_function,
+            gru_units = gru_units,
+            units = units,
+        )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.rnn_model.fit(
@@ -225,7 +228,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        threshold = 0.7,
         gru_units = 256,
         units = 256,
 
@@ -361,8 +363,8 @@ def main():
         epochs = 75,
         batch_size = 64,
         # validation_split = 0.15,
-        recurrent_dropout= 0.,
-        dropout_rate=0.8,
+        recurrent_dropout= 0.2,
+        dropout_rate=0.5,
         dense_activation='relu',
         dense_l2_regularizer=0.01,
         activation='softmax',

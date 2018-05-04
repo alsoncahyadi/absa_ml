@@ -276,7 +276,7 @@ def main():
 
         # spc._fit_gridsearch_cv(X, y, param_grid, category)
         spc.fit(X, y, category,
-            epochs = 50,
+            epochs = 75,
             batch_size = 64,
             filters = 320,
             kernel_size = 5,

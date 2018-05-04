@@ -109,11 +109,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         if mode == "train_validate_split":
             self.cnn_model.fit(
                 X, y,
-                n_class = len(y[0]),
                 **kwargs
             )
-            self.cnn_model.load_weights(self.WEIGHTS_PATH)
-        
         if is_save:
             self.cnn_model.save(self.MODEL_PATH.format(category))
     

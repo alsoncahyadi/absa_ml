@@ -1,20 +1,22 @@
 # grid search hypers
 
-param_grid = {
-    'epochs': [25, 50],
-    'batch_size': [64],
-    'filters': [320, 64],
-    'kernel_size': [5, 3],
-    'conv_activation': ['relu', 'tanh'],
-    'conv_l2_regularizer': [0.01, 0.001],
-    'dropout_rate': [0.6],
-    'dense_activation': ['relu', 'tanh'],
-    'dense_l2_regularizer': [0.01, 0.001],
-    'activation': ['sigmoid'],
-    'optimizer': ['nadam'],
-    'loss_function': ['binary_crossentropy'],
-    'units': [256, 64, 16]
-}
+params = [
+    ('epochs', [25, 50]),
+    ('batch_size', [64]),
+    ('filters', [320, 64]),
+    ('kernel_size', [5, 3]),
+    ('conv_activation', ['relu', 'tanh']),
+    ('conv_l2_regularizer', [0.01, 0.001]),
+    ('dropout_rate', [0.6]),
+    ('dense_activation', ['relu', 'tanh']),
+    ('dense_l2_regularizer', [0.01, 0.001]),
+    ('activation', ['sigmoid']),
+    ('optimizer', ['nadam']),
+    ('loss_function', ['binary_crossentropy']),
+    ('units', [256, 64, 16])
+]
+
+param_grid = dict(params)
 
 """
 param_grid = {
@@ -177,7 +179,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         # layer_feature = Lambda(self._get_features)(layer_input)
-        layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
@@ -251,7 +253,7 @@ class CategoryFeatureExtractor (BaseEstimator):
 def main():
     categories = ['food', 'service', 'price', 'place']
     f1_scores = []
-    for category in categories:
+    for category in categories[1:2]:
         print("\n\n========= CHECKING CATEGORY:", category, "==========")
         """
             Initialize data

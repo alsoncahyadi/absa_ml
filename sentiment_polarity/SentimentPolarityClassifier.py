@@ -276,13 +276,13 @@ def main():
 
         # spc._fit_gridsearch_cv(X, y, param_grid, category)
         spc.fit(X, y, category,
-            epochs = 75,
+            epochs = 50,
             batch_size = 64,
             filters = 320,
             kernel_size = 5,
             conv_activation = 'relu',
-            conv_l2_regularizer = 0.001,
-            dropout_rate = 0.6,
+            conv_l2_regularizer = 0.01,
+            dropout_rate = 0.3,
             dense_activation = 'tanh',
             dense_l2_regularizer = 0.001,
             activation = 'sigmoid',

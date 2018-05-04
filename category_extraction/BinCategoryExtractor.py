@@ -1,8 +1,8 @@
 params = [
     ("epochs", [50]),
-    ("dropout_rate", [0.3]),
-    ("dense_activation", ['tanh', 'relu']),
-    ("dense_l2_regularizer", [0.01, 0.]),
+    ("dropout_rate", [0.6]),
+    ("dense_activation", ['tanh']),
+    ("dense_l2_regularizer", [0.01]),
     ("activation", ['sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),

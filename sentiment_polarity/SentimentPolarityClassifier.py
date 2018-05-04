@@ -67,18 +67,44 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.WEIGHTS_PATH = 'model/cnn/weights/CNN.hdf5'
-        self.MODEL_PATH = 'model/cnn/CNN.model'
+        self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
+        self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
-        self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
         self.cnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
     
-    def fit(self, X, y, **kwargs):
-        self.cnn_model = self._create_model()
-        self.cnn_model.save(self.MODEL_PATH)
+    def fit(self, X, y, category,
+
+        filters = 320,
+        kernel_size = 5,
+        conv_activation = 'tanh',
+        conv_l2_regularizer = 0.01,
+        dropout_rate = 0.6,
+        dense_activation = 'relu',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 256,
+
+        is_save = False,
+
+        **kwargs):
+        self.cnn_model = self._create_model(
+        	filters,
+	        kernel_size,
+	        conv_activation,
+	        conv_l2_regularizer,
+	        dropout_rate,
+	        dense_activation,
+	        dense_l2_regularizer,
+	        activation,
+	        optimizer,
+	        loss_function,
+	        units,
+        )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.cnn_model.fit(
@@ -87,6 +113,9 @@ class CNNSentimentPolarityClassifier (MyClassifier):
                 **kwargs
             )
             self.cnn_model.load_weights(self.WEIGHTS_PATH)
+        
+        if is_save:
+            self.cnn_model.save(self.MODEL_PATH.format(category))
     
     def predict(self, X, **kwargs):
         y_pred = self.cnn_model.predict(X)
@@ -151,7 +180,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         # layer_feature = Lambda(self._get_features)(layer_input)
-        layer_embedding = self.layer_embedding(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
@@ -246,6 +275,22 @@ def main():
         
 
         # spc._fit_gridsearch_cv(X, y, param_grid, category)
+        spc.fit(X, y, category,
+            epochs = 50,
+            batch_size = 64,
+            filters = 320,
+            kernel_size = 5,
+            conv_activation = 'relu',
+            conv_l2_regularizer = 0.001,
+            dropout_rate = 0.6,
+            dense_activation = 'tanh',
+            dense_l2_regularizer = 0.001,
+            activation = 'sigmoid',
+            optimizer = 'nadam',
+            loss_function = 'binary_crossentropy',
+            units = 256,
+            is_save = True
+        )
         
         """
             Load best estimator and score it
@@ -254,7 +299,6 @@ def main():
         best_model = load_model('model/cnn/best_{}.model'.format(category))
         del spc.cnn_model
         spc.cnn_model = best_model
-        from keras.utils.np_utils import to_categorical
         spc.score(X_test, y_test)
 
 if __name__ == "__main__":

@@ -339,7 +339,7 @@ def main():
     """
         Calculate Sample Weight
     """
-    sample_weight = utils.get_sample_weight(X, y, mu=2.5, threshold=0.1)
+    sample_weight = utils.get_sample_weight(X, y, mu=0.1, threshold=1.)
     print(sample_weight)
     
     """

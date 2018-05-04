@@ -231,25 +231,25 @@ def cnn():
         Fit the model
     """
     
-    ce.fit(X_train, y_train, verbose=1,
-        epochs = 50,
-        batch_size = 64,
-        # validation_split = 0.15,
-        filters = 320,
-        kernel_size = 5,
-        conv_activation = 'relu',
-        conv_l2_regularizer = 0.001,
-        dropout_rate = 0.6,
-        dense_activation = 'tanh',
-        dense_l2_regularizer = 0.001,
-        activation = 'sigmoid',
-        optimizer = "nadam",
-        loss_function = 'binary_crossentropy',
-        units = 256,
-        is_save = True
-    )
+    # ce.fit(X_train, y_train, verbose=1,
+    #     epochs = 50,
+    #     batch_size = 64,
+    #     # validation_split = 0.15,
+    #     filters = 320,
+    #     kernel_size = 5,
+    #     conv_activation = 'relu',
+    #     conv_l2_regularizer = 0.001,
+    #     dropout_rate = 0.6,
+    #     dense_activation = 'tanh',
+    #     dense_l2_regularizer = 0.001,
+    #     activation = 'sigmoid',
+    #     optimizer = "nadam",
+    #     loss_function = 'binary_crossentropy',
+    #     units = 256,
+    #     is_save = True
+    # )
     
-    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it

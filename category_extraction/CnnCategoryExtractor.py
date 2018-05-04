@@ -182,7 +182,7 @@ class CNNCategoryExtractor (MyClassifier):
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
@@ -232,7 +232,7 @@ def cnn():
     """
         Fit the model
     """
-    """
+    
     ce.fit(X_train, y_train, verbose=1,
         epochs = 50,
         batch_size = 64,
@@ -250,7 +250,7 @@ def cnn():
         units = 256,
         is_save = True
     )
-    """
+    
     # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """

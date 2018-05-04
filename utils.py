@@ -238,6 +238,7 @@ def get_sentence_end_index(X):
 
 def time_log(func):
     import time, datetime
+    print()
     print("===============================")
     print("Started on:", time.strftime("%d-%m-%Y %H:%M:%S", time.localtime()))
     print("===============================")
@@ -249,4 +250,5 @@ def time_log(func):
     print("DONE IN {}".format(datetime.timedelta(seconds=(int(time.time() - start_time)))))
     print("Finished on:", time.strftime("%d-%m-%Y %H:%M:%S", time.localtime()))
     print("================================")
+    print()
     

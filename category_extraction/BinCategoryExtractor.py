@@ -78,8 +78,6 @@ class BinCategoryExtractor (MyClassifier):
         with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
             self.count_vectorizer_vocab_cluster = dill.load(fi)
 
-        print(len(self.count_vectorizer_vocab_cluster.items()))
-
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
             (

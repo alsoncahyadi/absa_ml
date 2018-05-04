@@ -95,16 +95,19 @@ class RNNOpinionTargetExtractor (MyClassifier):
         threshold = 0.7,
         gru_units = 256,
         units = 256,
+        is_save = False,
         **kwargs):
 
         self.rnn_model = self._create_model()
-        self.rnn_model.save(self.MODEL_PATH)
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.rnn_model.fit(
                 X, y,
                 **kwargs
             )
+        
+        if is_save:
+            self.rnn_model.save(self.MODEL_PATH)
     
     def predict(self, X, **kwargs):
         y_pred = self.rnn_model.predict(X)
@@ -367,7 +370,8 @@ def main():
         loss_function='categorical_crossentropy',
         gru_units=256,
         units=256,
-        sample_weight = sample_weight
+        sample_weight = sample_weight,
+        is_save=True
     )
     ote.score(X_test, y_test)
     

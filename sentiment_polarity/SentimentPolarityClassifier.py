@@ -105,6 +105,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
 	        loss_function,
 	        units,
         )
+        self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.cnn_model.fit(
@@ -286,6 +287,7 @@ def main():
             optimizer = 'nadam',
             loss_function = 'binary_crossentropy',
             units = 256,
+            verbose=False,
             is_save = True
         )
         

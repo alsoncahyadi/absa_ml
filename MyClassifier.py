@@ -91,8 +91,9 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
     def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, thresholds=None, result_path="output/gridsearch_cv_result.csv", **kwargs):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
+        DELIM = ';'
         with open(result_path, 'w') as fo:
-            fo.write(",".join(score_metrics + list(param_names)) + '\n')
+            fo.write(DELIM.join(score_metrics + list(param_names)) + '\n')
 
         param_value_combinations = list(itertools.product(*param_values))
         print("FITTING {}x FOR {} combinations, {} folds".format(len(param_value_combinations)*k, len(param_value_combinations), k))
@@ -109,9 +110,9 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             # Write result
             with open(result_path, 'a') as fo:
-                current_param_value_str = ",".join([str(v) for v in current_param_value])
-                score_str = ",".join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
-                line = score_str + "," + current_param_value_str + "\n"
+                current_param_value_str = DELIM.join([str(v) for v in current_param_value])
+                score_str = DELIM.join([str(current_cv_score[score_metric]) for score_metric in score_metrics])
+                line = score_str + DELIM + current_param_value_str + "\n"
                 fo.write(line)
             print("Done in: {0:.2f} s".format(time.time() - start_time))
 

@@ -253,7 +253,7 @@ class CategoryFeatureExtractor (BaseEstimator):
 def main():
     categories = ['food', 'service', 'price', 'place']
     f1_scores = []
-    for category in categories[1:2]:
+    for category in categories:
         print("\n\n========= CHECKING CATEGORY:", category, "==========")
         """
             Initialize data

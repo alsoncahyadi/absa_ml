@@ -1,2 +1,1 @@
-f1_macro,precision_macro,recall_macro,epochs,batch_size,validation_split,filters,kernel_size,conv_activation,conv_l2_regularizer,dropout_rate,dense_activation,dense_l2_regularizer,activation,optimizer,loss_function,units
-0.8989042001865208,0.9442861413010787,0.8636613970880495,50,64,0.15,320,5,relu,0.01,0.6,relu,0.01,sigmoid,nadam,binary_crossentropy,256
+f1_macro;precision_macro;recall_macro;epochs;batch_size;validation_split;filters;kernel_size;conv_activation;conv_l2_regularizer;dropout_rate;dense_activation;dense_l2_regularizer;activation;optimizer;loss_function;units;trainable

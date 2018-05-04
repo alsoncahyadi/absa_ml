@@ -1,18 +1,18 @@
 params = [
-    ('epochs', [50]),
+    ('epochs', [50, 75]),
     ('batch_size', [64]),
-    ('validation_split', [0.15]),
-    ('filters', [320, 64]),
-    ('kernel_size', [5, 3]),
+    ('validation_split', [0.]),
+    ('filters', [320]),
+    ('kernel_size', [5]),
     ('conv_activation', ['relu', 'tanh']),
-    ('conv_l2_regularizer', [0.01, 0.001]),
-    ('dropout_rate', [0.6, 0.8]),
+    ('conv_l2_regularizer', [0.01, 0.001, 0.]),
+    ('dropout_rate', [0., 0.2, 0.6, 0.8]),
     ('dense_activation', ['relu', 'tanh']),
-    ('dense_l2_regularizer', [0.01, 0.001]),
+    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
-    ('units', [256, 64, 16]),
+    ('units', [256, 64]),
     ('trainable', [False])
 ]
 

@@ -73,7 +73,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.MODEL_PATH = 'model/brnn/BRNN.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
        
-        self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
         self.target_names = ['O', 'B-ASPECT', 'I-ASPECT']
         self.rnn_model = None
         for key, value in kwargs.items():

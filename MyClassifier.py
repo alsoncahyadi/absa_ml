@@ -1,5 +1,5 @@
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
 import numpy as np
 import dill
 import itertools
@@ -73,6 +73,8 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("F1-Score-Macro:", f1_score_macro)
             print("P -Score-Macro:", precision_score_macro)
             print("R -Score-Macro:", recall_score_macro)
+            print("Confusion Matrix:")
+            print(confusion_matrix(y, y_pred))
         return scores
 
     def _load_embedding(self, path_to_embedding_matrix, **kwargs):

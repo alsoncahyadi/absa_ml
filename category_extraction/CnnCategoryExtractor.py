@@ -15,6 +15,7 @@ params = [
     ('units', [256, 64, 16]),
 ]
 
+"""
 params = [
     ('epochs', [1]),
     ('batch_size', [128]),
@@ -31,7 +32,7 @@ params = [
     ('loss_function', ['binary_crossentropy']),
     ('units', [4]),
 ]
-
+"""
 param_grid = dict(params)
 
 import os
@@ -219,7 +220,7 @@ def cnn():
     X, y, X_test, y_test = utils.get_ce_dataset()
 
     X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
-    thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9]
+    thresh_to_try = [0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.975, 0.999]
     """
         Make the model
     """
@@ -231,34 +232,36 @@ def cnn():
     """
         Fit the model
     """
-    # ce.fit(X, y, verbose=1,
-    #     epochs = 50,
-    #     batch_size = 64,
-    #     # validation_split = 0.15,
-    #     filters = 320,
-    #     kernel_size = 5,
-    #     conv_activation = 'relu',
-    #     conv_l2_regularizer = 0.001,
-    #     dropout_rate = 0.6,
-    #     dense_activation = 'tanh',
-    #     dense_l2_regularizer = 0.001,
-    #     activation = 'sigmoid',
-    #     optimizer = "nadam",
-    #     loss_function = 'binary_crossentropy',
-    #     units = 256,
-    #     is_save = True
-    # )
-    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try)
+    """
+    ce.fit(X_train, y_train, verbose=1,
+        epochs = 50,
+        batch_size = 64,
+        # validation_split = 0.15,
+        filters = 320,
+        kernel_size = 5,
+        conv_activation = 'relu',
+        conv_l2_regularizer = 0.001,
+        dropout_rate = 0.6,
+        dense_activation = 'tanh',
+        dense_l2_regularizer = 0.001,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 256,
+        is_save = True
+    )
+    """
+    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    # best_model = load_model(ce.MODEL_PATH)
-    # del ce.cnn_model
-    # ce.cnn_model = best_model
-    # for thresh in thresh_to_try:
-    #     print("\nTHRESH: {}".format(thresh))
-    #     ce.set_threshold(thresh); ce.score(X_test, y_test)
+    best_model = load_model(ce.MODEL_PATH)
+    del ce.cnn_model
+    ce.cnn_model = best_model
+    for thresh in thresh_to_try:
+        print("\nTHRESH: {}".format(thresh))
+        ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

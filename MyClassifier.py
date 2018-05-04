@@ -204,9 +204,9 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
         if score_verbose > 0:
             print("\t>>> SCORE {0:.2f}s <<<".format(total_score_time))
-            print("\tPrecision: {0:.2f}".format(precision_macro))
-            print("\tRecall:    {0:.2f}".format(recall_macro))
-            print("\tF1-score:  {0:.2f}".format(f1_macro))
+            print("\tPrecision: {0:.5f}".format(precision_macro))
+            print("\tRecall:    {0:.5f}".format(recall_macro))
+            print("\tF1-score:  {0:.5f}".format(f1_macro))
             print("\tP -means:  {}".format(precision_means))
             print("\tR -means:  {}".format(recall_means))
             print("\tF1-means:  {}".format(f1_means))

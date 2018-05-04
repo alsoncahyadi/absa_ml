@@ -300,4 +300,4 @@ def main():
         spc.score(X_test, y_test)
 
 if __name__ == "__main__":
-    main()
+    utils.time_log(main())

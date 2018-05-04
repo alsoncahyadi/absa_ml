@@ -11,6 +11,7 @@ params = [
     ('loss_function', ['binary_crossentropy', 'categorical_crossentropy']),
     ('gru_units', [256]),
     ('units', [256]),
+    ('trainable', [False])
 ]
 
 """
@@ -89,6 +90,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         gru_units = 256,
         units = 256,
         is_save = False,
+        trainable = False,
         **kwargs):
         self.rnn_model = self._create_model(
             recurrent_dropout = recurrent_dropout,
@@ -100,6 +102,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             loss_function = loss_function,
             gru_units = gru_units,
             units = units,
+            trainable = trainable,
         )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
@@ -229,6 +232,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         loss_function = 'binary_crossentropy',
         gru_units = 256,
         units = 256,
+        trainable = False,
 
         **kwargs
     ):
@@ -236,7 +240,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         MAX_SEQUENCE_LENGTH = 81
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
         # layer_blstm = Bidirectional(CuDNNLSTM(gru_units, return_sequences=True, stateful=False))(layer_embedding)
         layer_dropout_1 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)

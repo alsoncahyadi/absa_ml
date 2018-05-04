@@ -13,6 +13,7 @@ params = [
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
     ('units', [256, 64, 16]),
+    ('trainable', [False])
 ]
 
 """
@@ -96,6 +97,7 @@ class CNNCategoryExtractor (MyClassifier):
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         units = 256,
+        trainable = False,
 
         is_save = False,
         
@@ -113,6 +115,7 @@ class CNNCategoryExtractor (MyClassifier):
             optimizer,
             loss_function,
             units,
+            trainable,
         )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
@@ -172,6 +175,7 @@ class CNNCategoryExtractor (MyClassifier):
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         units = 256,
+        trainable = False,
 
         **kwargs
     ):
@@ -180,7 +184,7 @@ class CNNCategoryExtractor (MyClassifier):
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)

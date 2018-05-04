@@ -250,6 +250,7 @@ class CategoryFeatureExtractor (BaseEstimator):
 
 def main():
     categories = ['food', 'service', 'price', 'place']
+    f1_scores = []
     for category in categories:
         print("\n\n========= CHECKING CATEGORY:", category, "==========")
         """
@@ -297,7 +298,9 @@ def main():
         best_model = load_model('model/cnn/best_{}.model'.format(category))
         del spc.cnn_model
         spc.cnn_model = best_model
-        spc.score(X_test, y_test)
+        score = spc.score(X_test, y_test)
+        f1_scores.append(score['f1_score_macro'])
+    print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
 
 if __name__ == "__main__":
     utils.time_log(main)

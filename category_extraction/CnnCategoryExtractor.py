@@ -114,7 +114,7 @@ class CNNCategoryExtractor (MyClassifier):
             loss_function,
             units,
         )
-        self.cnn_model.save(self.MODEL_PATH)
+        # self.cnn_model.save(self.MODEL_PATH)
         # self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":

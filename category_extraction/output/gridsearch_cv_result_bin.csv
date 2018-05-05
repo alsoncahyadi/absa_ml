@@ -1,1 +1,15 @@
-f1_macro,precision_macro,recall_macro,epochs,dropout_rate,dense_activation,dense_l2_regularizer,activation,optimizer,loss_function,threshold,included_features
+f1_macro,precision_macro,recall_macro,epochs,dropout_rate,dense_activation,dense_l2_regularizer,activation,optimizer,loss_function,units,included_features
+1.0,1.0,1.0,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[0]
+1.0,1.0,1.0,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[0, 1]
+0.8962693860567732,0.9761199344233598,0.8621305107342782,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[0, 2]
+0.7206453134218933,0.8165935389671356,0.6750425096610744,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[1, 2]
+0.8508321390401086,0.8842344841593173,0.8268864462733525,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[0, 1, 2]
+0.8298507936663736,0.929961686110136,0.7727086364611709,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[1]
+0.6394465769990827,0.8794931144401847,0.5825835949799382,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,16,[2]
+1.0,1.0,1.0,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[0]
+1.0,1.0,1.0,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[0, 1]
+0.7927352512448832,0.8723136364267361,0.7799236290354503,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[0, 2]
+0.6634892804962302,0.8512616830706705,0.6244605928480974,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[1, 2]
+0.7732834919724395,0.8949763374256274,0.7310944735663838,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[0, 1, 2]
+0.8328324543330687,0.9316266278087311,0.7722786652192923,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[1]
+0.6319085168175473,0.8176988016010682,0.6202202879395244,50,0.6,tanh,0.01,sigmoid,nadam,binary_crossentropy,256,[2]

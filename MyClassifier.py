@@ -74,7 +74,10 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("P -Score-Macro:", precision_score_macro)
             print("R -Score-Macro:", recall_score_macro)
             print("Confusion Matrix:")
-            print(confusion_matrix(y, y_pred))
+            try:
+                print(confusion_matrix(y, y_pred))
+            except:
+                print("Can't be shown")
         return scores
 
     def _load_embedding(self, path_to_embedding_matrix, **kwargs):

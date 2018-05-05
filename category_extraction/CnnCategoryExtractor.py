@@ -98,8 +98,10 @@ class CNNCategoryExtractor (MyClassifier):
         loss_function = 'binary_crossentropy',
         units = 256,
         trainable = False,
+        dense_layers = 1,
 
         is_save = False,
+        show_summary = False,
         
         **kwargs):
 
@@ -117,6 +119,8 @@ class CNNCategoryExtractor (MyClassifier):
             units,
             trainable,
         )
+        if show_summary:
+            self.cnn_model.summary()
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
             self.cnn_model.fit(
@@ -176,6 +180,7 @@ class CNNCategoryExtractor (MyClassifier):
         loss_function = 'binary_crossentropy',
         units = 256,
         trainable = False,
+        dense_layers = 1,
 
         **kwargs
     ):
@@ -188,10 +193,11 @@ class CNNCategoryExtractor (MyClassifier):
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
-        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
-        layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        # layer_dropout_2 = Dropout(dropout_rate, seed=7)(layer_dense_1)
-        layer_softmax = Dense(4, activation=activation)(layer_dense_1)
+        layer_dropout = Dropout(dropout_rate, seed=7)(layer_pooling)
+        for i in range(dense_layers):
+            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
+            layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+        layer_softmax = Dense(4, activation=activation)(layer_dropout)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -235,32 +241,36 @@ def cnn():
         Fit the model
     """
     
-    # ce.fit(X_train, y_train, verbose=1,
-    #     epochs = 50,
-    #     batch_size = 64,
-    #     # validation_split = 0.15,
-    #     filters = 320,
-    #     kernel_size = 5,
-    #     conv_activation = 'relu',
-    #     conv_l2_regularizer = 0.001,
-    #     dropout_rate = 0.6,
-    #     dense_activation = 'tanh',
-    #     dense_l2_regularizer = 0.001,
-    #     activation = 'sigmoid',
-    #     optimizer = "nadam",
-    #     loss_function = 'binary_crossentropy',
-    #     units = 256,
-    #     is_save = True
-    # )
+    ce.fit(X, y, verbose=1,
+        epochs = 75,
+        batch_size = 64,
+        # validation_split = 0.2,
+        filters = 320,
+        kernel_size = 5,
+        conv_activation = 'relu',
+        conv_l2_regularizer = 0.001,
+        dropout_rate = 0.2,
+        dense_activation = 'tanh',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 256,
+        trainable = False,
+        dense_layers=1,
+
+        is_save = True,
+        show_summary = True
+    )
     
-    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    best_model = load_model(ce.MODEL_PATH)
-    del ce.cnn_model
-    ce.cnn_model = best_model
+    # best_model = load_model(ce.MODEL_PATH)
+    # del ce.cnn_model
+    # ce.cnn_model = best_model
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
         ce.set_threshold(thresh); ce.score(X_test, y_test)

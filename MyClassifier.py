@@ -90,7 +90,8 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                                     trainable=kwargs.get('trainable', False))
         return layer_embedding
 
-    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, thresholds=None, result_path="output/gridsearch_cv_result.csv", **kwargs):
+    def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, thresholds=None,
+        result_path="output/gridsearch_cv_result.csv", **kwargs):
         score_metrics = ['f1_macro', 'precision_macro', 'recall_macro']
         param_names, param_values = zip(*params)
         DELIM = ';'
@@ -132,9 +133,9 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         X_folds = np.array_split(X, k)
         y_folds = np.array_split(y, k)
 
-        precision_scores = [[]] * len(self.target_names)
-        recall_scores = [[]] * len(self.target_names)
-        f1_scores = [[]] * len(self.target_names)
+        precision_scores = [[] for _ in range(len(self.target_names))]
+        recall_scores = [[] for _ in range(len(self.target_names))]
+        f1_scores = [[] for _ in range(len(self.target_names))]
         precision_means = []
         recall_means = []
         f1_means = []
@@ -183,8 +184,10 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 scores = self.score(X_test, y_test, verbose=0)
                 thresholds_used.append(self.get_threshold())
             total_score_time += time.time() - start_time
-            # print classification_report(y_test, predicted, target_names=self.target_names)
+
             for j in range(len(self.target_names)):
+                if (j==1) :
+                    print(scores['precision_scores'][j])
                 precision_scores[j].append(scores['precision_scores'][j])
                 recall_scores[j].append(scores['recall_scores'][j])
                 f1_scores[j].append(scores['f1_scores'][j])
@@ -210,6 +213,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("\tP -means:  {}".format(precision_means))
             print("\tR -means:  {}".format(recall_means))
             print("\tF1-means:  {}".format(f1_means))
+            print("\tF1-scores: {} {}".format(len(precision_scores[0]), "\n\t".join(str(f1_score) for f1_score in precision_scores)))
             print("\tThresh  :  {}".format(thresholds_used))
 
         scores = {

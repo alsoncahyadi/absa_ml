@@ -213,7 +213,6 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("\tP -means:  {}".format(precision_means))
             print("\tR -means:  {}".format(recall_means))
             print("\tF1-means:  {}".format(f1_means))
-            print("\tF1-scores: {} {}".format(len(precision_scores[0]), "\n\t".join(str(f1_score) for f1_score in precision_scores)))
             print("\tThresh  :  {}".format(thresholds_used))
 
         scores = {

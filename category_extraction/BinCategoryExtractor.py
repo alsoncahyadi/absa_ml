@@ -109,6 +109,7 @@ class BinCategoryExtractor (MyClassifier):
         loss_function = 'binary_crossentropy',
         units = 64,
         included_features = [0,1,2],
+        dense_layers = 1,
 
         **kwargs
     ):
@@ -129,9 +130,12 @@ class BinCategoryExtractor (MyClassifier):
 
         # Define Architecture
         layer_input = Input(shape=(INPUT_DIM,))
-        layer_dense_1 = Dense(64, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_input)
-        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_dense_1)
-        layer_softmax = Dense(1, activation=activation)(layer_dropout_1)
+        layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_input)
+        for i in range(dense_layers-1):
+            layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
+        layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+        layer_softmax = Dense(1, activation=activation)(layer_dropout)
         
         # Create Model
         ann_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -151,6 +155,7 @@ class BinCategoryExtractor (MyClassifier):
             optimizer = "nadam",
             loss_function = 'binary_crossentropy',
             included_features = [0, 1, 2],
+            dense_layers = 1,
 
             **kwargs
         ):
@@ -183,6 +188,7 @@ class BinCategoryExtractor (MyClassifier):
                 optimizer = optimizer,
                 loss_function = loss_function,
                 included_features = included_features,
+                dense_layers = dense_layers,
                 ),
             ))
         ])
@@ -259,27 +265,29 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
-    # bi.fit(X, y, 
-    #     epochs= 50,
-    #     dropout_rate= 0.6,
-    #     dense_activation= 'tanh',
-    #     dense_l2_regularizer= 0.01,
-    #     activation= 'sigmoid',
-    #     optimizer= "nadam",
-    #     loss_function= 'binary_crossentropy',
-    #     threshold= 0.2,
-    #     included_features= [0, 1],
-    #     verbose = 1
-    # )
+    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
+    bi.fit(X, y, 
+        epochs= 50,
+        dropout_rate= 0.6,
+        dense_activation= 'tanh',
+        dense_l2_regularizer= 0.01,
+        activation= 'sigmoid',
+        optimizer= "nadam",
+        loss_function= 'binary_crossentropy',
+        threshold= 0.2,
+        included_features= [0],
+        units= 256,
+        dense_layers= 2,
+        verbose = 1
+    )
 
     # bi.save_estimators()
     # bi.load_estimators()
     
-    # thresh_to_try = [0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.7875, 0.8, 0.825, 0.85, 0.875, 0.9]
-    # for thresh in thresh_to_try:
-    #     print("\nTHRESH: {}".format(thresh))
-    #     bi.set_threshold(thresh); bi.score(X_test, y_test)
+    thresh_to_try = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.925, 0.95]
+    for thresh in thresh_to_try:
+        print("\nTHRESH: {}".format(thresh))
+        bi.set_threshold(thresh); bi.score(X_test, y_test)
 
 if __name__ == "__main__":
     utils.time_log(binary)

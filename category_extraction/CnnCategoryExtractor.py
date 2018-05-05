@@ -118,6 +118,7 @@ class CNNCategoryExtractor (MyClassifier):
             loss_function,
             units,
             trainable,
+            dense_layers,
         )
         if show_summary:
             self.cnn_model.summary()

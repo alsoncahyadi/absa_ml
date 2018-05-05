@@ -186,8 +186,6 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             total_score_time += time.time() - start_time
 
             for j in range(len(self.target_names)):
-                if (j==1) :
-                    print(scores['precision_scores'][j])
                 precision_scores[j].append(scores['precision_scores'][j])
                 recall_scores[j].append(scores['recall_scores'][j])
                 f1_scores[j].append(scores['f1_scores'][j])

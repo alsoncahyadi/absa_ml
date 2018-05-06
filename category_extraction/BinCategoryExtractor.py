@@ -1,15 +1,16 @@
 params = [
-    ("epochs", [50]),
-    ("dropout_rate", [0.6]),
+    ("epochs", [50, 75]),
+    ("dropout_rate", [0., 0.2, 0.6]),
     ("dense_activation", ['tanh']),
     ("dense_l2_regularizer", [0.01]),
     ("activation", ['sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),
-    ("units", [16, 256]),
-    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2], [1], [2]])
+    ("units", [64, 256]),
+    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2], [1], [2]]),
+    ("dense_layers", [1, 2]),
 ]
-thresholds = [0.5, 0.6, 0.7, 0.75, 0.8]
+thresholds = [0.2, 0.5, 0.8]
 
 def warn(*args, **kwargs):
     pass
@@ -267,7 +268,8 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
+    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
+    """
     bi.fit(X, y, 
         epochs= 50,
         dropout_rate= 0.6,
@@ -282,7 +284,7 @@ def binary():
         dense_layers= 2,
         verbose = 0
     )
-
+    """
     # bi.save_estimators()
     # bi.load_estimators()
     

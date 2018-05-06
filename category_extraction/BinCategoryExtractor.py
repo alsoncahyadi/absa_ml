@@ -6,7 +6,7 @@ params = [
     ("activation", ['sigmoid']),
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),
-    ("units", [64, 256]),
+    ("units", [4, 256]),
     ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2], [1], [2]]),
     ("dense_layers", [1, 2]),
 ]

@@ -1,19 +1,20 @@
 params = [
-    ('epochs', [50, 75]),
+    ('epochs', [75]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
     ('filters', [320]),
     ('kernel_size', [5]),
     ('conv_activation', ['relu', 'tanh']),
-    ('conv_l2_regularizer', [0.01, 0.001, 0.]),
-    ('dropout_rate', [0., 0.2, 0.6, 0.8]),
+    ('conv_l2_regularizer', [0.001]),
+    ('dropout_rate', [0., 0.2, 0.6]),
     ('dense_activation', ['relu', 'tanh']),
-    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
+    ('dense_l2_regularizer', [0.01]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
     ('units', [256, 64]),
-    ('trainable', [False])
+    ('trainable', [False]),
+    ('dense_layers', [2, 3]),
 ]
 
 """
@@ -242,29 +243,29 @@ def cnn():
         Fit the model
     """
     
-    ce.fit(X, y, verbose=1,
-        epochs = 75,
-        batch_size = 64,
-        # validation_split = 0.2,
-        filters = 320,
-        kernel_size = 5,
-        conv_activation = 'relu',
-        conv_l2_regularizer = 0.001,
-        dropout_rate = 0.2,
-        dense_activation = 'tanh',
-        dense_l2_regularizer = 0.01,
-        activation = 'sigmoid',
-        optimizer = "nadam",
-        loss_function = 'binary_crossentropy',
-        units = 256,
-        trainable = False,
-        dense_layers=2,
+    # ce.fit(X, y, verbose=1,
+    #     epochs = 75,
+    #     batch_size = 64,
+    #     # validation_split = 0.2,
+    #     filters = 320,
+    #     kernel_size = 5,
+    #     conv_activation = 'relu',
+    #     conv_l2_regularizer = 0.001,
+    #     dropout_rate = 0.2,
+    #     dense_activation = 'tanh',
+    #     dense_l2_regularizer = 0.01,
+    #     activation = 'sigmoid',
+    #     optimizer = "nadam",
+    #     loss_function = 'binary_crossentropy',
+    #     units = 256,
+    #     trainable = False,
+    #     dense_layers=2,
 
-        is_save = False,
-        show_summary = True
-    )
+    #     is_save = False,
+    #     show_summary = True
+    # )
     
-    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
@@ -272,9 +273,9 @@ def cnn():
     # best_model = load_model(ce.MODEL_PATH)
     # del ce.cnn_model
     # ce.cnn_model = best_model
-    for thresh in thresh_to_try:
-        print("\nTHRESH: {}".format(thresh))
-        ce.set_threshold(thresh); ce.score(X_test, y_test)
+    # for thresh in thresh_to_try:
+    #     print("\nTHRESH: {}".format(thresh))
+    #     ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

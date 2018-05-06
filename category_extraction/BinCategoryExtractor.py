@@ -157,6 +157,7 @@ class BinCategoryExtractor (MyClassifier):
             included_features = [0, 1, 2],
             dense_layers = 1,
 
+            verbose = 0,
             **kwargs
         ):
         transformer_list = [
@@ -180,7 +181,7 @@ class BinCategoryExtractor (MyClassifier):
             ),
             ('clf', MyOneVsRestClassifier(KerasClassifier(
                 build_fn = self._create_ann_model,
-                verbose=0, epochs=epochs, batch_size=batch_size,
+                verbose=verbose, epochs=epochs, batch_size=batch_size,
                 dropout_rate = dropout_rate,
                 dense_activation = dense_activation,
                 dense_l2_regularizer = dense_l2_regularizer,
@@ -259,6 +260,7 @@ def binary():
         Initialize data
     """
     X, y, X_test, y_test = utils.get_ce_dataset()
+    # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
     
     """
         Make the model
@@ -276,15 +278,15 @@ def binary():
         loss_function= 'binary_crossentropy',
         threshold= 0.2,
         included_features= [0],
-        units= 256,
+        units= 4,
         dense_layers= 2,
-        verbose = 1
+        verbose = 0
     )
 
     # bi.save_estimators()
     # bi.load_estimators()
     
-    thresh_to_try = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.925, 0.95]
+    thresh_to_try = [0.2, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95]
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
         bi.set_threshold(thresh); bi.score(X_test, y_test)

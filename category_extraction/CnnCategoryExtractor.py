@@ -258,7 +258,7 @@ def cnn():
         loss_function = 'binary_crossentropy',
         units = 256,
         trainable = False,
-        dense_layers=1,
+        dense_layers=2,
 
         is_save = True,
         show_summary = True

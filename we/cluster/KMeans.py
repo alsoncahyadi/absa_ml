@@ -1,9 +1,9 @@
 import sys
-sys.path.insert(0, '../..')
+sys.path.insert(0, '../../')
 import dill
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer
-from utils import get_ce_dataset, get_spc_dataset, get_ote_dataset
+import utils
 import numpy as np
 import os
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         cluster_list = dill.load(fi)
     
     os.chdir('../../category_extraction')
-    X, _, _, _ = get_ce_dataset()
+    X, _, _, _ = utils.get_ce_dataset()
     X = transform(X, cluster_list)
     bag = CountVectorizer(ngram_range=(1, 2))
     X_text = []
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         Count Vectorizer Vocabulary
     """
     os.chdir('../ote')
-    X, _, _, _ = get_ote_dataset()
+    X, _, _, _ = utils.get_ote_dataset()
     X = transform(X, cluster_list)
     bag = CountVectorizer(ngram_range=(1, 2))
     X_text = []
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     categories = ['food', 'service', 'place', 'price']
     for category in categories:
-        X, _, _, _ = get_spc_dataset(category)
+        X, _, _, _ = utils.get_spc_dataset(category)
         X = transform(X, cluster_list)
         bag = CountVectorizer(ngram_range=(1, 2))
         X_text = []

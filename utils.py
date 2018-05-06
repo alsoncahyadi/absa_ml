@@ -3,7 +3,8 @@ from keras.preprocessing.text import Tokenizer
 import pandas as pd
 import numpy as np
 import dill
-
+from polyglot.text import Text
+from ote.OpinionTargetFeatureExtractor import extract_features
 
 def get_tokenizer(tokenizer_path='../we/tokenizer.pkl'):
     """
@@ -116,8 +117,8 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
                     tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
         return data
 
-    train_data = read_data_from_file('data/train_data.txt')
-    test_data = read_data_from_file('data/test_data.txt')
+    train_data = read_data_from_file('data/train_data_fixed.txt')
+    test_data = read_data_from_file('data/test_data_fixed.txt')
                 
     df = pd.DataFrame(train_data)
     df_test = pd.DataFrame(test_data)
@@ -169,6 +170,96 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     y = y[:,:,1:]
     y_test = y_test[:,:,1:]
+
+    return X, y, X_test, y_test
+
+def filter_sentence(sentence):
+    new_sentence = sentence.replace('-', 'DASH')
+    # new_sentence = sentence.replace('~', 'WAVE')
+    return new_sentence
+
+def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
+    def read_data_from_file(path):
+        data = {
+            'all' : [],
+            'sentences' : [],
+            'list_of_poss' : [],
+            'list_of_is_aspects' : [],
+            'list_of_iobs' : [],
+            'raw' : []
+        }
+        with open(path, "r") as f:
+            tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+            for line in f:
+                line = line.rstrip()
+                if line:
+                    token = tuple(line.split())
+                    words.append(token[0])
+                    poss.append(token[1])
+                    is_aspects.append(token[2])
+                    iob_aspects.append(token[6])
+                    tokens.append(token)
+                else:
+                    data['all'].append(tokens)
+                    data['sentences'].append(words)
+                    data['list_of_poss'].append(poss)
+                    data['list_of_is_aspects'].append(is_aspects)
+                    data['list_of_iobs'].append(iob_aspects)
+                    data['raw'].append(" ".join(words))
+                    tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+        return data
+
+    train_data = read_data_from_file('data/train_data_fixed.txt')
+    test_data = read_data_from_file('data/test_data_fixed.txt')
+
+    df = pd.DataFrame(train_data)
+    df_test = pd.DataFrame(test_data)
+
+    """
+        Calculate Metrics
+    """
+    from scipy import stats
+    sentence_lengths = []
+    for sentence in train_data['sentences']:
+        sentence_lengths.append(len(sentence))
+    print("max :", np.max(sentence_lengths))
+    print("min :", np.min(sentence_lengths))
+    print("mean:", np.mean(sentence_lengths))
+    print("mode:", stats.mode(sentence_lengths))
+
+    tokenizer = get_tokenizer(tokenizer_path)
+
+    """
+        Create X
+    """
+
+    X_raw = train_data['raw']
+    X_test_raw = test_data['raw']
+
+    X_pos_tagged = []; X_test_pos_tagged = []
+
+    for sentence in X_raw:
+        filtered_sentence = filter_sentence(sentence)
+        polyglot_text = Text(filtered_sentence)
+        polyglot_text.language = 'id'
+        tagged_sentence = polyglot_text.pos_tags
+        X_pos_tagged.append(tagged_sentence)
+
+    for sentence in X_test_raw:
+        filtered_sentence = filter_sentence(sentence)
+        polyglot_text = Text(filtered_sentence)
+        polyglot_text.language = 'id'
+        tagged_sentence = polyglot_text.pos_tags
+        X_test_pos_tagged.append(tagged_sentence)
+
+    """
+        Create Y
+    """
+    y = df['list_of_iobs'].as_matrix()
+    y_test = df_test['list_of_iobs'].as_matrix()
+
+    X = extract_features(X_pos_tagged, y)
+    X_test = extract_features(X_test_pos_tagged, y_test)
 
     return X, y, X_test, y_test
 
@@ -252,3 +343,74 @@ def time_log(func):
     print("================================")
     print()
     
+def save_object(obj, filename):
+    with open(filename, 'wb') as output_file:
+        dill.dump(obj, output_file)
+
+def load_object(filename):
+    with open(filename, 'rb') as input_file:
+        return dill.load(input_file)
+
+def get_entities_from_iob_tagged_tokens(iob_tagged_tokens):
+    #entity = (word, tag)
+    #example: ('Wonder Woman', 'movie_title', token pos)
+    current_entity = None
+    current_entity_words = None
+    current_entity_name = None
+    current_entity_pos = None
+    all_entities = []
+    for i, (word, tag, iob_tag) in enumerate(iob_tagged_tokens):
+        iob = iob_tag[:2]
+        entity_name = iob_tag[2:]
+        if current_entity_words:
+            if iob == "I-": #concatenate word if in chunk
+                current_entity_words += " " + word
+            else: #append to list if chunk stops
+                current_entity = (current_entity_words, current_entity_name, current_entity_pos)
+                all_entities.append(current_entity)
+                current_entity = None
+                current_entity_words = None
+                current_entity_name = None
+                current_entity_pos = None
+        if iob == "B-": #beginning of chunk
+            current_entity_name = entity_name
+            current_entity_words = word
+            current_entity_pos = i
+
+    #check if the last word is in chunk
+    if current_entity_words:
+        current_entity = (current_entity_words, current_entity_name, current_entity_pos)
+        all_entities.append(current_entity)
+    return all_entities
+
+def get_entities_from_iob_tagged_tokens1(iob_tagged_tokens):
+    #entity = (word, tag)
+    #example: ('Wonder Woman', 'movie_title', token begin, token end + 1)
+    current_entity = None
+    current_entity_words = None
+    current_entity_name = None
+    current_entity_pos = None
+    all_entities = []
+    for i, (word, tag, iob_tag) in enumerate(iob_tagged_tokens):
+        iob = iob_tag[:2]
+        entity_name = iob_tag[2:]
+        if current_entity_words:
+            if iob == "I-": #concatenate word if in chunk
+                current_entity_words += " " + word
+            else: #append to list if chunk stops
+                current_entity = (current_entity_words, current_entity_name, current_entity_pos, i)
+                all_entities.append(current_entity)
+                current_entity = None
+                current_entity_words = None
+                current_entity_name = None
+                current_entity_pos = None
+        if iob == "B-": #beginning of chunk
+            current_entity_name = entity_name
+            current_entity_words = word
+            current_entity_pos = i
+
+    #check if the last word is in chunk
+    if current_entity_words:
+        current_entity = (current_entity_words, current_entity_name, current_entity_pos, len(iob_tagged_tokens))
+        all_entities.append(current_entity)
+    return all_entities

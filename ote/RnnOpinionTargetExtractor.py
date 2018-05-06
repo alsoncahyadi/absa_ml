@@ -311,17 +311,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         plt.figure()
         self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
         plt.show()
-
-
-class CategoryFeatureExtractor (BaseEstimator):
-    def __init__(self):
-        pass
-
-    def fit(self, x, y=None):
-        raise NotImplementedError
-    
-    def transform(self):
-        raise NotImplementedError
+        
 
 def get_params_from_grid(param_grid):
     import itertools as it

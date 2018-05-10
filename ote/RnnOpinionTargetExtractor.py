@@ -1,17 +1,17 @@
 params = [
     ('epochs', [75]),
     ('batch_size', [64]),
-    ('validation_split', [0.15]),
-    ('recurrent_dropout', [0.6, 0.8]),
-    ('dropout_rate', [0.6, 0.8]),
-    ('dense_activation', ['tanh', 'relu']),
-    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
-    ('activation', ['sigmoid', 'softmax']),
+    ('validation_split', [0.]),
+    ('dropout_rate', [0., 0.2, 0.5, 0.8]),
+    ('dense_activation', ['relu']),
+    ('dense_l2_regularizer', [0.01]),
+    ('activation', ['softmax']),
     ('optimizer', ["nadam"]),
-    ('loss_function', ['binary_crossentropy', 'categorical_crossentropy']),
-    ('gru_units', [256]),
-    ('units', [256]),
-    ('trainable', [False])
+    ('loss_function', ['categorical_crossentropy']),
+    ('gru_units', [64, 256]),
+    ('units', [64, 256]),
+    ('trainable', [False]),
+    ('dense_layers', [1, 2, 3])
 ]
 
 """
@@ -59,12 +59,12 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score)
 from sklearn.model_selection import train_test_split
 
-import utils
+sys.path.insert(0, '..')
 from MyClassifier import KerasClassifier, MultilabelKerasClassifier, MyClassifier, Model
+import utils
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
-sys.path.insert(0, '..')
 
 class RNNOpinionTargetExtractor (MyClassifier):
     def __init__(self, **kwargs):
@@ -80,7 +80,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
             setattr(self, key, value)
     
     def fit(self, X, y,
-        recurrent_dropout = 0.5,
         dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
@@ -91,9 +90,10 @@ class RNNOpinionTargetExtractor (MyClassifier):
         units = 256,
         is_save = False,
         trainable = False,
+        dense_layers = 1,
         **kwargs):
+
         self.rnn_model = self._create_model(
-            recurrent_dropout = recurrent_dropout,
             dropout_rate = dropout_rate,
             dense_activation = dense_activation,
             dense_l2_regularizer = dense_l2_regularizer,
@@ -103,6 +103,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             gru_units = gru_units,
             units = units,
             trainable = trainable,
+            dense_layers = dense_layers,
         )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
@@ -198,32 +199,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
     def _fit_train_validate_split(self, X, y):
         pass
 
-    def _fit_gridsearch_cv(self, X, y, param_grid, **kwargs):
-        from sklearn.model_selection import GridSearchCV
-        # y = np.argmax(y, axis=2)
-        # print(y)
-        np.random.seed(7)
-        # Wrap in sklearn wrapper
-        model = KerasClassifier(build_fn = self._create_model, verbose=0)
-        # train
-        IS_REFIT = kwargs.get('is_refit', 'f1_macro')
-        grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, refit=IS_REFIT, verbose=1, scoring=['f1_macro', 'precision_macro', 'recall_macro'])
-        grid_result = grid.fit(X, y)
-        print(grid_result.cv_results_.keys())
-        means = [grid_result.cv_results_['mean_test_f1_macro'], grid_result.cv_results_['mean_test_precision_macro'], grid_result.cv_results_['mean_test_recall_macro']]
-        stds = [grid_result.cv_results_['std_test_f1_macro'], grid_result.cv_results_['std_test_precision_macro'], grid_result.cv_results_['std_test_recall_macro']]
-        for mean, stdev in zip(means, stds):
-            print("\n{} ({})".format(mean, stdev))
-        params = grid_result.best_params_
-        print("with:", params)
-        with open('output/gridsearch_lstm.pkl', 'wb') as fo:
-            dill.dump(grid_result.cv_results_, fo)
-        if IS_REFIT:
-            grid.best_estimator_.model.save('model/rnn/best.model')
-
     def _create_model(
         self,
-        recurrent_dropout = 0.5,
         dropout_rate = 0.6,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
@@ -233,6 +210,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         gru_units = 256,
         units = 256,
         trainable = False,
+        dense_layers = 1,
 
         **kwargs
     ):
@@ -241,12 +219,12 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
-        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=recurrent_dropout, stateful=False))(layer_embedding)
-        # layer_blstm = Bidirectional(CuDNNLSTM(gru_units, return_sequences=True, stateful=False))(layer_embedding)
-        layer_dropout_1 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
-        layer_dense_1 = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout_1)
-        layer_dropout_2 = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense_1)
-        layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout_2)
+        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_embedding)
+        layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
+        for i in range(dense_layers):
+            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
+            layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+        layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout)
         rnn_model = Model(inputs=layer_input, outputs=layer_softmax)
 
         # Create Optimizer
@@ -351,26 +329,27 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    ote.fit(
-        X, y,
-        epochs = 75,
-        batch_size = 64,
-        # validation_split = 0.15,
-        recurrent_dropout= 0.2,
-        dropout_rate=0.5,
-        dense_activation='relu',
-        dense_l2_regularizer=0.01,
-        activation='softmax',
-        optimizer='nadam',
-        loss_function='categorical_crossentropy',
-        gru_units=256,
-        units=256,
-        sample_weight = sample_weight,
-        is_save=True
-    )
-    ote.score(X_test, y_test)
+    # ote.fit(
+    #     X, y,
+    #     epochs = 75,
+    #     batch_size = 64,
+    #     # validation_split = 0.15,
+    #     recurrent_dropout= 0.2,
+    #     dropout_rate=0.5,
+    #     dense_activation='relu',
+    #     dense_l2_regularizer=0.01,
+    #     activation='softmax',
+    #     optimizer='nadam',
+    #     loss_function='categorical_crossentropy',
+    #     gru_units=256,
+    #     units=256,
+    #     sample_weight = sample_weight,
+    #     dense_layers = 1,
+    #     is_save=True
+    # )
+    # ote.score(X_test, y_test)
     
-    # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
+    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
 
     """
         Load best estimator and score it

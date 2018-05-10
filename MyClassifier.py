@@ -185,7 +185,10 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 thresholds_used.append(thresholds[max_f1_idx])
             else:
                 scores = self.score(X_test, y_test, verbose=0)
-                thresholds_used.append(self.get_threshold())
+                try:
+                    thresholds_used.append(self.get_threshold())
+                except:
+                    thresholds_used = None
             total_score_time += time.time() - start_time
 
             for j in range(len(self.target_names)):

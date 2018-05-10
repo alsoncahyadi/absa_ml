@@ -120,11 +120,10 @@ class RNNOpinionTargetExtractor (MyClassifier):
         return y_pred
     
     def score(self, X, y, verbose=1, **kwargs):
-        print("HI, SCORING NOW")
         if self.rnn_model != None:
-            print("Scoring using current rnn model")
             rnn_model = self.rnn_model
         else:
+            print("Scoring using untrained model")
             rnn_model = self._create_model()
         y_test = y
 
@@ -222,7 +221,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_embedding)
         layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers):
-            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
+            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_ l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout)
         rnn_model = Model(inputs=layer_input, outputs=layer_softmax)

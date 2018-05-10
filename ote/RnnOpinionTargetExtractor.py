@@ -119,7 +119,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = self.rnn_model.predict(X)
         return y_pred
     
-    def score(self, X, y, verbose=1, **kwargs):
+    def score(self, X, y, verbose=1, dense_layers=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
         else:
@@ -144,7 +144,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             tmp = np.array(tmp)
             return tmp
 
-        y_pred_raw = rnn_model.predict(X)
+        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=1)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
@@ -328,27 +328,31 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # ote.fit(
-    #     X, y,
-    #     epochs = 75,
-    #     batch_size = 64,
-    #     # validation_split = 0.15,
-    #     recurrent_dropout= 0.2,
-    #     dropout_rate=0.5,
-    #     dense_activation='relu',
-    #     dense_l2_regularizer=0.01,
-    #     activation='softmax',
-    #     optimizer='nadam',
-    #     loss_function='categorical_crossentropy',
-    #     gru_units=256,
-    #     units=256,
-    #     sample_weight = sample_weight,
-    #     dense_layers = 1,
-    #     is_save=True
-    # )
-    # ote.score(X_test, y_test)
+    """
+    params_for_fit = {
+        "dropout_rate": 0.5,
+        "dense_activation": 'relu',
+        "dense_l2_regularizer": 0.01,
+        "activation": 'softmax',
+        "optimizer": 'nadam',
+        "loss_function": 'categorical_crossentropy',
+        "gru_units": 256,
+        "units": 256,
+        'dense_layers' : 1,
+    }
+    ote.fit(
+        X, y,
+        epochs = 75,
+        batch_size = 64,
+        **params_for_fit,
+        sample_weight = sample_weight,
+        is_save=False,
+    )
+    ote.score(X_test, y_test, dense_layers = 1)
+
+    """
     
-    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight)
+    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
 
     """
         Load best estimator and score it

@@ -1,3 +1,10 @@
+params = [
+    ('algorithm', ['lbfgs']),
+    ('max_iterations', [100]),
+    ('c1', [0.1, 0.01, 0.001, 0.]),
+    ('c2', [0.1, 0.01, 0.001, 0.]),
+]
+
 import itertools
 import os
 import sys
@@ -35,7 +42,8 @@ from threading import Thread
 from sklearn_crfsuite import metrics
 import scipy.stats
 from sklearn.metrics import make_scorer
-from sklearn.grid_search import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn_crfsuite.utils import flatten
 
 # from OpinionTargetFeatureExtractor import OpinionTargetFeatureExtractor
 
@@ -59,14 +67,17 @@ class CRFOpinionTargetExtractor (MyClassifier):
         c1=0.1,
         c2=0.1,
         max_iterations=100,
-        all_possible_transitions=True
+        verbose = 0,
+        all_possible_transitions=True,
+        **kwargs
     ):
         self.crf_model = sklearn_crfsuite.CRF(
             algorithm=algorithm,
             c1=c1,
             c2=c2,
             max_iterations=max_iterations,
-            all_possible_transitions=all_possible_transitions
+            all_possible_transitions=all_possible_transitions,
+            verbose=verbose,
         )
         self.crf_model.fit(X, y)
 
@@ -111,13 +122,13 @@ class CRFOpinionTargetExtractor (MyClassifier):
         )
 
     def score(self, X, y, verbose=1, **kwargs):
-        print("=========================================")        
         y_pred = self.predict(X, **kwargs)
-        print(self.bio_classification_report(y, y_pred))
-        self._print_top_state_features()
-        self._print_top_transitions()
-        print("=========================================")        
-        from sklearn_crfsuite.utils import flatten
+        if verbose == 2:
+            print("=========================================")        
+            print(self.bio_classification_report(y, y_pred))
+            self._print_top_state_features()
+            self._print_top_transitions()
+            print("=========================================")        
         for i in range(len(y)):
             if len(y[i]) != len(y_pred[i]):
                 print(i, ')', len(y[i]), len(y_pred[i]))
@@ -144,7 +155,7 @@ class CRFOpinionTargetExtractor (MyClassifier):
             'accuracy': accuracy
         }
 
-        if verbose == 1:
+        if verbose > 0:
             print("F1-Score  : {}".format(f1_scores))
             print("Precision : {}".format(precision_scores))
             print("Recall    : {}".format(recall_scores))
@@ -159,64 +170,35 @@ class CRFOpinionTargetExtractor (MyClassifier):
                 print("Can't be shown")
         return scores
 
-    # def k_fold_validation(self, data_train, model_file_path, **kwargs):
-    #     print("\n=== CROSS VALIDATING {} DATA WITH k: {} ===".format(len(data_train), kwargs.get('k', 4)))
-    #     print(" > Extracting features")
-    #     X_train, y_train = OpinionTargetFeatureExtractor.to_dataset(parsed_sentences=data_train, feature_detector=OpinionTargetFeatureExtractor.ner_features)
-    #     print(" > Start training. . .")
-    #     master_begin_time = time.time()
-    #     crf = sklearn_crfsuite.CRF(
-    #         algorithm='lbfgs',
-    #         max_iterations=100,
-    #         all_possible_transitions=True
-    #     )
-    #     params_space = {
-    #         'c1': scipy.stats.expon(scale=0.5),
-    #         'c2': scipy.stats.expon(scale=0.05),
-    #     }
-
-    #     labels = ['ASPECT-I', 'ASPECT-B']
-
-    #     # use the same metric for evaluation
-    #     f1_scorer = make_scorer(
-    #         metrics.flat_f1_score,
-    #         average='weighted', labels=labels
-    #     )
-
-    #     # search
-    #     rs = RandomizedSearchCV(crf, params_space,
-    #                             cv=kwargs.get('k', 4),
-    #                             verbose=1,
-    #                             n_jobs=-1,
-    #                             n_iter=kwargs.get('n_iter', 10),
-    #                             scoring=f1_scorer)
-    #     rs.fit(X_train, y_train)
-    #     master_end_time = time.time()
-    #     print(" > Training done in {} seconds".format(master_end_time - master_begin_time))
-
-    #     crf = rs.best_estimator_
-    #     print(' >> best params:', rs.best_params_)
-    #     print(' >> best CV score:', rs.best_score_)
-    #     print(' >> model size: {:0.2f}M'.format(rs.best_estimator_.size_ / 1000000))
-    #     utils.save_object(crf, model_file_path)
-    #     print(" > Model saved in {}".format(model_file_path))
-
 def crf():
     """
         Initialize data
     """
-    X, y, X_test, y_test = utils.get_crf_ote_dataset()
-    for idx, (i, j) in enumerate(zip(X, y)):
-        if len(i) != len(j):
-            print(idx, len(i), len(j))
-            for k in range(min(len(i), len(j))):
-                print('\t', i[k]['0:word'], '\t', j[k])
-            print()
+    from OpinionTargetFeatureExtractor import extract_features
+    
+    param = {
+        'included_words': [-2, -1, 0, 1, 2],
+        'included_features': [0,1,2,3,4,5,6],
+    }
+
+    X_pos, y, X_test_pos, y_test = utils.get_crf_ote_dataset()
+    X = extract_features(X_pos, y, **param)
+    X_test = extract_features(X_test_pos, y_test, **param)
+    # for idx, (i, j) in enumerate(zip(X, y)):
+    #     if len(i) != len(j):
+    #         print(idx, len(i), len(j))
+    #         for k in range(min(len(i), len(j))):
+    #             print('\t', i[k]['0:word'], '\t', j[k])
+    #         print()
     crf_ote = CRFOpinionTargetExtractor()
+    # """
     print("> fitting")
-    crf_ote.fit(X, y)
+    crf_ote.fit(X, y,
+        c1=0.1,
+        c2=0.01,
+    )
     print("> scoring")
-    crf_ote.score(X_test, y_test)
+    crf_ote.score(X_test, y_test, verbose=1)
 
 if __name__ == "__main__":
     utils.time_log(crf)

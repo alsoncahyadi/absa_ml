@@ -144,7 +144,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             tmp = np.array(tmp)
             return tmp
 
-        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=1)
+        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=verbose)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
@@ -328,9 +328,8 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    """
     params_for_fit = {
-        "dropout_rate": 0.5,
+        "dropout_rate": 0.2,
         "dense_activation": 'relu',
         "dense_l2_regularizer": 0.01,
         "activation": 'softmax',
@@ -350,9 +349,7 @@ def main():
     )
     ote.score(X_test, y_test, dense_layers = 1)
 
-    """
-    
-    ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
+    # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
 
     """
         Load best estimator and score it

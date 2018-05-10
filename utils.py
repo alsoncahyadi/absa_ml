@@ -258,10 +258,7 @@ def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     y = df['list_of_iobs'].as_matrix()
     y_test = df_test['list_of_iobs'].as_matrix()
 
-    X = extract_features(X_pos_tagged, y)
-    X_test = extract_features(X_test_pos_tagged, y_test)
-
-    return X, y, X_test, y_test
+    return X_pos_tagged, y, X_test_pos_tagged, y_test
 
 def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     import math

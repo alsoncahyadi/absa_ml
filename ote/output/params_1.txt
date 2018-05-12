@@ -1,0 +1,15 @@
+params = [
+    ('epochs', [75]),
+    ('batch_size', [64]),
+    ('validation_split', [0.]),
+    ('dropout_rate', [0., 0.2, 0.5, 0.8]),
+    ('dense_activation', ['relu']),
+    ('dense_l2_regularizer', [0.01]),
+    ('activation', ['softmax']),
+    ('optimizer', ["nadam"]),
+    ('loss_function', ['categorical_crossentropy']),
+    ('gru_units', [64, 256]),
+    ('units', [64, 256]),
+    ('trainable', [False]),
+    ('dense_layers', [1, 2, 3])
+]

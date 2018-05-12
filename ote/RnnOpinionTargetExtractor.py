@@ -248,46 +248,11 @@ class RNNOpinionTargetExtractor (MyClassifier):
     def load_weights(self, path):
         self._create_model()
         self.rnn_model.load_weights(path)
-    
-    def _plot_confusion_matrix(self,
-                          cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-        """
-        This function prints and plots the confusion matrix.
-        Normalization can be applied by setting `normalize=True`.
-        """
-        
-        if normalize:
-            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-        plt.imshow(cm, interpolation='nearest', cmap=cmap)
-        plt.title(title)
-        plt.colorbar()
-        tick_marks = np.arange(len(classes))
-        plt.xticks(tick_marks, classes, rotation=45)
-        plt.yticks(tick_marks, classes)
-
-        fmt = '.2f' if normalize else 'd'
-        thresh = cm.max() / 2.
-        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, format(cm[i, j], fmt),
-                    horizontalalignment="center",
-                    color="white" if cm[i, j] > thresh else "black")
-
-        plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-    
-    def plot_all_confusion_matrix(self, y_test, y_pred):
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['0', '1'], title="O")
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,1], y_pred[:,1]), classes=['0', '1'], title="ASPECT-B")
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,2], y_pred[:,2]), classes=['0', '1'], title="ASPECT-I")
-        plt.show()
+    def load_best_model(self):
+        best_model = load_model('model/brnn/BRNN.model')
+        del self.rnn_model
+        self.rnn_model = best_model
         
 
 def get_params_from_grid(param_grid):
@@ -337,11 +302,11 @@ def main():
         "loss_function": 'categorical_crossentropy',
         "gru_units": 256,
         "units": 256,
-        'dense_layers' : 1,
+        'dense_layers' : 3,
     }
     ote.fit(
         X, y,
-        epochs = 75,
+        epochs = 150,
         batch_size = 64,
         **params_for_fit,
         sample_weight = sample_weight,

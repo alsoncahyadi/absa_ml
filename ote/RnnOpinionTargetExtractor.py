@@ -309,7 +309,7 @@ def main():
     }
     ote.fit(
         [X, pos], y,
-        epochs = 1,
+        epochs = 75,
         batch_size = 64,
 
         **params_for_fit,

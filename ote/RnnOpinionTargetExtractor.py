@@ -119,7 +119,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = self.rnn_model.predict(X)
         return y_pred
     
-    def score(self, X, y, verbose=1, dense_layers=1, **kwargs):
+    def score(self, X, pos, y, verbose=1, dense_layers=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
         else:
@@ -144,7 +144,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             tmp = np.array(tmp)
             return tmp
 
-        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=verbose)
+        y_pred_raw = rnn_model.predict([X, pos], batch_size=1, verbose=verbose)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
@@ -314,9 +314,9 @@ def main():
 
         **params_for_fit,
         sample_weight = sample_weight,
-        is_save=False,
+        is_save=True,
     )
-    ote.score([X_test, pos_test], y_test, dense_layers = 1)
+    ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
     # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
 

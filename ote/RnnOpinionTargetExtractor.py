@@ -307,10 +307,12 @@ def main():
         "units": 64,
         'dense_layers' : 1,
     }
+    sample_weight_test = utils.get_sample_weight(X_test, y_test, mu=0.5, threshold=1.)
     ote.fit(
         [X, pos], y,
         epochs = 75,
         batch_size = 64,
+        validation_data = ([X_test, pos_test], y_test, sample_weight_test),
 
         **params_for_fit,
         sample_weight = sample_weight,

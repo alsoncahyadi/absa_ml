@@ -149,8 +149,9 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     # truncate and pad input sequences
     max_review_length = 81
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding='post', value=-1)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding='post', value=-1)
+    PADDING = 'post'
+    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING, value=-1)
+    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING, value=-1)
 
     dum = ['O ASPECT-B ASPECT-I']
     iob_tokenizer = Tokenizer(filters='')
@@ -159,11 +160,11 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     from keras.utils import to_categorical
     y_raw = [" ".join(x) for x in df['list_of_iobs']]
     y_raw = iob_tokenizer.texts_to_sequences(y_raw)
-    y = sequence.pad_sequences(y_raw, maxlen=max_review_length, padding='post', value=1.)
+    y = sequence.pad_sequences(y_raw, maxlen=max_review_length, padding=PADDING, value=1.)
 
     y_test_raw = [" ".join(x) for x in df_test['list_of_iobs']]
     y_test_raw = iob_tokenizer.texts_to_sequences(y_test_raw)
-    y_test = sequence.pad_sequences(y_test_raw, maxlen=max_review_length, padding='post', value=1.)
+    y_test = sequence.pad_sequences(y_test_raw, maxlen=max_review_length, padding=PADDING, value=1.)
 
     y = to_categorical(y)
     y_test = to_categorical(y_test)

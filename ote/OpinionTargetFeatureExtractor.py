@@ -79,10 +79,34 @@ def extract_features(pos_tagged_sentences, iob_tags, feature_detector=ner_featur
     X_rnn = tokenizer.texts_to_sequences(sentences)
     X_rnn = sequence.pad_sequences(X_rnn, maxlen=81, padding='post', value=-1)
 
+    tags = [
+        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 
+        'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
+    ]
+    from keras.preprocessing.text import Tokenizer
+    from keras.utils import to_categorical
+    from polyglot.text import Text
+    pos_tokenizer = Tokenizer()
+    pos_tokenizer.fit_on_texts(tags)
+
+    def read_pos_from_sentences(sentences):
+        pos = []
+        for sent in sentences:
+            plg = Text(sent)
+            plg.language = 'id'
+            _, plg  = zip(*plg.pos_tags)
+            pos.append(" ".join(list(plg)))
+        pos = pos_tokenizer.texts_to_sequences(pos)
+        return pos
+    
+    pos_rnn = read_pos_from_sentences(sentences)
+    pos_rnn = sequence.pad_sequences(pos_rnn, maxlen=81, padding='post', value=-1)
+    pos_rnn = to_categorical(pos_rnn)
+
     X = []
     ote = RNNOpinionTargetExtractor()
     ote.load_best_model()
-    proba = ote.predict(X_rnn, batch_size = 1)
+    proba = ote.predict([X_rnn, pos_rnn], batch_size = 1)
 
     for i in range(len(pos_tagged_sentences)):
         X_sent = sent2features(iob_tags[i], pos_tagged_sentences[i], proba[i], feature_detector, included_words=included_words, included_features=included_features)

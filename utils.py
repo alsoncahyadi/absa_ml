@@ -137,6 +137,28 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     tokenizer = get_tokenizer(tokenizer_path)
 
+    from polyglot.text import Text
+    from keras.utils import to_categorical
+    tags = [
+        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 
+        'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
+    ]
+    pos_tokenizer = Tokenizer()
+    pos_tokenizer.fit_on_texts(tags)
+
+    def read_pos_from_raw(data):
+        pos = []
+        for sent in data['raw']:
+            plg = Text(sent)
+            plg.language = 'id'
+            _, plg  = zip(*plg.pos_tags)
+            pos.append(" ".join(list(plg)))
+        pos = pos_tokenizer.texts_to_sequences(pos)
+        return pos
+    
+    pos = read_pos_from_raw(train_data)
+    pos_test = read_pos_from_raw(test_data)
+
     """
         Create X and Y
     """
@@ -165,13 +187,18 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     y_test_raw = iob_tokenizer.texts_to_sequences(y_test_raw)
     y_test = sequence.pad_sequences(y_test_raw, maxlen=max_review_length, padding='post', value=1.)
 
+    pos = sequence.pad_sequences(pos, maxlen=max_review_length, padding='post', value=-1)
+    pos_test = sequence.pad_sequences(pos_test, maxlen=max_review_length, padding='post', value=-1)
+
     y = to_categorical(y)
     y_test = to_categorical(y_test)
+    pos = to_categorical(pos)
+    pos_test = to_categorical(pos_test)
 
     y = y[:,:,1:]
     y_test = y_test[:,:,1:]
 
-    return X, y, X_test, y_test
+    return X, y, pos, X_test, y_test, pos_test
 
 def filter_sentence(sentence):
     new_sentence = sentence.replace('-', 'DASH')

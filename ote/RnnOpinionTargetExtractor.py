@@ -47,7 +47,7 @@ from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
 from keras.layers import (GRU, LSTM, RNN, Bidirectional, CuDNNGRU, CuDNNLSTM,
                           Dense, Dropout, Lambda, RepeatVector,
-                          TimeDistributed)
+                          TimeDistributed, Concatenate)
 from keras.layers.convolutional import Conv1D
 from keras.layers.embeddings import Embedding
 from keras.layers.pooling import (AveragePooling1D, GlobalMaxPooling1D,
@@ -218,18 +218,23 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
         layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
-        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_embedding)
+        layer_input_pos = Input(shape=(MAX_SEQUENCE_LENGTH,18))
+        layer_concat = Concatenate()([layer_embedding, layer_input_pos])
+        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_concat)
         layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers):
-            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
-            layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+            layer_dense = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
+            layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense)
+            
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout)
-        rnn_model = Model(inputs=layer_input, outputs=layer_softmax)
+        rnn_model = Model(inputs=[layer_input, layer_input_pos], outputs=layer_softmax)
 
         # Create Optimizer
-        optimizer = optimizers.SGD(lr=0.05, momentum=0.9, decay=0.0, nesterov=True)
+        # optimizer = optimizers.SGD(lr=0.05, momentum=0.9, decay=0.0, nesterov=True)
         rnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'],
                         sample_weight_mode="temporal")
+
+        rnn_model.summary()
         return rnn_model
         
         # layer_input = Input(shape=(max_review_length,))
@@ -267,10 +272,8 @@ def main():
     """
         Initialize data
     """
-    X, y, X_test, y_test = utils.get_ote_dataset()
+    X, y, pos, X_test, y_test, pos_test = utils.get_ote_dataset()
     # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
-    # new_y = y.reshape(-1, y.shape[-1])
-    # y = new_y
     
     """
         Calculate Sample Weight
@@ -300,19 +303,20 @@ def main():
         "activation": 'softmax',
         "optimizer": 'nadam',
         "loss_function": 'categorical_crossentropy',
-        "gru_units": 256,
-        "units": 256,
-        'dense_layers' : 3,
+        "gru_units": 64,
+        "units": 64,
+        'dense_layers' : 1,
     }
     ote.fit(
-        X, y,
-        epochs = 150,
+        [X, pos], y,
+        epochs = 1,
         batch_size = 64,
+
         **params_for_fit,
         sample_weight = sample_weight,
         is_save=False,
     )
-    ote.score(X_test, y_test, dense_layers = 1)
+    ote.score([X_test, pos_test], y_test, dense_layers = 1)
 
     # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
 

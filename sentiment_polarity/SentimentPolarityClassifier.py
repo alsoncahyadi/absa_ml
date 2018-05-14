@@ -1,19 +1,22 @@
 # grid search hypers
 
 params = [
-    ('epochs', [25, 50]),
+    ('epochs', [75]),
     ('batch_size', [64]),
-    ('filters', [320, 64]),
-    ('kernel_size', [5, 3]),
+    ('validation_split', [0.]),
+    ('filters', [320]),
+    ('kernel_size', [5]),
     ('conv_activation', ['relu', 'tanh']),
-    ('conv_l2_regularizer', [0.01, 0.001]),
-    ('dropout_rate', [0.6]),
+    ('conv_l2_regularizer', [0.001]),
+    ('dropout_rate', [0., 0.2, 0.5]),
     ('dense_activation', ['relu', 'tanh']),
-    ('dense_l2_regularizer', [0.01, 0.001]),
+    ('dense_l2_regularizer', [0.01]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
-    ('units', [256, 64, 16])
+    ('units', [256, 64]),
+    ('trainable', [False]),
+    ('dense_layers', [1, 2, 3]),
 ]
 
 param_grid = dict(params)
@@ -41,6 +44,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 sys.path.insert(0, '..')
+sys.path.insert(0, '../ote/')
 
 import utils
 
@@ -77,7 +81,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         for key, value in kwargs.items():
             setattr(self, key, value)
     
-    def fit(self, X, y, category,
+    def fit(self, X, y,
 
         filters = 320,
         kernel_size = 5,
@@ -90,22 +94,27 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
         units = 256,
+        trainable = False,
+        dense_layers = 1,
 
         is_save = False,
+        category = 'NOTSPECIFIED',
 
         **kwargs):
         self.cnn_model = self._create_model(
-        	filters=filters,
-	        kernel_size=kernel_size,
-	        conv_activation=conv_activation,
-	        conv_l2_regularizer=conv_l2_regularizer,
-	        dropout_rate=dropout_rate,
-	        dense_activation=dense_activation,
-	        dense_l2_regularizer=dense_l2_regularizer,
-	        activation=activation,
-	        optimizer=optimizer,
-	        loss_function=loss_function,
-	        units=units,
+        	filters,
+            kernel_size,
+            conv_activation,
+            conv_l2_regularizer,
+            dropout_rate,
+            dense_activation,
+            dense_l2_regularizer,
+            activation,
+            optimizer,
+            loss_function,
+            units,
+            trainable,
+            dense_layers,
         )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
@@ -165,27 +174,29 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         dropout_rate = 0.6,
         dense_activation = 'relu',
         dense_l2_regularizer = 0.01,
-        activation = 'softmax',
+        activation = 'sigmoid',
         optimizer = "nadam",
-        loss_function = 'categorical_crossentropy',
+        loss_function = 'binary_crossentropy',
         units = 256,
+        trainable = False,
+        dense_layers = 1,
 
         **kwargs
     ):
         K.clear_session()
-        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length")
-        n_class = kwargs.get('n_class', 1)
+        MAX_SEQUENCE_LENGTH = kwargs.get("max_sequence_length", 150)
 
         # Define Architecture
         layer_input = Input(shape=(MAX_SEQUENCE_LENGTH,))
-        # layer_feature = Lambda(self._get_features)(layer_input)
-        layer_embedding = self._load_embedding(self.WE_PATH, trainable=False, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
+        layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_conv = Conv1D(filters=filters, kernel_size=kernel_size, padding='same', activation=conv_activation,
         kernel_regularizer=regularizers.l2(conv_l2_regularizer))(layer_embedding)
         layer_pooling = GlobalMaxPooling1D()(layer_conv)
-        layer_dropout_1 = Dropout(dropout_rate, seed=7)(layer_pooling)
-        layer_dense_1 = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout_1)
-        layer_softmax = Dense(n_class, activation=activation)(layer_dense_1)
+        layer_dropout = Dropout(dropout_rate, seed=7)(layer_pooling)
+        for i in range(dense_layers):
+            layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
+            layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
+        layer_softmax = Dense(4, activation=activation)(layer_dropout)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -274,34 +285,34 @@ def main():
         """
         
 
-        # spc._fit_gridsearch_cv(X, y, param_grid, category)
-        spc.fit(X, y, category,
-            epochs = 50,
-            batch_size = 64,
-            filters = 320,
-            kernel_size = 5,
-            conv_activation = 'relu',
-            conv_l2_regularizer = 0.01,
-            dropout_rate = 0.3,
-            dense_activation = 'tanh',
-            dense_l2_regularizer = 0.001,
-            activation = 'sigmoid',
-            optimizer = 'nadam',
-            loss_function = 'binary_crossentropy',
-            units = 256,
-            verbose=False,
-            is_save = True
-        )
+        spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
+        # spc.fit(X, y, category,
+        #     epochs = 50,
+        #     batch_size = 64,
+        #     filters = 320,
+        #     kernel_size = 5,
+        #     conv_activation = 'relu',
+        #     conv_l2_regularizer = 0.01,
+        #     dropout_rate = 0.3,
+        #     dense_activation = 'tanh',
+        #     dense_l2_regularizer = 0.001,
+        #     activation = 'sigmoid',
+        #     optimizer = 'nadam',
+        #     loss_function = 'binary_crossentropy',
+        #     units = 256,
+        #     verbose=False,
+        #     is_save = True
+        # )
         
         """
             Load best estimator and score it
         """
 
-        best_model = load_model('model/cnn/best_{}.model'.format(category))
-        del spc.cnn_model
-        spc.cnn_model = best_model
-        score = spc.score(X_test, y_test)
-        f1_scores.append(score['f1_score_macro'])
+        # best_model = load_model('model/cnn/best_{}.model'.format(category))
+        # del spc.cnn_model
+        # spc.cnn_model = best_model
+        # score = spc.score(X_test, y_test)
+        # f1_scores.append(score['f1_score_macro'])
     print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
 
 if __name__ == "__main__":

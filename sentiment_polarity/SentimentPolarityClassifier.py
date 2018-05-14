@@ -8,7 +8,7 @@ params = [
     ('kernel_size', [5]),
     ('conv_activation', ['relu', 'tanh']),
     ('conv_l2_regularizer', [0.001]),
-    ('dropout_rate', [0., 0.2, 0.5]),
+    ('dropout_rate', [0.6, 0.2, 0.0]),
     ('dense_activation', ['relu', 'tanh']),
     ('dense_l2_regularizer', [0.01]),
     ('activation', ['sigmoid']),
@@ -20,24 +20,6 @@ params = [
 ]
 
 param_grid = dict(params)
-
-"""
-param_grid = {
-    'epochs': [1],
-    'batch_size': [64],
-    'filters': [1],
-    'kernel_size': [3],
-    'conv_activation': ['relu'],
-    'conv_l2_regularizer': [0.],
-    'dropout_rate': [0.9],
-    'dense_activation': ['relu'],
-    'dense_l2_regularizer': [0.],
-    'activation': ['sigmoid'],
-    'optimizer': ['nadam'],
-    'loss_function': ['binary_crossentropy'],
-    'units': [4]
-}
-"""
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -254,34 +236,35 @@ def main():
         """
         
 
-        spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
-        # spc.fit(X, y, category,
-        #     epochs = 50,
-        #     batch_size = 64,
-        #     filters = 320,
-        #     kernel_size = 5,
-        #     conv_activation = 'relu',
-        #     conv_l2_regularizer = 0.01,
-        #     dropout_rate = 0.3,
-        #     dense_activation = 'tanh',
-        #     dense_l2_regularizer = 0.001,
-        #     activation = 'sigmoid',
-        #     optimizer = 'nadam',
-        #     loss_function = 'binary_crossentropy',
-        #     units = 256,
-        #     verbose=False,
-        #     is_save = True
-        # )
+        # spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
+        spc.fit(X, y,
+            epochs = 50,
+            batch_size = 64,
+            filters = 320,
+            kernel_size = 5,
+            conv_activation = 'relu',
+            conv_l2_regularizer = 0.01,
+            dropout_rate = 0.3,
+            dense_activation = 'tanh',
+            dense_l2_regularizer = 0.001,
+            activation = 'sigmoid',
+            optimizer = 'nadam',
+            loss_function = 'binary_crossentropy',
+            units = 256,
+            verbose=False,
+            category=category,
+            is_save = True
+        )
         
         """
             Load best estimator and score it
         """
 
-        # best_model = load_model('model/cnn/best_{}.model'.format(category))
-        # del spc.cnn_model
-        # spc.cnn_model = best_model
-        # score = spc.score(X_test, y_test)
-        # f1_scores.append(score['f1_score_macro'])
+        best_model = load_model('model/cnn/best_{}.model'.format(category))
+        del spc.cnn_model
+        spc.cnn_model = best_model
+        score = spc.score(X_test, y_test, verbose=1)
+        f1_scores.append(score['f1_score_macro'])
     print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
 
 if __name__ == "__main__":

@@ -42,6 +42,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 sys.path.insert(0, '..')
+sys.path.insert(0, '../ote/')
 
 import utils
 from ItemSelector import ItemSelector
@@ -265,17 +266,17 @@ def cnn():
     #     show_summary = True
     # )
     
-    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    # best_model = load_model(ce.MODEL_PATH)
-    # del ce.cnn_model
-    # ce.cnn_model = best_model
-    # for thresh in thresh_to_try:
-    #     print("\nTHRESH: {}".format(thresh))
-    #     ce.set_threshold(thresh); ce.score(X_test, y_test)
+    best_model = load_model(ce.MODEL_PATH)
+    del ce.cnn_model
+    ce.cnn_model = best_model
+    for thresh in thresh_to_try:
+        print("\nTHRESH: {}".format(thresh))
+        ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

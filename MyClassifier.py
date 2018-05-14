@@ -136,9 +136,11 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         X_folds = np.array_split(X, k)
         y_folds = np.array_split(y, k)
 
-        precision_scores = [[] for _ in range(len(self.target_names))]
-        recall_scores = [[] for _ in range(len(self.target_names))]
-        f1_scores = [[] for _ in range(len(self.target_names))]
+        num_classes = 2 if len(self.target_names) == 1 else len(self.target_names)
+
+        precision_scores = [[] for _ in range(num_classes)]
+        recall_scores = [[] for _ in range(num_classes)]
+        f1_scores = [[] for _ in range(num_classes)]
         precision_means = []
         recall_means = []
         f1_means = []
@@ -191,12 +193,12 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                     thresholds_used = None
             total_score_time += time.time() - start_time
 
-            for j in range(len(self.target_names)):
+            for j in range(num_classes):
                 precision_scores[j].append(scores['precision_scores'][j])
                 recall_scores[j].append(scores['recall_scores'][j])
                 f1_scores[j].append(scores['f1_scores'][j])
 
-        for i in range(len(self.target_names)):
+        for i in range(num_classes):
             precision_mean = np.array(precision_scores[i]).mean()
             recall_mean = np.array(recall_scores[i]).mean()
             f1_mean = np.array(f1_scores[i]).mean()
@@ -217,9 +219,6 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
             print("\tP -means:  {}".format(precision_means))
             print("\tR -means:  {}".format(recall_means))
             print("\tF1-means:  {}".format(f1_means))
-            print("\tP -scores:  {}".format(precision_scores))
-            print("\tR -scores:  {}".format(recall_scores))
-            print("\tF1-scores:  {}".format(f1_scores))
             print("\tThresh  :  {}".format(thresholds_used))
 
         scores = {

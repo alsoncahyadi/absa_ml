@@ -76,7 +76,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
         self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
-        self.THRESHOLD = 0.5
+        self.THRESHOLD = 0.2
+        self.target_names = ['polarity']
        
         self.cnn_model = None
         for key, value in kwargs.items():
@@ -132,8 +133,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             return y_pred.argmax(axis=-1)
         else:
             THRESHOLD = self.THRESHOLD
-            y_pred[y_pred >= THRESHOLD] = 1.
-            y_pred[y_pred < THRESHOLD] = 0.
+            y_pred[y_pred > THRESHOLD] = 1.
+            y_pred[y_pred <= THRESHOLD] = 0.
             return y_pred
 
     def _fit_train_validate_split(self, X, y):

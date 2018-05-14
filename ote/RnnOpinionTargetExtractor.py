@@ -303,13 +303,13 @@ def main():
         "activation": 'softmax',
         "optimizer": 'nadam',
         "loss_function": 'categorical_crossentropy',
-        "gru_units": 64,
-        "units": 64,
+        "gru_units": 256,
+        "units": 256,
         'dense_layers' : 1,
     }
     ote.fit(
         [X, pos], y,
-        epochs = 75,
+        epochs = 50,
         batch_size = 64,
         **params_for_fit,
         sample_weight = sample_weight,

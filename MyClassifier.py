@@ -40,10 +40,10 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         self.EMBEDDING_VECTOR_LENGTH = kwargs.get('embedding_vector_length', 500)
 
     def fit(self, X, y, **kwargs):
-        pass
+        raise NotImplementedError
     
     def predict(self, X):
-        pass
+        raise NotImplementedError
     
     def score(self, X, y, verbose=1, **kwargs):
         y_pred = self.predict(X, **kwargs)

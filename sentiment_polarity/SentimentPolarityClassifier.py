@@ -76,7 +76,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
         self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
-        self.THRESHOLD = 0.75
+        self.THRESHOLD = 0.8
         self.target_names = ['polarity']
        
         self.cnn_model = None

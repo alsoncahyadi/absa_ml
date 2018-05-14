@@ -236,25 +236,25 @@ def main():
         """
         
 
-        # spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
-        spc.fit(X, y,
-            epochs = 50,
-            batch_size = 64,
-            filters = 320,
-            kernel_size = 5,
-            conv_activation = 'relu',
-            conv_l2_regularizer = 0.01,
-            dropout_rate = 0.3,
-            dense_activation = 'tanh',
-            dense_l2_regularizer = 0.001,
-            activation = 'sigmoid',
-            optimizer = 'nadam',
-            loss_function = 'binary_crossentropy',
-            units = 256,
-            verbose=False,
-            category=category,
-            is_save = True
-        )
+        spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
+        # spc.fit(X, y,
+        #     epochs = 50,
+        #     batch_size = 64,
+        #     filters = 320,
+        #     kernel_size = 5,
+        #     conv_activation = 'relu',
+        #     conv_l2_regularizer = 0.01,
+        #     dropout_rate = 0.3,
+        #     dense_activation = 'tanh',
+        #     dense_l2_regularizer = 0.001,
+        #     activation = 'sigmoid',
+        #     optimizer = 'nadam',
+        #     loss_function = 'binary_crossentropy',
+        #     units = 256,
+        #     verbose=False,
+        #     category=category,
+        #     is_save = True
+        # )
         
         """
             Load best estimator and score it

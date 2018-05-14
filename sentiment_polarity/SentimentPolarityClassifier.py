@@ -14,8 +14,8 @@ params = [
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
-    ('units', [256, 64]),
-    ('trainable', [False]),
+    ('units', [128]),
+    ('trainable', [False, True]),
     ('dense_layers', [1, 2, 3]),
 ]
 
@@ -102,6 +102,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         )
         mode = kwargs.get('mode', 'train_validate_split')
         if mode == "train_validate_split":
+            # self.cnn_model.summary()
             self.cnn_model.fit(
                 X, y,
                 **kwargs

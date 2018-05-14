@@ -131,7 +131,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         if len(y_pred.shape) > 2:
             return y_pred.argmax(axis=-1)
         else:
-            THRESHOLD = kwargs.get('threshold', 0.75)
+            THRESHOLD = self.THRESHOLD
             y_pred[y_pred >= THRESHOLD] = 1.
             y_pred[y_pred < THRESHOLD] = 0.
             return y_pred

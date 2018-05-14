@@ -1,7 +1,7 @@
 # grid search hypers
 
 params = [
-    ('epochs', [50]),
+    ('epochs', [75]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
     ('filters', [320]),

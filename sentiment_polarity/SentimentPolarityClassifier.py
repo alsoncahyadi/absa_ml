@@ -76,6 +76,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
         self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
+        self.THRESHOLD = 0.5
        
         self.cnn_model = None
         for key, value in kwargs.items():
@@ -196,7 +197,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         for i in range(dense_layers):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
-        layer_softmax = Dense(4, activation=activation)(layer_dropout)
+        layer_softmax = Dense(1, activation=activation)(layer_dropout)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -214,41 +215,8 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self._create_model()
         self.cnn_model.load_weights(path)
     
-    def _plot_confusion_matrix(self,
-                          cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-        """
-        This function prints and plots the confusion matrix.
-        Normalization can be applied by setting `normalize=True`.
-        """
-        
-        if normalize:
-            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-        plt.imshow(cm, interpolation='nearest', cmap=cmap)
-        plt.title(title)
-        plt.colorbar()
-        tick_marks = np.arange(len(classes))
-        plt.xticks(tick_marks, classes, rotation=45)
-        plt.yticks(tick_marks, classes)
-
-        fmt = '.2f' if normalize else 'd'
-        thresh = cm.max() / 2.
-        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, format(cm[i, j], fmt),
-                    horizontalalignment="center",
-                    color="white" if cm[i, j] > thresh else "black")
-
-        plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-    
-    def plot_all_confusion_matrix(self, y_test, y_pred):
-        plt.figure()
-        self._plot_confusion_matrix(confusion_matrix(y_test[:,0], y_pred[:,0]), classes=['Negative', 'Positive', ''], title="Sentiment")
-        plt.show()
+    def get_threshold(self):
+        return self.THRESHOLD
 
 
 class CategoryFeatureExtractor (BaseEstimator):

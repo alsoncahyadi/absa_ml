@@ -7,7 +7,7 @@ params = [
     ('filters', [320]),
     ('kernel_size', [5]),
     ('conv_activation', ['relu']),
-    ('conv_l2_regularizer', [0.001, 0.001, 0.]),
+    ('conv_l2_regularizer', [0.01, 0.001, 0.]),
     ('dropout_rate', [0., 0.2, 0.6]),
     ('dense_activation', ['tanh']),
     ('dense_l2_regularizer', [0.01, 0.001, 0.]),

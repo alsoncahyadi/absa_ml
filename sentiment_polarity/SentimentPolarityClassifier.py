@@ -1,21 +1,21 @@
 # grid search hypers
 
 params = [
-    ('epochs', [75]),
+    ('epochs', [50]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
     ('filters', [320]),
     ('kernel_size', [5]),
-    ('conv_activation', ['relu', 'tanh']),
-    ('conv_l2_regularizer', [0.001]),
-    ('dropout_rate', [0.6, 0.2, 0.0]),
-    ('dense_activation', ['relu', 'tanh']),
-    ('dense_l2_regularizer', [0.01]),
+    ('conv_activation', ['relu']),
+    ('conv_l2_regularizer', [0.001, 0.001, 0.]),
+    ('dropout_rate', [0., 0.2, 0.6]),
+    ('dense_activation', ['tanh']),
+    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
     ('units', [128]),
-    ('trainable', [False, True]),
+    ('trainable', [False]),
     ('dense_layers', [1, 2, 3]),
 ]
 
@@ -58,7 +58,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
         self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
-        self.THRESHOLD = 0.8
+        self.THRESHOLD = 0.75
         self.target_names = ['polarity']
        
         self.cnn_model = None
@@ -261,11 +261,11 @@ def main():
             Load best estimator and score it
         """
 
-        best_model = load_model('model/cnn/best_{}.model'.format(category))
-        del spc.cnn_model
-        spc.cnn_model = best_model
-        score = spc.score(X_test, y_test, verbose=1)
-        f1_scores.append(score['f1_score_macro'])
+        # best_model = load_model('model/cnn/best_{}.model'.format(category))
+        # del spc.cnn_model
+        # spc.cnn_model = best_model
+        # score = spc.score(X_test, y_test, verbose=1)
+        # f1_scores.append(score['f1_score_macro'])
     print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
 
 if __name__ == "__main__":

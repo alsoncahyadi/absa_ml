@@ -1,22 +1,22 @@
 # grid search hypers
 
 params = [
-    ('epochs', [75]),
+    ('epochs', [50, 75]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
     ('filters', [320]),
     ('kernel_size', [5]),
     ('conv_activation', ['relu']),
-    ('conv_l2_regularizer', [0.01, 0.001, 0.]),
+    ('conv_l2_regularizer', [0.1, 0.01, 0.001, 0.]),
     ('dropout_rate', [0., 0.2, 0.6]),
     ('dense_activation', ['tanh']),
-    ('dense_l2_regularizer', [0.01, 0.001, 0.]),
+    ('dense_l2_regularizer', [0.1, 0.01, 0.001, 0.]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
     ('units', [128]),
     ('trainable', [False]),
-    ('dense_layers', [1, 2, 3]),
+    ('dense_layers', [1, 2]),
 ]
 
 param_grid = dict(params)
@@ -58,7 +58,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WEIGHTS_PATH = 'model/cnn/weights/best_{}.hdf5'
         self.MODEL_PATH = 'model/cnn/best_{}.model'
         self.WE_PATH = '../we/embedding_matrix.pkl'
-        self.THRESHOLD = 0.75
+        self.THRESHOLD = 0.8
         self.target_names = ['polarity']
        
         self.cnn_model = None
@@ -191,9 +191,6 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
         cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         return cnn_model
-    
-    def _get_features(self, x):
-        return x
 
     def load_weights(self, path):
         self._create_model()

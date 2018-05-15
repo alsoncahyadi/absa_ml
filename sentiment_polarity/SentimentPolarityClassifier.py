@@ -181,7 +181,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         for i in range(dense_layers):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
-        layer_softmax = Dense(1, activation=activation)(layer_dropout)
+        layer_softmax = Dense(2, activation=activation)(layer_dropout)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -233,7 +233,8 @@ def main():
             Fit the model
         """
         
-
+        from keras.utils import to_categorical
+        y = to_categorical(y)
         spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
         # spc.fit(X, y,
         #     epochs = 50,

@@ -3,10 +3,10 @@ from keras.preprocessing.text import Tokenizer
 import pandas as pd
 import numpy as np
 import dill
+from constants import Const
 from polyglot.text import Text
-from ote.OpinionTargetFeatureExtractor import extract_features
 
-def get_tokenizer(tokenizer_path='../we/tokenizer.pkl'):
+def get_tokenizer():
     """
         Load Tokenizer
     """
@@ -14,18 +14,18 @@ def get_tokenizer(tokenizer_path='../we/tokenizer.pkl'):
     from keras.preprocessing.text import Tokenizer
     tokenizer = Tokenizer()
 
-    with open(tokenizer_path, 'rb') as fi:
+    with open(Const.TOKENIZER_PATH, 'rb') as fi:
         tokenizer = dill.load(fi)
     return tokenizer
 
-def get_ce_dataset(tokenizer_path='../we/tokenizer.pkl'):
-    tokenizer = get_tokenizer(tokenizer_path)
+def get_ce_dataset():
+    tokenizer = get_tokenizer()
     
     """
         Construct X and y
     """
-    df = pd.read_csv("data/train_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    df_test = pd.read_csv("data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df = pd.read_csv(Const.CE_ROOT + "data/train_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
 
     df = df.sample(frac=1, random_state=7)
 
@@ -52,14 +52,14 @@ def get_ce_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     return X, y, X_test, y_test
 
-def get_spc_dataset(category, tokenizer_path='../we/tokenizer.pkl'):
-    tokenizer = get_tokenizer(tokenizer_path)
+def get_spc_dataset(category):
+    tokenizer = get_tokenizer()
 
     """
         Construct X and y
     """
-    df = pd.read_csv("data/train_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    df_test = pd.read_csv("data/test_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df = pd.read_csv(Const.SPC_ROOT + "data/train_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    df_test = pd.read_csv(Const.SPC_ROOT + "data/test_data_3.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
 
     df = df.sample(frac=1, random_state=7)
 
@@ -86,7 +86,7 @@ def get_spc_dataset(category, tokenizer_path='../we/tokenizer.pkl'):
 
     return X, y, X_test, y_test
 
-def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
+def get_ote_dataset():
     def read_data_from_file(path):
         data = {
             'all' : [],
@@ -117,8 +117,8 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
                     tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
         return data
 
-    train_data = read_data_from_file('data/train_data_fixed.txt')
-    test_data = read_data_from_file('data/test_data_fixed.txt')
+    train_data = read_data_from_file(Const.OTE_ROOT + 'data/train_data_fixed.txt')
+    test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
                 
     df = pd.DataFrame(train_data)
     df_test = pd.DataFrame(test_data)
@@ -126,16 +126,16 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     """
         Calculate Metrics
     """
-    from scipy import stats
-    sentence_lengths = []
-    for sentence in train_data['sentences']:
-        sentence_lengths.append(len(sentence))
-    print("max :", np.max(sentence_lengths))
-    print("min :", np.min(sentence_lengths))
-    print("mean:", np.mean(sentence_lengths))
-    print("mode:", stats.mode(sentence_lengths))
+    # from scipy import stats
+    # sentence_lengths = []
+    # for sentence in train_data['sentences']:
+    #     sentence_lengths.append(len(sentence))
+    # print("max :", np.max(sentence_lengths))
+    # print("min :", np.min(sentence_lengths))
+    # print("mean:", np.mean(sentence_lengths))
+    # print("mode:", stats.mode(sentence_lengths))
 
-    tokenizer = get_tokenizer(tokenizer_path)
+    tokenizer = get_tokenizer()
 
     from polyglot.text import Text
     from keras.utils import to_categorical
@@ -162,8 +162,6 @@ def get_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     """
         Create X and Y
     """
-    # df = df.sample(frac=1, random_state=7)
-
     X = train_data['raw']
     X_test = test_data['raw']
     X = tokenizer.texts_to_sequences(X)
@@ -206,7 +204,7 @@ def filter_sentence(sentence):
     # new_sentence = sentence.replace('~', 'WAVE')
     return new_sentence
 
-def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
+def get_crf_ote_dataset():
     def read_data_from_file(path):
         data = {
             'all' : [],
@@ -237,8 +235,8 @@ def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
                     tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
         return data
 
-    train_data = read_data_from_file('data/train_data_fixed.txt')
-    test_data = read_data_from_file('data/test_data_fixed.txt')
+    train_data = read_data_from_file(Const.OTE_ROOT + 'data/train_data_fixed.txt')
+    test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
 
     df = pd.DataFrame(train_data)
     df_test = pd.DataFrame(test_data)
@@ -254,8 +252,6 @@ def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
     print("min :", np.min(sentence_lengths))
     print("mean:", np.mean(sentence_lengths))
     print("mode:", stats.mode(sentence_lengths))
-
-    tokenizer = get_tokenizer(tokenizer_path)
 
     """
         Create X
@@ -288,9 +284,28 @@ def get_crf_ote_dataset(tokenizer_path='../we/tokenizer.pkl'):
 
     return X_pos_tagged, y, X_test_pos_tagged, y_test
 
-def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
+def create_class_weight(labels_dict,mu=0.1, threshold=1., **kwargs):
     import math
+    total = np.sum(list(labels_dict.values()))
+    keys = labels_dict.keys()
+    class_weight = dict()
+    scale = kwargs.get('scale', 1.)
+    
+    """ OLD """
+    # for key in keys:
+    #     score = (total-float(labels_dict[key]))/total * scale
+    #     class_weight[key] = score if score > threshold else threshold
 
+    # return class_weight
+
+    """ NEW """
+    for key in keys:
+        score = math.log(mu*total/float(labels_dict[key]))
+        class_weight[key] = score if score > threshold else threshold
+
+    return class_weight
+
+def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     labels_dict = {}
     for sents in y_train:
         for sent in sents:
@@ -298,26 +313,6 @@ def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
                 for i, value in enumerate(sent):
                     if value == 1:
                         labels_dict[i] = labels_dict.get(i,0) + 1
-
-    def create_class_weight(labels_dict,mu=2.5, threshold=0.1, **kwargs):
-        total = np.sum(list(labels_dict.values()))
-        keys = labels_dict.keys()
-        class_weight = dict()
-        scale = kwargs.get('scale', 1.)
-        
-        """ OLD """
-        # for key in keys:
-        #     score = (total-float(labels_dict[key]))/total * scale
-        #     class_weight[key] = score if score > threshold else threshold
-
-        # return class_weight
-
-        """ NEW """
-        for key in keys:
-            score = math.log(mu*total/float(labels_dict[key]))
-            class_weight[key] = score if score > threshold else threshold
-
-        return class_weight
 
     max_review_length = 81
 
@@ -387,8 +382,8 @@ def get_entities_from_iob_tagged_tokens(iob_tagged_tokens):
     current_entity_pos = None
     all_entities = []
     for i, (word, tag, iob_tag) in enumerate(iob_tagged_tokens):
-        iob = iob_tag[:2]
-        entity_name = iob_tag[2:]
+        iob = iob_tag[-2:]
+        entity_name = iob_tag[:-2]
         if current_entity_words:
             if iob == "I-": #concatenate word if in chunk
                 current_entity_words += " " + word
@@ -419,8 +414,8 @@ def get_entities_from_iob_tagged_tokens1(iob_tagged_tokens):
     current_entity_pos = None
     all_entities = []
     for i, (word, tag, iob_tag) in enumerate(iob_tagged_tokens):
-        iob = iob_tag[:2]
-        entity_name = iob_tag[2:]
+        iob = iob_tag[-2:]
+        entity_name = iob_tag[:-2]
         if current_entity_words:
             if iob == "I-": #concatenate word if in chunk
                 current_entity_words += " " + word

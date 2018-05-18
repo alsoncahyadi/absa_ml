@@ -25,16 +25,20 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 import sys
-sys.path.insert(0, '..')
-sys.path.insert(0, '../ote/')
+try:
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
 
 import utils
 
-from MyClassifier import MyClassifier
+from MyClassifier import MyClassifier, Model
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 from keras import backend as K
-from keras.models import Sequential, Input, Model, load_model
+from keras.models import Sequential, Input, load_model
 from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
 from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
@@ -80,6 +84,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         units = 256,
         trainable = False,
         dense_layers = 1,
+        class_weight = None,
 
         is_save = False,
         category = 'NOTSPECIFIED',
@@ -105,6 +110,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             # self.cnn_model.summary()
             self.cnn_model.fit(
                 X, y,
+                class_weight=class_weight,
                 **kwargs
             )
         if is_save:
@@ -112,7 +118,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     
     def predict(self, X, **kwargs):
         y_pred = self.cnn_model.predict(X)
-        if len(y_pred.shape) > 2:
+        if y_pred.shape[1] > 1:
             return y_pred.argmax(axis=-1)
         else:
             THRESHOLD = self.THRESHOLD
@@ -181,7 +187,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         for i in range(dense_layers):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
-        layer_softmax = Dense(2, activation=activation)(layer_dropout)
+        layer_softmax = Dense(1, activation=activation)(layer_dropout)
         
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
@@ -199,16 +205,82 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def get_threshold(self):
         return self.THRESHOLD
 
+def get_best_params():
+    best_params = {
+        'food':
+        {
+            'epochs': 75,
+            'batch_size': 64,
+            'filters': 320,
+            'kernel_size': 5,
+            'conv_activation': 'relu',
+            'conv_l2_regularizer': 0.01,
+            'dropout_rate': 0.2,
+            'dense_activation': 'tanh',
+            'dense_l2_regularizer': 0.001,
+            'activation': 'sigmoid',
+            'loss_function': 'binary_crossentropy',
+            'units': 128,
+            'trainable': False,
+            'dense_layers': 1,
+        },
 
-class CategoryFeatureExtractor (BaseEstimator):
-    def __init__(self):
-        pass
+        'service':
+        {
+            'epochs': 75,
+            'batch_size': 64,
+            'filters': 320,
+            'kernel_size': 5,
+            'conv_activation': 'relu',
+            'conv_l2_regularizer': 0.001,
+            'dropout_rate': 0.6,
+            'dense_activation': 'tanh',
+            'dense_l2_regularizer': 0.001,
+            'activation': 'sigmoid',
+            'loss_function': 'binary_crossentropy',
+            'units': 128,
+            'trainable': False,
+            'dense_layers': 1,
+        },
 
-    def fit(self, x, y=None):
-        raise NotImplementedError
-    
-    def transform(self):
-        raise NotImplementedError
+        'price':
+        {
+            'epochs': 50,
+            'batch_size': 64,
+            'filters': 320,
+            'kernel_size': 5,
+            'conv_activation': 'relu',
+            'conv_l2_regularizer': 0.01,
+            'dropout_rate': 0.,
+            'dense_activation': 'tanh',
+            'dense_l2_regularizer': 0.,
+            'activation': 'sigmoid',
+            'loss_function': 'binary_crossentropy',
+            'units': 128,
+            'trainable': False,
+            'dense_layers': 1,
+        },
+
+        'place':
+        {
+            'epochs': 50,
+            'batch_size': 64,
+            'filters': 320,
+            'kernel_size': 5,
+            'conv_activation': 'relu',
+            'conv_l2_regularizer': 0.01,
+            'dropout_rate': 0.2,
+            'dense_activation': 'tanh',
+            'dense_l2_regularizer': 0.,
+            'activation': 'sigmoid',
+            'loss_function': 'binary_crossentropy',
+            'units': 128,
+            'trainable': False,
+            'dense_layers': 1,
+        },
+    }
+
+    return best_params
 
 def main():
     categories = ['food', 'service', 'price', 'place']
@@ -224,7 +296,7 @@ def main():
         """
             Make the model
         """
-        np.random.seed(7)
+        # np.random.seed(7)
 
         # checkpointer = ModelCheckpoint(filepath='model/cnn/weights/CNN.hdf5', verbose=0, save_best_only=True)
         spc = CNNSentimentPolarityClassifier()
@@ -234,36 +306,41 @@ def main():
         """
         
         from keras.utils import to_categorical
-        y = to_categorical(y)
-        spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
-        # spc.fit(X, y,
-        #     epochs = 50,
-        #     batch_size = 64,
-        #     filters = 320,
-        #     kernel_size = 5,
-        #     conv_activation = 'relu',
-        #     conv_l2_regularizer = 0.01,
-        #     dropout_rate = 0.3,
-        #     dense_activation = 'tanh',
-        #     dense_l2_regularizer = 0.001,
-        #     activation = 'sigmoid',
-        #     optimizer = 'nadam',
-        #     loss_function = 'binary_crossentropy',
-        #     units = 256,
-        #     verbose=False,
-        #     category=category,
-        #     is_save = True
-        # )
+        # y = to_categorical(y)
+        # spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
+        best_params = get_best_params()
+
+        is_save = {
+            'food': False,
+            'service': False,
+            'price': True,
+            'place': False,
+        }
+        if is_save[category]:
+            spc.fit(X, y,
+                **best_params[category],
+                verbose=1,
+                category=category,
+                is_save = is_save[category],
+                validation_split=0.,
+                optimizer='nadam',
+            )
         
         """
             Load best estimator and score it
         """
 
-        # best_model = load_model('model/cnn/best_{}.model'.format(category))
-        # del spc.cnn_model
-        # spc.cnn_model = best_model
-        # score = spc.score(X_test, y_test, verbose=1)
-        # f1_scores.append(score['f1_score_macro'])
+        best_model = load_model('model/cnn/best_{}.model'.format(category))
+        del spc.cnn_model
+        spc.cnn_model = best_model
+
+        # preds = spc.predict(X_test)
+        # for pred in preds:
+        #     if pred[0] == pred[1]:
+        #         print("SAMA", pred[0])
+
+        score = spc.score(X_test, y_test, verbose=1)
+        f1_scores.append(score['f1_score_macro'])
     print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
 
 if __name__ == "__main__":

@@ -21,7 +21,13 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 import sys
-sys.path.insert(0, '..')
+try:
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
+
 sys.setrecursionlimit(999999999)
 
 import utils
@@ -58,19 +64,16 @@ N_CV = 5
 
 
 class BinCategoryExtractor (MyClassifier):
-    def __init__(self, **kwargs):
+    def __init__(self, included_features=[0,1,2], **kwargs):
         super().__init__(**kwargs)
 
-        self.WEIGHTS_PATH = 'model/ann/weights/ANN.hdf5'
-        self.MODEL_PATH = 'model/ann/ANN.model'
-        self.WE_PATH = '../we/embedding_matrix.pkl'
-        self.COUNT_VECTORIZER_VOCAB_PATH = 'data/count_vectorizer_vocabulary.pkl'
-        self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = 'data/count_vectorizer_vocabulary_cluster.pkl'
+        self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
+        self.COUNT_VECTORIZER_VOCAB_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary.pkl'
+        self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary_cluster.pkl'
         self.target_names = ['food', 'service', 'price', 'place']
        
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
-        # for key, value in kwargs.items():
-        #     setattr(self, key, value)
+
         self.count_vectorizer_vocab = None
         with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
             self.count_vectorizer_vocab = dill.load(fi)
@@ -79,24 +82,25 @@ class BinCategoryExtractor (MyClassifier):
         with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
             self.count_vectorizer_vocab_cluster = dill.load(fi)
 
+        transformer_list = [
+            ('cnn_probability', ItemSelector(key='cnn_probability')),
+            ('bag_of_bigram', Pipeline([
+                ('selector', ItemSelector(key='review')),
+                ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab)),
+            ])),
+            ('bag_of_bigram_word_cluster', Pipeline([
+                ('selector', ItemSelector(key='review_cluster')),
+                ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab_cluster)),
+            ])),
+        ]
+
         self.pipeline = Pipeline([
             ('data', CategoryFeatureExtractor()),
             (
                 'features', FeatureUnion(
-                    transformer_list= [
-                        ('cnn_probability', ItemSelector(key='cnn_probability')),
-                        ('bag_of_bigram', Pipeline([
-                            ('selector', ItemSelector(key='review')),
-                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab)),
-                        ])),
-                        ('bag_of_bigram_word_cluster', Pipeline([
-                            ('selector', ItemSelector(key='review_cluster')),
-                            ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab_cluster)),
-                        ]))
-                    ]
+                    transformer_list= [transformer_list[included_feature] for included_feature in included_features]
                 )
             ),
-            # ('clf', MLPClassifier(hidden_layer_sizes=(128,), activation='tanh', solver='adam', batch_size=32, max_iter=25, verbose=1))
             ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=50)))
         ])
 
@@ -116,7 +120,7 @@ class BinCategoryExtractor (MyClassifier):
     ):
         n_cnn_proba = 4
         n_bag_of_bigrams = 8016
-        n_bag_of_bigrams_cluster = 3755
+        n_bag_of_bigrams_cluster = 3679
 
         sums = [n_cnn_proba, n_bag_of_bigrams, n_bag_of_bigrams_cluster]
         included_features = included_features
@@ -170,7 +174,7 @@ class BinCategoryExtractor (MyClassifier):
             ('bag_of_bigram_word_cluster', Pipeline([
                 ('selector', ItemSelector(key='review_cluster')),
                 ('ngram', CountVectorizer(ngram_range=(1, 2), vocabulary=self.count_vectorizer_vocab_cluster)),
-            ]))
+            ])),
         ]
 
         self.pipeline = Pipeline([
@@ -221,7 +225,7 @@ class BinCategoryExtractor (MyClassifier):
             self.pipeline = grid.best_estimator_
             self.save_estimators()
 
-    def load_estimators(self, n_estimators = 4, load_path='model/ann/best_{}.model'):
+    def load_estimators(self, n_estimators = 4, load_path= Const.CE_ROOT + 'model/ann/best_{}.model'):
         estimators = []
         for i in range(n_estimators):
             ann_model = load_model(load_path.format(i))
@@ -232,7 +236,7 @@ class BinCategoryExtractor (MyClassifier):
         self.pipeline.steps[ann_sklearn_model_index][1].estimators_ = estimators
         return estimators
 
-    def save_estimators(self, save_path='model/ann/best_{}.model'):
+    def save_estimators(self, save_path= Const.CE_ROOT + 'model/ann/best_{}.model'):
         ann_sklearn_model_index = len(self.pipeline.steps) - 1
         estimators = self.pipeline.steps[ann_sklearn_model_index][1].estimators_
         for i, estimator in enumerate(estimators):
@@ -268,27 +272,38 @@ def binary():
     """
     np.random.seed(7)
     bi = BinCategoryExtractor()
-    bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
+    # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
+
     """
+        FEATURES:
+            0: CNN proba
+            1: Bag of Bigram
+            2: Bag of Cluster Bigram
+            3: Bag of Words
+            4: Bag of Custers
+    """
+
+    # """
     bi.fit(X, y, 
-        epochs= 50,
-        dropout_rate= 0.6,
+        epochs= 100,
+        dropout_rate= 0.5,
         dense_activation= 'tanh',
         dense_l2_regularizer= 0.01,
         activation= 'sigmoid',
         optimizer= "nadam",
         loss_function= 'binary_crossentropy',
-        threshold= 0.2,
+        threshold= 0.5,
         included_features= [0],
-        units= 4,
+        units=4,
         dense_layers= 2,
         verbose = 0
     )
-    """
+    # """
     # bi.save_estimators()
     # bi.load_estimators()
     
     thresh_to_try = [0.2, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95]
+    thresh_to_try = [0.5]
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
         bi.set_threshold(thresh); bi.score(X_test, y_test)

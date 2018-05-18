@@ -36,7 +36,12 @@ import itertools
 import os
 import sys
 
-sys.path.insert(0, '..')
+try:
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
 
 
 import dill
@@ -59,7 +64,6 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score)
 from sklearn.model_selection import train_test_split
 
-sys.path.insert(0, '..')
 from MyClassifier import KerasClassifier, MultilabelKerasClassifier, MyClassifier, Model
 import utils
 
@@ -70,9 +74,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.WEIGHTS_PATH = 'model/brnn/weights/BRNN.hdf5'
-        self.MODEL_PATH = 'model/brnn/BRNN.model'
-        self.WE_PATH = '../we/embedding_matrix.pkl'
+        self.MODEL_PATH = Const.OTE_ROOT + 'model/brnn/BRNN.model'
+        self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
        
         self.target_names = ['O', 'B-ASPECT', 'I-ASPECT']
         self.rnn_model = None
@@ -255,7 +258,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.rnn_model.load_weights(path)
 
     def load_best_model(self):
-        best_model = load_model('model/brnn/BRNN.model')
+        best_model = load_model(Const.OTE_ROOT + 'model/brnn/best.model')
         del self.rnn_model
         self.rnn_model = best_model
         
@@ -296,36 +299,34 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    params_for_fit = {
-        "dropout_rate": 0.2,
-        "dense_activation": 'relu',
-        "dense_l2_regularizer": 0.01,
-        "activation": 'softmax',
-        "optimizer": 'nadam',
-        "loss_function": 'categorical_crossentropy',
-        "gru_units": 256,
-        "units": 256,
-        'dense_layers' : 1,
-    }
-    ote.fit(
-        [X, pos], y,
-        epochs = 50,
-        batch_size = 64,
-        **params_for_fit,
-        sample_weight = sample_weight,
-        is_save=True,
-    )
-    ote.score(X_test, pos_test, y_test, dense_layers = 1)
+    # params_for_fit = {
+    #     "dropout_rate": 0.5,
+    #     "dense_activation": 'relu',
+    #     "dense_l2_regularizer": 0.01,
+    #     "activation": 'softmax',
+    #     "optimizer": 'nadam',
+    #     "loss_function": 'categorical_crossentropy',
+    #     "gru_units": 64,
+    #     "units": 64,
+    #     'dense_layers' : 1,
+    # }
+    # ote.fit(
+    #     [X, pos], y,
+    #     epochs = 100,
+    #     batch_size = 64,
+    #     **params_for_fit,
+    #     sample_weight = sample_weight,
+    #     is_save=True,
+    # )
+    # ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
     # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
 
     """
         Load best estimator and score it
     """
-    # best_model = load_model('model/cnn/best.model')
-    # del ote.rnn_model
-    # ote.rnn_model = best_model
-    # ote.score(X_test, y_test)
+    ote.load_best_model()
+    ote.score(X_test, pos_test, y_test, dense_layers = 1)
     
 if __name__ == "__main__":
     utils.time_log(main)

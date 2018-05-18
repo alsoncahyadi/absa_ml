@@ -9,6 +9,7 @@ import os
 
 OOV_CLUSTER = -1
 OOV_TOKEN = 15001
+N_CLUSTERS = 1000
 
 def transform(X, cluster_list):
     new_X = np.zeros(X.shape, dtype=int)
@@ -38,10 +39,10 @@ if __name__ == "__main__":
     
     print("Embedding Matrix shape:", embedding_matrix.shape)
 
-    name = "1000"
+    name = str(N_CLUSTERS)
 
     if IS_TRAIN:
-        clus = KMeans(init='k-means++', n_clusters=1000, n_init=10, verbose=1, n_jobs=-1)
+        clus = KMeans(init='k-means++', n_clusters=N_CLUSTERS, n_init=10, verbose=1, n_jobs=-1)
 
         clus.fit(embedding_matrix)
 
@@ -52,11 +53,11 @@ if __name__ == "__main__":
         with open('kmeans_{}.pkl'.format(name), 'rb') as fi:
             clus = dill.load(fi)
 
-    # cluster_list = clus.predict(embedding_matrix)
+    cluster_list = clus.predict(embedding_matrix)
 
 
-    # with open('cluster_list_{}.pkl'.format(name), 'wb') as fo:
-    #     dill.dump(cluster_list, fo)
+    with open('cluster_list_{}.pkl'.format(name), 'wb') as fo:
+        dill.dump(cluster_list, fo)
 
     """
         Save 
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         Count Vectorizer Vocabulary
     """
     os.chdir('../ote')
-    X, _, _, _ = utils.get_ote_dataset()
+    X, _, _, _, _, _ = utils.get_ote_dataset()
     X = transform(X, cluster_list)
     bag = CountVectorizer(ngram_range=(1, 2))
     X_text = []
@@ -111,7 +112,7 @@ if __name__ == "__main__":
         bag = CountVectorizer(ngram_range=(1, 2))
         X_text = []
         for datum in X: 
-            X_text.append(" ".join([str(token) for token in datum if token != OOV_CLUSTER]))
+            X_text.append(" ".join([str(token) for token in datum]))
         bag.fit(X_text)
         
         print(category, len(bag.vocabulary_.items()))

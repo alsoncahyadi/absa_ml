@@ -41,8 +41,12 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 import sys
-sys.path.insert(0, '..')
-sys.path.insert(0, '../ote/')
+try:
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
 
 import utils
 from ItemSelector import ItemSelector
@@ -76,9 +80,8 @@ class CNNCategoryExtractor (MyClassifier):
     def __init__(self, threshold = 0.75, **kwargs):
         super().__init__(**kwargs)
 
-        self.WEIGHTS_PATH = 'model/cnn/weights/CNN.hdf5'
-        self.MODEL_PATH = 'model/cnn/CNN.model'
-        self.WE_PATH = '../we/embedding_matrix.pkl'
+        self.MODEL_PATH = Const.CE_ROOT + 'model/cnn/CNN.model'
+        self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
        
         self.target_names = ['food', 'service', 'price', 'place']
         self.cnn_model = None
@@ -211,6 +214,11 @@ class CNNCategoryExtractor (MyClassifier):
         cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         return cnn_model
     
+    def load_best_model(self):
+        best_model = load_model(Const.CE_ROOT + 'model/cnn/CNN.model')
+        del self.cnn_model
+        self.cnn_model = best_model
+    
     def _get_features(self, x):
         return x
 
@@ -230,8 +238,9 @@ def cnn():
     """
     X, y, X_test, y_test = utils.get_ce_dataset()
 
-    X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
+    # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
     thresh_to_try = [0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.975, 0.999]
+    # thresh_to_try = [0.5]
     """
         Make the model
     """
@@ -244,36 +253,34 @@ def cnn():
         Fit the model
     """
     
-    # ce.fit(X, y, verbose=1,
-    #     epochs = 75,
-    #     batch_size = 64,
-    #     # validation_split = 0.2,
-    #     filters = 320,
-    #     kernel_size = 5,
-    #     conv_activation = 'relu',
-    #     conv_l2_regularizer = 0.001,
-    #     dropout_rate = 0.2,
-    #     dense_activation = 'tanh',
-    #     dense_l2_regularizer = 0.01,
-    #     activation = 'sigmoid',
-    #     optimizer = "nadam",
-    #     loss_function = 'binary_crossentropy',
-    #     units = 256,
-    #     trainable = False,
-    #     dense_layers=2,
+    ce.fit(X, y, verbose=1,
+        epochs = 100,
+        batch_size = 64,
+        # validation_split = 0.2,
+        filters = 128,
+        kernel_size = 5,
+        conv_activation = 'relu',
+        conv_l2_regularizer = 0.001,
+        dropout_rate = 0.2,
+        dense_activation = 'tanh',
+        dense_l2_regularizer = 0.01,
+        activation = 'sigmoid',
+        optimizer = "nadam",
+        loss_function = 'binary_crossentropy',
+        units = 64,
+        trainable = False,
+        dense_layers=2,
 
-    #     is_save = False,
-    #     show_summary = True
-    # )
+        is_save = True,
+        show_summary = True
+    )
     
     # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    best_model = load_model(ce.MODEL_PATH)
-    del ce.cnn_model
-    ce.cnn_model = best_model
+    ce.load_best_model()
     for thresh in thresh_to_try:
         print("\nTHRESH: {}".format(thresh))
         ce.set_threshold(thresh); ce.score(X_test, y_test)

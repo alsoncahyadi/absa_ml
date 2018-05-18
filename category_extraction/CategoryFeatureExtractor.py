@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, '..')
+sys.path.insert(0, Const.ROOT)
 
 import dill
 from we.cluster.KMeans import transform
@@ -15,7 +15,7 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
         return self
     
     def transform(self, X):
-        cnn_model = load_model('model/cnn/best.model')
+        cnn_model = load_model('model/cnn/CNN.model')
         features = {}
         y_pred = cnn_model.predict(X)
         

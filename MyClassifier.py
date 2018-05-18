@@ -10,6 +10,7 @@ from keras.wrappers.scikit_learn import BaseWrapper
 from keras.utils import to_categorical
 from keras.models import Model as KerasModel
 from keras.callbacks import ModelCheckpoint
+from constants import Const
 
 class Model (KerasModel):
     def fit(self, x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None,
@@ -17,27 +18,31 @@ class Model (KerasModel):
         sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None, **kwargs):
 
         best_weights_path = kwargs.get('best_weights_path', '/tmp/weights.hdf5')
+        is_no_validation_data = (validation_split == 0.0) and (validation_data == None)
+        if is_no_validation_data:
+            monitor = 'loss'
+        else:
+            monitor = 'val_loss'
         
-        checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0)
+        checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0, monitor=monitor)
 
         super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer],
             validation_split=validation_split, validation_data=validation_data, shuffle=shuffle, class_weight=class_weight,
             sample_weight=sample_weight, initial_epoch=initial_epoch, steps_per_epoch=steps_per_epoch, validation_steps=validation_steps)
 
-        if (validation_split != 0.0) or (validation_data != None):
-            self.load_weights(best_weights_path)
-            if verbose == 1:
-                print("Loaded best weight from", best_weights_path, "\n")
+        self.load_weights(best_weights_path)
+        if verbose == 1:
+            print("Loaded best weight from", best_weights_path, "\n")
 
 class MyClassifier (BaseEstimator, ClassifierMixin, object):
     def __init__ (self, **kwargs):
         # Make Tokenizer (load or from dataset)
-        with open('../we/tokenizer.pkl', 'rb') as fi:
+        with open(Const.TOKENIZER_PATH, 'rb') as fi:
             self.tokenizer = dill.load(fi)
         self.kwargs = kwargs
         self.target_names = []
-        self.VOCABULARY_SIZE = min(98806, kwargs.get('vocabulary_size', 15000))
-        self.EMBEDDING_VECTOR_LENGTH = kwargs.get('embedding_vector_length', 500)
+        self.VOCABULARY_SIZE = min(98806, kwargs.get('vocabulary_size', Const.VOCABULARY_SIZE))
+        self.EMBEDDING_VECTOR_LENGTH = kwargs.get('embedding_vector_length', Const.EMBEDDING_VECTOR_LENGTH)
 
     def fit(self, X, y, **kwargs):
         raise NotImplementedError
@@ -164,11 +169,17 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 sample_weight_train.pop(i)
                 sample_weight_train = np.concatenate(sample_weight_train)
 
-            self.fit(X_train, y_train
-                , verbose = verbose
-                , **kwargs
-                , sample_weight = sample_weight_train
-            )
+            if sample_weight_train == None:
+                self.fit(X_train, y_train
+                    , verbose = verbose
+                    , **kwargs
+                )
+            else:
+                self.fit(X_train, y_train
+                    , verbose = verbose
+                    , **kwargs
+                    , sample_weight = sample_weight_train
+                )
 
             start_time = time.time()
             if thresholds != None:

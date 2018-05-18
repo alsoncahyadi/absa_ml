@@ -1,8 +1,20 @@
 params = [
     ('algorithm', ['lbfgs']),
-    ('max_iterations', [100]),
-    ('c1', [0.1, 0.01, 0.001, 0.]),
-    ('c2', [0.1, 0.01, 0.001, 0.]),
+    ('max_iterations', [None]),
+    ('c1', [0.1, 0.01, 0.001, 0.0001]),
+    ('c2', [0.1, 0.01, 0.001, 0.0001, 0.]),
+    ('included_features', [
+        ['word'],
+        ['word', 'pos'],
+        ['word', 'pos', 'cluster'],
+        ['word', 'cluster'],
+        ['cluster', 'pos'],
+        ['rnn_proba', 'word',],
+        ['rnn_proba', 'word', 'cluster'],
+        ['rnn_proba', 'cluster', 'pos'],
+        ['rnn_proba', 'word', 'pos'],
+        ['rnn_proba', 'word', 'pos', 'cluster']
+    ]),
 ]
 
 import itertools
@@ -10,9 +22,15 @@ import os
 import sys
 import time
 
-sys.path.insert(0, '..')
+try:
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
 
 
+from OpinionTargetFeatureExtractor import extract_features
 import dill
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,7 +67,7 @@ from sklearn_crfsuite.utils import flatten
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
-sys.path.insert(0, '..')
+sys.path.insert(0, Const.ROOT)
 
 
 NUM_THREAD = 4
@@ -58,31 +76,30 @@ class CRFOpinionTargetExtractor (MyClassifier):
     def __init__(self):
         self.crf_model = sklearn_crfsuite.CRF()
         self.target_names = ['O', 'ASPECT-B', 'ASPECT-I']
-        self.MODEL_PATH = 'model/crf/CRF.model'
+        self.MODEL_PATH = Const.OTE_ROOT + 'model/crf/CRF.model'
         super(CRFOpinionTargetExtractor).__init__()
     
     def fit(self, X, y,
         is_save=False,
         algorithm='lbfgs',
-        c1=0.1,
-        c2=0.1,
-        max_iterations=100,
-        verbose = 0,
+        max_iterations=None,
         all_possible_transitions=True,
+        included_features = ['word'],
+        included_words = [-2,-1,0,1,2],
+        verbose=False,
         **kwargs
     ):
+        X = extract_features(X, y, included_features = included_features, included_words=included_words)
         self.crf_model = sklearn_crfsuite.CRF(
             algorithm=algorithm,
-            c1=c1,
-            c2=c2,
             max_iterations=max_iterations,
             all_possible_transitions=all_possible_transitions,
             verbose=verbose,
+            **kwargs,
         )
         self.crf_model.fit(X, y)
-
         if is_save:
-            utils.save_object(crf, self.MODEL_PATH)
+            utils.save_object(self.crf_model, self.MODEL_PATH)
 
     def predict(self, X):
         y_pred = self.crf_model.predict(X)
@@ -121,7 +138,11 @@ class CRFOpinionTargetExtractor (MyClassifier):
             y_test, y_pred, labels=sorted_labels, digits=4
         )
 
-    def score(self, X, y, verbose=1, **kwargs):
+    def score(self, X, y, verbose=1,
+        included_features = ['rnn_proba', 'word', 'pos', 'cluster'],
+        **kwargs
+    ):
+        X = extract_features(X, y, included_features = included_features)
         y_pred = self.predict(X, **kwargs)
         if verbose == 2:
             print("=========================================")        
@@ -170,20 +191,31 @@ class CRFOpinionTargetExtractor (MyClassifier):
                 print("Can't be shown")
         return scores
 
+    def load_best_model(self):
+        best_model = None
+        with open(Const.OTE_ROOT + "model/crf/best.model", 'rb') as fi:
+            best_model = dill.load(fi)
+        del self.crf_model
+        self.crf_model = best_model
+
 def crf():
     """
         Initialize data
     """
-    from OpinionTargetFeatureExtractor import extract_features
     
-    param = {
-        'included_words': [-2, -1, 0, 1, 2],
-        'included_features': [0,1,2,3,4,5,6,7,8,9],
-    }
+    included_features = [
+        'rnn_proba',
+        'word',
+        'cluster',
+        'pos',
+    ]
 
+    included_words = [-2,-1,0]
+
+    print("> extracting features")
     X_pos, y, X_test_pos, y_test = utils.get_crf_ote_dataset()
-    X = extract_features(X_pos, y, **param)
-    X_test = extract_features(X_test_pos, y_test, **param)
+    print(len(X_test_pos))
+    
     # for idx, (i, j) in enumerate(zip(X, y)):
     #     if len(i) != len(j):
     #         print(idx, len(i), len(j))
@@ -193,12 +225,27 @@ def crf():
     crf_ote = CRFOpinionTargetExtractor()
     # """
     print("> fitting")
-    crf_ote.fit(X, y,
-        c1=0.1,
-        c2=0.01,
-    )
+
+    """ GRIDSEARCH CV """
+    crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path='output/gridsearch_cv_result_crf.csv')
+
+    """ FIT """
+    # crf_ote.fit(X_pos, y,
+    #     algorithm='lbfgs',
+    #     c1=0.01,
+    #     c2=0.001,
+    #     max_iterations=None,
+    #     epsilon=1e-5,
+    #     delta=1e-5,
+    #     included_features=included_features,
+    #     included_words=included_words,
+    #     verbose=False,
+    #     is_save=True,
+    # )
+
     print("> scoring")
-    crf_ote.score(X_test, y_test, verbose=1)
+    crf_ote.load_best_model()
+    crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
 
 if __name__ == "__main__":
     utils.time_log(crf)

@@ -1,15 +1,13 @@
 params = [
     ('algorithm', ['lbfgs']),
     ('max_iterations', [None]),
-    ('c1', [0.1, 0.01, 0.001, 0.0001]),
-    ('c2', [0.1, 0.01, 0.001, 0.0001, 0.]),
+    ('c1', [1.0, 0.1, 0.01, 0.001,]),
+    ('c2', [1.0, 0.1, 0.01, 0.001, 0.]),
     ('included_features', [
-        ['word'],
         ['word', 'pos'],
         ['word', 'pos', 'cluster'],
         ['word', 'cluster'],
         ['cluster', 'pos'],
-        ['rnn_proba', 'word',],
         ['rnn_proba', 'word', 'cluster'],
         ['rnn_proba', 'cluster', 'pos'],
         ['rnn_proba', 'word', 'pos'],
@@ -232,8 +230,8 @@ def crf():
     """ FIT """
     # crf_ote.fit(X_pos, y,
     #     algorithm='lbfgs',
-    #     c1=0.01,
-    #     c2=0.001,
+    #     c1=0.1,
+    #     c2=1.0,
     #     max_iterations=None,
     #     epsilon=1e-5,
     #     delta=1e-5,
@@ -243,9 +241,9 @@ def crf():
     #     is_save=True,
     # )
 
-    print("> scoring")
-    crf_ote.load_best_model()
-    crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
+    # crf_ote.load_best_model()
+    # print("> scoring")
+    # crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
 
 if __name__ == "__main__":
     utils.time_log(crf)

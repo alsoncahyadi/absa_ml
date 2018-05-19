@@ -2,14 +2,14 @@ params = [
     ('epochs', [75]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
-    ('dropout_rate', [0., 0.2, 0.5, 0.8]),
-    ('dense_activation', ['relu']),
-    ('dense_l2_regularizer', [0.01]),
+    ('dropout_rate', [0., 0.2, 0.5]),
+    ('dense_activation', ['tanh', 'relu']),
+    ('dense_l2_regularizer', [0.01, 0.001]),
     ('activation', ['softmax']),
     ('optimizer', ["nadam"]),
     ('loss_function', ['categorical_crossentropy']),
-    ('gru_units', [64, 256]),
-    ('units', [64, 256]),
+    ('rnn_units', [64, 128, 256]),
+    ('dense_units', [32, 64]),
     ('trainable', [False]),
     ('dense_layers', [1, 2, 3])
 ]
@@ -25,8 +25,8 @@ params = [
     ('activation', ['sigmoid']),
     ('optimizer', ["nadam"]),
     ('loss_function', ['binary_crossentropy']),
-    ('gru_units', [1]),
-    ('units', [1]),
+    ('rnn_units', [1]),
+    ('dense_units', [1]),
 ]
 """
 
@@ -90,11 +90,12 @@ class RNNOpinionTargetExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        gru_units = 256,
-        units = 256,
+        rnn_units = 256,
+        dense_units = 256,
+        dense_layers = 1,
         is_save = False,
         trainable = False,
-        dense_layers = 1,
+        show_summary = False,
         **kwargs):
 
         self.rnn_model = self._create_model(
@@ -104,17 +105,17 @@ class RNNOpinionTargetExtractor (MyClassifier):
             activation = activation,
             optimizer = optimizer,
             loss_function = loss_function,
-            gru_units = gru_units,
-            units = units,
+            rnn_units = rnn_units,
+            dense_units = dense_units,
             trainable = trainable,
             dense_layers = dense_layers,
         )
-        mode = kwargs.get('mode', 'train_validate_split')
-        if mode == "train_validate_split":
-            self.rnn_model.fit(
-                X, y,
-                **kwargs
-            )
+        if show_summary:
+            self.rnn_model.summary()
+        self.rnn_model.fit(
+            X, y,
+            **kwargs
+        )
         
         if is_save:
             self.rnn_model.save(self.MODEL_PATH)
@@ -123,7 +124,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = self.rnn_model.predict(X)
         return y_pred
     
-    def score(self, X, pos, y, verbose=1, dense_layers=1, **kwargs):
+    def score(self, X, y, verbose=1, dense_layers=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
         else:
@@ -148,7 +149,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             tmp = np.array(tmp)
             return tmp
 
-        y_pred_raw = rnn_model.predict([X, pos], batch_size=1, verbose=verbose)
+        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=verbose)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
@@ -163,7 +164,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=-1)
         # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
         
-        end = utils.get_sentence_end_index(X)
+        end = utils.get_sentence_end_index(X[0])
         y_pred = get_decreased_dimension(y_pred, end)
         y_test = get_decreased_dimension(y_test, end)
 
@@ -210,8 +211,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        gru_units = 256,
-        units = 256,
+        rnn_units = 256,
+        dense_units = 256,
         trainable = False,
         dense_layers = 1,
 
@@ -224,13 +225,13 @@ class RNNOpinionTargetExtractor (MyClassifier):
         layer_embedding = self._load_embedding(self.WE_PATH, trainable=trainable, vocabulary_size=15000, embedding_vector_length=500)(layer_input)
         layer_input_pos = Input(shape=(MAX_SEQUENCE_LENGTH,18))
         layer_concat = Concatenate()([layer_embedding, layer_input_pos])
-        layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_concat)
+        layer_blstm = Bidirectional(LSTM(rnn_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_concat)
         layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers-1):
-            layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_dropout)
+            layer_blstm = Bidirectional(LSTM(rnn_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_dropout)
             layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers):
-            layer_dense = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
+            layer_dense = TimeDistributed(Dense(dense_units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
             layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense)
             
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout)
@@ -241,7 +242,6 @@ class RNNOpinionTargetExtractor (MyClassifier):
         rnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'],
                         sample_weight_mode="temporal")
 
-        rnn_model.summary()
         return rnn_model
         
         # layer_input = Input(shape=(max_review_length,))
@@ -303,28 +303,28 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    params_for_fit = {
-        "dropout_rate": 0.2,
-        "dense_activation": 'relu',
-        "dense_l2_regularizer": 0.01,
-        "activation": 'softmax',
-        "optimizer": 'nadam',
-        "loss_function": 'categorical_crossentropy',
-        "gru_units": 64,
-        "units": 32,
-        'dense_layers' : 2,
-    }
-    ote.fit(
-        [X, pos], y,
-        epochs = 100,
-        batch_size = 64,
-        **params_for_fit,
-        sample_weight = sample_weight,
-        is_save=True,
-    )
+    # params_for_fit = {
+    #     "dropout_rate": 0.2,
+    #     "dense_activation": 'relu',
+    #     "dense_l2_regularizer": 0.01,
+    #     "activation": 'softmax',
+    #     "optimizer": 'nadam',
+    #     "loss_function": 'categorical_crossentropy',
+    #     "rnn_units": 64,
+    #     "dense_units": 32,
+    #     'dense_layers' : 2,
+    # }
+    # ote.fit(
+    #     [X, pos], y,
+    #     epochs = 100,
+    #     batch_size = 64,
+    #     **params_for_fit,
+    #     sample_weight = sample_weight,
+    #     is_save=True,
+    # )
     # ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
-    # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)
+    ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1)
 
     """
         Load best estimator and score it

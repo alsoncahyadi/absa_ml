@@ -138,7 +138,17 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
     def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, thresholds=None, **kwargs):
         if type(sample_weight).__name__ != "NoneType":
             sample_weight_folds = np.array_split(sample_weight, k)
-        X_folds = np.array_split(X, k)
+
+        if type(X).__name__ == 'list':
+            X_folds = []
+            for i in range(k):
+                X_folds.append([])
+            for X_single in X:
+                X_single_folds = np.array_split(X_single, k)
+                for i, X_single_fold in enumerate(X_single_folds):
+                    X_folds[i].append(X_single_fold)
+        else:
+            X_folds = np.array_split(X, k)
         y_folds = np.array_split(y, k)
 
         num_classes = 2 if len(self.target_names) == 1 else len(self.target_names)
@@ -157,7 +167,16 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             X_train = list(X_folds)
             X_test  = X_train.pop(i)
-            X_train = np.concatenate(X_train)
+            if type(X).__name__ == 'list':
+                X_train_new = []
+                for i in range(len(X)):
+                    X_train_new.append([])
+                for X_train_fold in X_train:
+                    for i, X_train_fold_single in enumerate(X_train_fold):
+                        X_train_new[i] += list(X_train_fold_single)
+                X_train = [np.array(X_train_new_single) for X_train_new_single in X_train_new]
+            else:
+                X_train = np.concatenate(X_train)
 
             y_train = list(y_folds)
             y_test  = y_train.pop(i)
@@ -169,7 +188,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 sample_weight_train.pop(i)
                 sample_weight_train = np.concatenate(sample_weight_train)
 
-            if sample_weight_train == None:
+            if type(sample_weight_train).__name__ == "NoneType":
                 self.fit(X_train, y_train
                     , verbose = verbose
                     , **kwargs

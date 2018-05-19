@@ -273,6 +273,7 @@ def extract_features(pos_tagged_sentences, iob_tags, feature_detector=ner_featur
     clusters = transform(X_rnn, list_of_clusters)
 
     X = []
+    K.clear_session()
     ote = RNNOpinionTargetExtractor()
     ote.load_best_model()
     proba = ote.predict([X_rnn, pos_rnn], batch_size = 1)

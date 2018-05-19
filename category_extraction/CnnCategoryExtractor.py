@@ -12,7 +12,7 @@ params = [
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
-    ('units', [64, 128]),
+    ('units', [32, 64, 128]),
     ('trainable', [False]),
     ('dense_layers', [1, 2, 3]),
 ]

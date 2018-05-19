@@ -13,7 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from keras.models import load_model
 from keras.preprocessing import sequence
 from keras import backend as K
-from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
+from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np
 
@@ -36,15 +36,13 @@ def get_shape(word):
  
     return word_shape
 
-def ner_features(tokens, i, history, proba, clusters, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
+def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
     """
     `tokens`  = a POS-tagged sentence [(w1, t1), ...]
     `i`   = the index of the token we want to extract features for
-    `history` = the previous predicted IOB tags
     """
     # Pad the sequence with placeholders
     tokens = [('__START2__', '__START2__'), ('__START1__', '__START1__')] + list(tokens) + [('__END1__', '__END1__'), ('__END2__', '__END2__')]
-    history = ['__START2__', '__START1__'] + list(history)
 
     # shift the i with 2, to accommodate the padding
     i += 2
@@ -217,14 +215,14 @@ def ner_features(tokens, i, history, proba, clusters, included_features = ['rnn_
 
     return features
 
-def sent2features(iob_tags, iob_tagged_sentence, proba, clusters, feature_detector, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
+def sent2features(iob_tagged_sentence, proba, clusters, feature_detector, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
     X_sent = []
     for index in range(len(iob_tagged_sentence)):
-        X_sent.append(feature_detector(iob_tagged_sentence, index, proba=proba, history=iob_tags[:index], clusters=clusters, included_features=included_features, included_words=included_words))
+        X_sent.append(feature_detector(iob_tagged_sentence, index, proba=proba, clusters=clusters, included_features=included_features, included_words=included_words))
 
     return X_sent
 
-def extract_features(pos_tagged_sentences, iob_tags, feature_detector=ner_features, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
+def extract_features(pos_tagged_sentences, feature_detector=ner_features, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
     """
     Transform a list of tagged sentences into a scikit-learn compatible POS dataset
     :param parsed_sentences:
@@ -269,9 +267,13 @@ def extract_features(pos_tagged_sentences, iob_tags, feature_detector=ner_featur
     # GET CLUSTERS
     list_of_clusters = None
     with open(Const.CLUSTER_ROOT + 'cluster_list_1000.pkl', 'rb') as fi:
-        list_of_clusters = dill.load(fi)
-    from we.cluster.KMeans import transform
-    clusters = transform(X_rnn, list_of_clusters)
+    K.clear_session()
+ad(fi)
+    K.clear_session()
+transform
+    K.clear_session()
+st_of_clusters)
+    K.clear_session()
 
     X = []
     K.clear_session()
@@ -280,7 +282,7 @@ def extract_features(pos_tagged_sentences, iob_tags, feature_detector=ner_featur
     proba = ote.predict([X_rnn, pos_rnn], batch_size = 1)
 
     for i in range(len(pos_tagged_sentences)):
-        X_sent = sent2features(iob_tags[i], pos_tagged_sentences[i], proba[i], clusters[i], feature_detector, included_features=included_features, included_words=included_words)
+        X_sent = sent2features(pos_tagged_sentences[i], proba[i], clusters[i], feature_detector, included_features=included_features, included_words=included_words)
         X.append(X_sent)
 
     return X

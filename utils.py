@@ -11,6 +11,11 @@ def is_none(x):
         return True
     return False
 
+def get_raw_test_reviews():
+    df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    X_test = df_test['review']
+    return X_test
+
 def get_tokenizer():
     """
         Load Tokenizer
@@ -22,6 +27,20 @@ def get_tokenizer():
     with open(Const.TOKENIZER_PATH, 'rb') as fi:
         tokenizer = dill.load(fi)
     return tokenizer
+
+def prepare_ce_X(X, tokenizer):
+    X_new = tokenizer.texts_to_sequences(X)
+    max_review_length = 150
+    PADDING_TYPE = 'post'
+    X_new = sequence.pad_sequences(X_new, maxlen=max_review_length, padding=PADDING_TYPE)
+    return X_new
+
+def prepare_ce_y(df):
+    y = df[['food', 'service', 'price', 'place']]
+    y = y.replace(to_replace='yes', value=1)
+    y = y.replace(to_replace='no', value=0)
+    y = y.replace(to_replace=np.nan, value=0)
+    return y
 
 def get_ce_dataset():
     tokenizer = get_tokenizer()
@@ -37,23 +56,10 @@ def get_ce_dataset():
     X = df['review']
     X_test = df_test['review']
 
-    X = tokenizer.texts_to_sequences(X)
-    X_test = tokenizer.texts_to_sequences(X_test)
-
-    max_review_length = 150
-    PADDING_TYPE = 'post'
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
-
-    y = df[['food', 'service', 'price', 'place']]
-    y = y.replace(to_replace='yes', value=1)
-    y = y.replace(to_replace='no', value=0)
-    y = y.replace(to_replace=np.nan, value=0)
-
-    y_test = df_test[['food', 'service', 'price', 'place']]
-    y_test = y_test.replace(to_replace='yes', value=1)
-    y_test = y_test.replace(to_replace='no', value=0)
-    y_test = y_test.replace(to_replace=np.nan, value=0)
+    X = prepare_ce_X(X, tokenizer)
+    X_test = prepare_ce_X(X_test, tokenizer)
+    y = prepare_ce_y(df)
+    y_test = prepare_ce_y(df_test)
 
     return X, y, X_test, y_test
 
@@ -71,19 +77,15 @@ def get_spc_dataset(category):
     X = df[df[category] != '-' ]['review']
     X_test = df_test[df_test[category] != '-' ]['review']
 
-    X = tokenizer.texts_to_sequences(X)
-    X_test = tokenizer.texts_to_sequences(X_test)
-
-    max_review_length = 150
-    PADDING_TYPE = 'post'
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING_TYPE)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING_TYPE)
+    X = prepare_ce_X(X, tokenizer)
+    X_test = prepare_ce_X(X_test, tokenizer)
 
     y = df[category]
     y = y[y != '-']
     from sklearn.preprocessing import LabelEncoder
     le = LabelEncoder()
-    y = le.fit_transform(y)
+    le.classes_ = ['negative', 'positive']
+    y = le.transform(y)
 
     y_test = df_test[category]
     y_test = y_test[y_test != '-']
@@ -205,9 +207,20 @@ def get_ote_dataset():
     return X, y, pos, X_test, y_test, pos_test
 
 def filter_sentence(sentence):
+    # new_sentence = sentence
     new_sentence = sentence.replace('-', 'DASH')
     # new_sentence = sentence.replace('~', 'WAVE')
     return new_sentence
+
+def prepare_crf_X(X_raw):
+    X_pos_tagged = []
+    for sentence in X_raw:
+        filtered_sentence = filter_sentence(sentence)
+        polyglot_text = Text(filtered_sentence)
+        polyglot_text.language = 'id'
+        tagged_sentence = polyglot_text.pos_tags
+        X_pos_tagged.append(tagged_sentence)
+    return X_pos_tagged
 
 def get_crf_ote_dataset():
     def read_data_from_file(path):
@@ -265,21 +278,8 @@ def get_crf_ote_dataset():
     X_raw = train_data['raw']
     X_test_raw = test_data['raw']
 
-    X_pos_tagged = []; X_test_pos_tagged = []
-
-    for sentence in X_raw:
-        filtered_sentence = filter_sentence(sentence)
-        polyglot_text = Text(filtered_sentence)
-        polyglot_text.language = 'id'
-        tagged_sentence = polyglot_text.pos_tags
-        X_pos_tagged.append(tagged_sentence)
-
-    for sentence in X_test_raw:
-        filtered_sentence = filter_sentence(sentence)
-        polyglot_text = Text(filtered_sentence)
-        polyglot_text.language = 'id'
-        tagged_sentence = polyglot_text.pos_tags
-        X_test_pos_tagged.append(tagged_sentence)
+    X_pos_tagged = prepare_crf_X(X_raw)
+    X_test_pos_tagged = prepare_crf_X(X_test_raw)
 
     """
         Create Y

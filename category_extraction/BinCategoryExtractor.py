@@ -26,6 +26,7 @@ try:
     from constants import Const
     sys.path.insert(0, Const.ROOT)
 except:
+    sys.path.insert(0, '.')
     sys.path.insert(0, '..')
     from constants import Const
 
@@ -36,7 +37,10 @@ from ItemSelector import ItemSelector
 
 from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
 from MyOneVsRestClassifier import MyOneVsRestClassifier
-from CategoryFeatureExtractor import CategoryFeatureExtractor
+try:
+    from .CategoryFeatureExtractor import CategoryFeatureExtractor
+except:
+    from CategoryFeatureExtractor import CategoryFeatureExtractor
 
 from keras import backend as K
 from keras.models import Sequential, Input, Model, load_model
@@ -235,6 +239,9 @@ class BinCategoryExtractor (MyClassifier):
             estimators.append(new_estimator)
         ann_sklearn_model_index = len(self.pipeline.steps) - 1
         self.pipeline.steps[ann_sklearn_model_index][1].estimators_ = estimators
+        label_binarizer = utils.load_object(load_path.format('labelbinarizer'))
+        self.pipeline.steps[ann_sklearn_model_index][1].label_binarizer_ = label_binarizer
+        self.pipeline.steps[ann_sklearn_model_index][1].classes_ = label_binarizer.classes_
         return estimators
 
     def save_estimators(self, save_path= Const.CE_ROOT + 'model/ann/best_{}.model'):
@@ -242,6 +249,7 @@ class BinCategoryExtractor (MyClassifier):
         estimators = self.pipeline.steps[ann_sklearn_model_index][1].estimators_
         for i, estimator in enumerate(estimators):
             estimator.model.save(save_path.format(i))
+        utils.save_object(self.pipeline.steps[ann_sklearn_model_index][1].label_binarizer_, save_path.format('labelbinarizer'))
 
     def set_threshold(self, thresh):
         self.pipeline.steps[len(self.pipeline.steps)-1][1].thresh = thresh
@@ -272,7 +280,7 @@ def binary():
         Make the model
     """
     np.random.seed(7)
-    bi = BinCategoryExtractor()
+    bi = BinCategoryExtractor(included_features=[0])
     # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
 
     """
@@ -284,7 +292,7 @@ def binary():
             4: Bag of Custers
     """
 
-    # """
+    """
     bi.fit(X, y, 
         epochs= 100,
         dropout_rate= 0.5,
@@ -299,9 +307,9 @@ def binary():
         dense_layers= 2,
         verbose = 0
     )
-    # """
+    """
     # bi.save_estimators()
-    # bi.load_estimators()
+    bi.load_estimators()
     
     thresh_to_try = [0.2, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95]
     thresh_to_try = [0.5]

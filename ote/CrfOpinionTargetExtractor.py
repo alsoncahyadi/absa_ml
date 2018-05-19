@@ -35,7 +35,7 @@ except:
     from constants import Const
 
 
-from OpinionTargetFeatureExtractor import extract_features
+from .OpinionTargetFeatureExtractor import extract_features
 import dill
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,7 +94,7 @@ class CRFOpinionTargetExtractor (MyClassifier):
         verbose=False,
         **kwargs
     ):
-        X = extract_features(X, y, included_features = included_features, included_words=included_words)
+        X = extract_features(X, included_features = included_features, included_words=included_words)
         self.crf_model = sklearn_crfsuite.CRF(
             algorithm=algorithm,
             max_iterations=max_iterations,
@@ -144,18 +144,19 @@ class CRFOpinionTargetExtractor (MyClassifier):
         )
 
     def score(self, X, y, verbose=1, **kwargs):
-        X = extract_features(X, y)
+        X = extract_features(X)
         y_pred = self.predict(X, **kwargs)
         if verbose == 2:
             print("=========================================")        
             print(self.bio_classification_report(y, y_pred))
             self._print_top_state_features()
             self._print_top_transitions()
-            print("=========================================")        
+            print("=========================================")
+        
         for i in range(len(y)):
             if len(y[i]) != len(y_pred[i]):
                 print(i, ')', len(y[i]), len(y_pred[i]))
-                print(' '.join([word['0:word'] for word in X[i]]))
+                print(' '.join([word['word'] for word in X[i]]))
 
         y = flatten(y)
         y_pred = flatten(y_pred)

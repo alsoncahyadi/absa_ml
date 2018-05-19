@@ -134,6 +134,8 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
         self.estimator = estimator
         self.n_jobs = n_jobs
         self.thresh = thresh
+        self.label_binarizer_ = LabelBinarizer(sparse_output=True)
+        self.classes_ = None
 
     def fit(self, X, y):
         """Fit underlying estimators.
@@ -248,7 +250,7 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
             self.thresh = 0
         else:
             thresh = self.thresh
-
+        
         n_samples = _num_samples(X)
         if self.label_binarizer_.y_type_ == "multiclass":
             maxima = np.empty(n_samples, dtype=float)

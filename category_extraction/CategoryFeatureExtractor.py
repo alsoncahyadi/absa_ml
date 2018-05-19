@@ -21,7 +21,7 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
         return self
     
     def transform(self, X):
-        cnn_model = load_model('model/cnn/CNN.model')
+        cnn_model = load_model(Const.CE_ROOT + 'model/cnn/best.model')
         features = {}
         y_pred = cnn_model.predict(X)
         
@@ -35,7 +35,7 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
         
         #
         cluster_list = None
-        with open('../we/cluster/cluster_list_1000.pkl', 'rb') as fi:
+        with open(Const.CLUSTER_ROOT + 'cluster_list_1000.pkl', 'rb') as fi:
             cluster_list = dill.load(fi)
         X_cluster = transform(X, cluster_list)
         features['review_cluster'] = []

@@ -205,6 +205,11 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     
     def get_threshold(self):
         return self.THRESHOLD
+    
+    def load_best_model(self, category):
+        best_model = load_model(Const.SPC_ROOT + 'model/cnn/best_{}.model'.format(category))
+        del self.cnn_model
+        self.cnn_model = best_model
 
 def get_best_params():
     best_params = {
@@ -314,7 +319,7 @@ def main():
         is_save = {
             'food': False,
             'service': False,
-            'price': True,
+            'price': False,
             'place': False,
         }
         if is_save[category]:
@@ -331,9 +336,7 @@ def main():
             Load best estimator and score it
         """
 
-        best_model = load_model('model/cnn/best_{}.model'.format(category))
-        del spc.cnn_model
-        spc.cnn_model = best_model
+        spc.load_best_model(category)
 
         # preds = spc.predict(X_test)
         # for pred in preds:

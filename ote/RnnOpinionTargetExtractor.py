@@ -37,6 +37,7 @@ import os
 import sys
 
 try:
+    sys.path.insert(0, '.')
     from constants import Const
     sys.path.insert(0, Const.ROOT)
 except:
@@ -225,6 +226,9 @@ class RNNOpinionTargetExtractor (MyClassifier):
         layer_concat = Concatenate()([layer_embedding, layer_input_pos])
         layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_concat)
         layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
+        for i in range(dense_layers-1):
+            layer_blstm = Bidirectional(LSTM(gru_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_dropout)
+            layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers):
             layer_dense = TimeDistributed(Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
             layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense)
@@ -299,25 +303,25 @@ def main():
     #           ,sample_weight=sample_weight)
     #     model.reset_states()
 
-    # params_for_fit = {
-    #     "dropout_rate": 0.5,
-    #     "dense_activation": 'relu',
-    #     "dense_l2_regularizer": 0.01,
-    #     "activation": 'softmax',
-    #     "optimizer": 'nadam',
-    #     "loss_function": 'categorical_crossentropy',
-    #     "gru_units": 64,
-    #     "units": 64,
-    #     'dense_layers' : 1,
-    # }
-    # ote.fit(
-    #     [X, pos], y,
-    #     epochs = 100,
-    #     batch_size = 64,
-    #     **params_for_fit,
-    #     sample_weight = sample_weight,
-    #     is_save=True,
-    # )
+    params_for_fit = {
+        "dropout_rate": 0.2,
+        "dense_activation": 'relu',
+        "dense_l2_regularizer": 0.01,
+        "activation": 'softmax',
+        "optimizer": 'nadam',
+        "loss_function": 'categorical_crossentropy',
+        "gru_units": 64,
+        "units": 32,
+        'dense_layers' : 2,
+    }
+    ote.fit(
+        [X, pos], y,
+        epochs = 100,
+        batch_size = 64,
+        **params_for_fit,
+        sample_weight = sample_weight,
+        is_save=True,
+    )
     # ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
     # ote._fit_new_gridsearch_cv(X, y, params, sample_weight=sample_weight, score_verbose=1)

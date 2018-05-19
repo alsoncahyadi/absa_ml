@@ -2,19 +2,19 @@ params = [
     ('epochs', [75]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
-    ('filters', [320]),
+    ('filters', [128, 256]),
     ('kernel_size', [5]),
     ('conv_activation', ['relu', 'tanh']),
     ('conv_l2_regularizer', [0.001]),
-    ('dropout_rate', [0., 0.2, 0.6]),
+    ('dropout_rate', [0., 0.2, 0.5]),
     ('dense_activation', ['relu', 'tanh']),
     ('dense_l2_regularizer', [0.01]),
     ('activation', ['sigmoid']),
     ('optimizer', ['nadam']),
     ('loss_function', ['binary_crossentropy']),
-    ('units', [256, 64]),
+    ('units', [64, 128]),
     ('trainable', [False]),
-    ('dense_layers', [2, 3]),
+    ('dense_layers', [1, 2, 3]),
 ]
 
 """
@@ -42,6 +42,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 try:
+    sys.path.insert(0, '.')
     from constants import Const
     sys.path.insert(0, Const.ROOT)
 except:
@@ -77,7 +78,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.pipeline import FeatureUnion, Pipeline
 
 class CNNCategoryExtractor (MyClassifier):
-    def __init__(self, threshold = 0.75, **kwargs):
+    def __init__(self, threshold = 0.5, **kwargs):
         super().__init__(**kwargs)
 
         self.MODEL_PATH = Const.CE_ROOT + 'model/cnn/CNN.model'
@@ -215,7 +216,7 @@ class CNNCategoryExtractor (MyClassifier):
         return cnn_model
     
     def load_best_model(self):
-        best_model = load_model(Const.CE_ROOT + 'model/cnn/CNN.model')
+        best_model = load_model(Const.CE_ROOT + 'model/cnn/best.model')
         del self.cnn_model
         self.cnn_model = best_model
     
@@ -253,11 +254,12 @@ def cnn():
         Fit the model
     """
     
+    """
     ce.fit(X, y, verbose=1,
         epochs = 100,
         batch_size = 64,
         # validation_split = 0.2,
-        filters = 128,
+        filters = 320,
         kernel_size = 5,
         conv_activation = 'relu',
         conv_l2_regularizer = 0.001,
@@ -267,23 +269,24 @@ def cnn():
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        units = 64,
+        units = 256,
         trainable = False,
-        dense_layers=2,
+        dense_layers=1,
 
         is_save = True,
         show_summary = True
     )
+    """
     
-    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    ce.load_best_model()
-    for thresh in thresh_to_try:
-        print("\nTHRESH: {}".format(thresh))
-        ce.set_threshold(thresh); ce.score(X_test, y_test)
+    # ce.load_best_model()
+    # for thresh in thresh_to_try:
+    #     print("\nTHRESH: {}".format(thresh))
+    #     ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

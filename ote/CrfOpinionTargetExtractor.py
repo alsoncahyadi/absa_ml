@@ -4,14 +4,14 @@ params = [
     ('c1', [1.0, 0.1, 0.01, 0.001,]),
     ('c2', [1.0, 0.1, 0.01, 0.001, 0.]),
     ('included_features', [
-        ['word', 'pos'],
-        ['word', 'pos', 'cluster'],
-        ['word', 'cluster'],
-        ['cluster', 'pos'],
-        ['rnn_proba', 'word', 'cluster'],
+        # ['word', 'pos'],
+        # ['word', 'pos', 'cluster'],
+        # ['word', 'cluster'],
+        # ['cluster', 'pos'],
+        # ['rnn_proba', 'word', 'cluster'],
         ['rnn_proba', 'cluster', 'pos'],
-        ['rnn_proba', 'word', 'pos'],
-        ['rnn_proba', 'word', 'pos', 'cluster']
+        # ['rnn_proba', 'word', 'pos'],
+        # ['rnn_proba', 'word', 'pos', 'cluster']
     ]),
 ]
 
@@ -21,6 +21,7 @@ import sys
 import time
 
 try:
+    sys.path.insert(0, '.')
     from constants import Const
     sys.path.insert(0, Const.ROOT)
 except:
@@ -140,6 +141,7 @@ class CRFOpinionTargetExtractor (MyClassifier):
         included_features = ['rnn_proba', 'word', 'pos', 'cluster'],
         **kwargs
     ):
+        print(kwargs.get('included_features'))
         X = extract_features(X, y, included_features = included_features)
         y_pred = self.predict(X, **kwargs)
         if verbose == 2:
@@ -225,25 +227,25 @@ def crf():
     print("> fitting")
 
     """ GRIDSEARCH CV """
-    crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path='output/gridsearch_cv_result_crf.csv')
+    crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path=Const.OTE_ROOT + 'output/gridsearch_cv_result_crf.csv')
 
     """ FIT """
-    # crf_ote.fit(X_pos, y,
-    #     algorithm='lbfgs',
-    #     c1=0.1,
-    #     c2=1.0,
-    #     max_iterations=None,
-    #     epsilon=1e-5,
-    #     delta=1e-5,
-    #     included_features=included_features,
-    #     included_words=included_words,
-    #     verbose=False,
-    #     is_save=True,
-    # )
+    crf_ote.fit(X_pos, y,
+        algorithm='lbfgs',
+        c1=0.01,
+        c2=1.0,
+        max_iterations=None,
+        epsilon=1e-5,
+        delta=1e-5,
+        included_features=included_features,
+        included_words=included_words,
+        verbose=False,
+        is_save=True,
+    )
 
     # crf_ote.load_best_model()
-    # print("> scoring")
-    # crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
+    print("> scoring")
+    crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
 
 if __name__ == "__main__":
     utils.time_log(crf)

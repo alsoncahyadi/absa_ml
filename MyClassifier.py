@@ -197,7 +197,8 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                 scores = scoress[max_f1_idx]
                 thresholds_used.append(thresholds[max_f1_idx])
             else:
-                scores = self.score(X_test, y_test, verbose=0)
+                included_features = kwargs.get('included_features', None)
+                scores = self.score(X_test, y_test, verbose=0, included_features=included_features)
                 try:
                     thresholds_used.append(self.get_threshold())
                 except:

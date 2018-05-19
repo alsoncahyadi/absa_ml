@@ -1,6 +1,12 @@
 import sys
 
-sys.path.insert(0, Const.ROOT)
+try:
+    sys.path.insert(0, '.')
+    from constants import Const
+    sys.path.insert(0, Const.ROOT)
+except:
+    sys.path.insert(0, '..')
+    from constants import Const
 
 import dill
 from we.cluster.KMeans import transform

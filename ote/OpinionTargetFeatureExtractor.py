@@ -12,6 +12,7 @@ import string
 from sklearn.base import BaseEstimator, TransformerMixin
 from keras.models import load_model
 from keras.preprocessing import sequence
+from keras import backend as K
 from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np

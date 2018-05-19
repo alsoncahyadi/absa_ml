@@ -324,7 +324,7 @@ def main():
     # )
     # ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
-    ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1)
+    ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
 
     """
         Load best estimator and score it

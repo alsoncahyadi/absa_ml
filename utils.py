@@ -6,6 +6,11 @@ import dill
 from constants import Const
 from polyglot.text import Text
 
+def is_none(x):
+    if type(x).__name__ == 'None':
+        return True
+    return False
+
 def get_tokenizer():
     """
         Load Tokenizer

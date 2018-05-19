@@ -135,11 +135,11 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
     def get_threshold(self):
         raise NotImplementedError
 
-    def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, thresholds=None, **kwargs):
+    def _fit_cv(self, X, y, k=5, verbose=0, score_verbose=0, sample_weight=None, thresholds=None, keras_multiple_output=False, **kwargs):
         if type(sample_weight).__name__ != "NoneType":
             sample_weight_folds = np.array_split(sample_weight, k)
 
-        if type(X).__name__ == 'list':
+        if keras_multiple_output:
             X_folds = []
             for i in range(k):
                 X_folds.append([])
@@ -167,13 +167,13 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
             X_train = list(X_folds)
             X_test  = X_train.pop(i)
-            if type(X).__name__ == 'list':
+            if keras_multiple_output:
                 X_train_new = []
-                for i in range(len(X)):
+                for j in range(len(X)):
                     X_train_new.append([])
                 for X_train_fold in X_train:
-                    for i, X_train_fold_single in enumerate(X_train_fold):
-                        X_train_new[i] += list(X_train_fold_single)
+                    for j, X_train_fold_single in enumerate(X_train_fold):
+                        X_train_new[j] += list(X_train_fold_single)
                 X_train = [np.array(X_train_new_single) for X_train_new_single in X_train_new]
             else:
                 X_train = np.concatenate(X_train)

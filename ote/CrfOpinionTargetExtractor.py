@@ -2,16 +2,22 @@ params = [
     ('algorithm', ['lbfgs']),
     ('max_iterations', [None]),
     ('c1', [1.0, 0.1, 0.01, 0.001,]),
-    ('c2', [1.0, 0.1, 0.01, 0.001, 0.]),
+    ('c2', [1.0, 0.1, 0.01, 0.001,]),
     ('included_features', [
-        # ['word', 'pos'],
-        # ['word', 'pos', 'cluster'],
-        # ['word', 'cluster'],
-        # ['cluster', 'pos'],
-        # ['rnn_proba', 'word', 'cluster'],
+        ['word', 'pos'],
+        ['word', 'pos', 'cluster'],
+        ['word', 'cluster'],
+        ['cluster', 'pos'],
+        ['rnn_proba', 'word', 'cluster'],
         ['rnn_proba', 'cluster', 'pos'],
-        # ['rnn_proba', 'word', 'pos'],
-        # ['rnn_proba', 'word', 'pos', 'cluster']
+        ['rnn_proba', 'word', 'pos'],
+        ['rnn_proba', 'word', 'pos', 'cluster']
+    ]),
+    ('included_words', [
+        [-2,-1,0,1,2],
+        [-2,-1,0],
+        [-1,0,1],
+        [-1,0],
     ]),
 ]
 
@@ -137,12 +143,8 @@ class CRFOpinionTargetExtractor (MyClassifier):
             y_test, y_pred, labels=sorted_labels, digits=4
         )
 
-    def score(self, X, y, verbose=1,
-        included_features = ['rnn_proba', 'word', 'pos', 'cluster'],
-        **kwargs
-    ):
-        print(kwargs.get('included_features'))
-        X = extract_features(X, y, included_features = included_features)
+    def score(self, X, y, verbose=1, **kwargs):
+        X = extract_features(X, y)
         y_pred = self.predict(X, **kwargs)
         if verbose == 2:
             print("=========================================")        
@@ -227,7 +229,7 @@ def crf():
     print("> fitting")
 
     """ GRIDSEARCH CV """
-    crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path=Const.OTE_ROOT + 'output/gridsearch_cv_result_crf.csv')
+    # crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path=Const.OTE_ROOT + 'output/gridsearch_cv_result_crf.csv')
 
     """ FIT """
     crf_ote.fit(X_pos, y,
@@ -245,7 +247,7 @@ def crf():
 
     # crf_ote.load_best_model()
     print("> scoring")
-    crf_ote.score(X_test_pos, y_test, verbose=1, included_features=included_features)
+    crf_ote.score(X_test_pos, y_test, verbose=1)
 
 if __name__ == "__main__":
     utils.time_log(crf)

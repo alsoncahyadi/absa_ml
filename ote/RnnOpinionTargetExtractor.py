@@ -3,7 +3,7 @@ params = [
     ('batch_size', [64]),
     ('validation_split', [0.]),
     ('dropout_rate', [0.2, 0.5]),
-    ('dense_activation', ['tanh']),
+    ('dense_activation', ['relu']),
     ('dense_l2_regularizer', [0.01, 0.001]),
     ('activation', ['softmax']),
     ('optimizer', ["nadam"]),

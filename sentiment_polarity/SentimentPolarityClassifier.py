@@ -291,6 +291,8 @@ def get_best_params():
 def main():
     categories = ['food', 'service', 'price', 'place']
     f1_scores = []
+    p_scores = []
+    r_scores = []
     for category in categories:
         print("\n\n========= CHECKING CATEGORY:", category, "==========")
         """
@@ -345,7 +347,11 @@ def main():
 
         score = spc.score(X_test, y_test, verbose=1)
         f1_scores.append(score['f1_score_macro'])
+        p_scores.append(score['precision_score_macro'])
+        r_scores.append(score['recall_score_macro'])
     print("F1-MEAN-MACRO:", np.array(f1_scores).mean())
+    print("P -MEAN-MACRO:", np.array(p_scores).mean())
+    print("R -MEAN-MACRO:", np.array(r_scores).mean())
 
 if __name__ == "__main__":
     utils.time_log(main)

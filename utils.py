@@ -12,9 +12,42 @@ def is_none(x):
     return False
 
 def get_raw_test_reviews():
-    df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    X_test = df_test['review']
-    return X_test
+    def read_data_from_file(path):
+        data = {
+            'all' : [],
+            'sentences' : [],
+            'list_of_poss' : [],
+            'list_of_is_aspects' : [],
+            'list_of_iobs' : [],
+            'raw' : []
+        }
+        with open(path, "r") as f:
+            tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+            for line in f:
+                line = line.rstrip()
+                if line:
+                    token = tuple(line.split())
+                    words.append(token[0])
+                    poss.append(token[1])
+                    is_aspects.append(token[2])
+                    iob_aspects.append(token[6])
+                    tokens.append(token)
+                else:
+                    data['all'].append(tokens)
+                    data['sentences'].append(words)
+                    data['list_of_poss'].append(poss)
+                    data['list_of_is_aspects'].append(is_aspects)
+                    data['list_of_iobs'].append(iob_aspects)
+                    data['raw'].append(" ".join(words))
+                    tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+        return data
+
+    test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
+
+    # df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+    # X_test = df_test['review']
+    # return X_test
+    return test_data['raw']
 
 def get_tokenizer():
     """
@@ -63,7 +96,7 @@ def get_ce_dataset():
 
     return X, y, X_test, y_test
 
-def get_spc_dataset(category):
+def get_spc_dataset(category, get_relevant_categories_only=True):
     tokenizer = get_tokenizer()
 
     """
@@ -74,22 +107,33 @@ def get_spc_dataset(category):
 
     df = df.sample(frac=1, random_state=7)
 
-    X = df[df[category] != '-' ]['review']
-    X_test = df_test[df_test[category] != '-' ]['review']
-
+    if get_relevant_categories_only:
+        X = df[df[category] != '-' ]['review']
+        X_test = df_test[df_test[category] != '-' ]['review']
+    else:
+        X = df['review']
+        X_test = df_test['review']
     X = prepare_ce_X(X, tokenizer)
     X_test = prepare_ce_X(X_test, tokenizer)
 
-    y = df[category]
-    y = y[y != '-']
     from sklearn.preprocessing import LabelEncoder
     le = LabelEncoder()
-    le.classes_ = ['negative', 'positive']
-    y = le.transform(y)
 
+    y = df[category]
     y_test = df_test[category]
-    y_test = y_test[y_test != '-']
-    y_test = le.transform(y_test)
+
+    if get_relevant_categories_only:
+        y = y[y != '-']
+        y_test = y_test[y_test != '-']
+    else:
+        y = y.replace(to_replace='-', value=2)
+        y_test = y_test.replace(to_replace='-', value=2)
+    
+    y = y.replace(to_replace='positive', value=1)
+    y = y.replace(to_replace='negative', value=0)
+
+    y_test = y_test.replace(to_replace='positive', value=1)
+    y_test = y_test.replace(to_replace='negative', value=0)
 
     return X, y, X_test, y_test
 

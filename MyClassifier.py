@@ -13,7 +13,7 @@ from keras.callbacks import ModelCheckpoint
 from constants import Const
 
 class Model (KerasModel):
-    def fit(self, x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None,
+    def fit(self, x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=[],
         validation_split=0.0, validation_data=None, shuffle=True, class_weight=None,
         sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None, **kwargs):
 
@@ -26,7 +26,7 @@ class Model (KerasModel):
         
         checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0, monitor=monitor)
 
-        super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer],
+        super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer] + callbacks,
             validation_split=validation_split, validation_data=validation_data, shuffle=shuffle, class_weight=class_weight,
             sample_weight=sample_weight, initial_epoch=initial_epoch, steps_per_epoch=steps_per_epoch, validation_steps=validation_steps)
 

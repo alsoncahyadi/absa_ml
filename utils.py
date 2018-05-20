@@ -11,43 +11,57 @@ def is_none(x):
         return True
     return False
 
-def get_raw_test_reviews():
-    def read_data_from_file(path):
-        data = {
-            'all' : [],
-            'sentences' : [],
-            'list_of_poss' : [],
-            'list_of_is_aspects' : [],
-            'list_of_iobs' : [],
-            'raw' : []
-        }
-        with open(path, "r") as f:
-            tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
-            for line in f:
-                line = line.rstrip()
-                if line:
-                    token = tuple(line.split())
-                    words.append(token[0])
-                    poss.append(token[1])
-                    is_aspects.append(token[2])
-                    iob_aspects.append(token[6])
-                    tokens.append(token)
-                else:
-                    data['all'].append(tokens)
-                    data['sentences'].append(words)
-                    data['list_of_poss'].append(poss)
-                    data['list_of_is_aspects'].append(is_aspects)
-                    data['list_of_iobs'].append(iob_aspects)
-                    data['raw'].append(" ".join(words))
-                    tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
-        return data
+def get_raw_test_reviews(review="test"):
+    if review == "test":
+        def read_data_from_file(path):
+            data = {
+                'all' : [],
+                'sentences' : [],
+                'list_of_poss' : [],
+                'list_of_is_aspects' : [],
+                'list_of_iobs' : [],
+                'raw' : []
+            }
+            with open(path, "r") as f:
+                tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+                for line in f:
+                    line = line.rstrip()
+                    if line:
+                        token = tuple(line.split())
+                        words.append(token[0])
+                        poss.append(token[1])
+                        is_aspects.append(token[2])
+                        iob_aspects.append(token[6])
+                        tokens.append(token)
+                    else:
+                        data['all'].append(tokens)
+                        data['sentences'].append(words)
+                        data['list_of_poss'].append(poss)
+                        data['list_of_is_aspects'].append(is_aspects)
+                        data['list_of_iobs'].append(iob_aspects)
+                        data['raw'].append(" ".join(words))
+                        tokens, words, poss, is_aspects, iob_aspects = [], [], [], [], []
+            return data
 
-    test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
+        test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
 
-    # df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
-    # X_test = df_test['review']
-    # return X_test
-    return test_data['raw']
+        # df_test = pd.read_csv(Const.CE_ROOT + "data/test_data.csv", delimiter=";", header=0, encoding = "ISO-8859-1")
+        # X_test = df_test['review']
+        # return X_test
+        return test_data['raw']
+    elif review == "tizi":
+        X = []
+        with open(Const.REVIEWS_ROOT + 'tizi_reviews.txt', 'r') as fi:
+            X = fi.read().split('\n')
+        return X
+    elif review == "cafe_halaman":
+        X = []
+        with open(Const.REVIEWS_ROOT + 'cafe_halaman_reviews.txt', 'r') as fi:
+            X = fi.read().split('\n')
+        print(X)
+        return X
+    else:
+        print("REVIEWS: test, tizi, cafe_halaman")
 
 def get_tokenizer():
     """

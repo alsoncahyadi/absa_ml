@@ -29,7 +29,7 @@ class Main():
         4 ==> tuples
         5 ==> ratings
     """
-    def __init__(self, sentence_tokenizer='normal'):
+    def __init__(self, sentence_tokenizer='normal', review='test'):
         """
             Sentence Tokenizers: normal, punkt
         """
@@ -40,8 +40,8 @@ class Main():
             self.sent_tokenize = nltk.data.load('tokenizers/punkt/english.pickle').tokenize
 
         self.tokenizer = utils.get_tokenizer()
-        self.raw_reviews = utils.get_raw_test_reviews()
-        
+        self.raw_reviews = utils.get_raw_test_reviews(review=review)
+
         self.data = []
         for _ in range(6):
             self.data.append([])
@@ -121,7 +121,7 @@ class Main():
 
     """ ==========================================================================================="""
 
-    def preprocess(self, skip_sentence_tokenize=False):
+    def preprocess(self, skip_sentence_tokenize=False, lower=False):
         sents_tokenized = []
         if skip_sentence_tokenize:
             sents_tokenized = self.raw_reviews
@@ -133,7 +133,10 @@ class Main():
         for sent_tokenize in sents_tokenized:
             tmp = Text(sent_tokenize)
             tmp.language = 'id'
-            word_tokenized.append(" ".join(tmp.words))
+            words = tmp.words
+            if lower:
+                words = [w.lower() for w in words]
+            word_tokenized.append(" ".join(words))
         self.data[0] = word_tokenized
     
     def predict_opinion_targets(self):
@@ -206,7 +209,7 @@ class Main():
                     category_sentiment[category] = polarity
 
             if len(aspects) > 0 and len(category_sentiment) > 0:
-                result = tuple_generator.generate_tuples(aspects, category_sentiment)
+                result = tuple_generator.generate_tuples([a.lower() for a in aspects], category_sentiment)
 
                 for key in result:
                     for sentiment in result[key]:
@@ -308,13 +311,17 @@ class Main():
         return scoress, averages
 
 def main():
-    m = Main(sentence_tokenizer='normal')
+    m = Main(sentence_tokenizer='normal', review='cafe_halaman')
+    print(len(m.raw_reviews))
     print("> Preprocessing")
-    m.preprocess(skip_sentence_tokenize=True)
+    m.preprocess(skip_sentence_tokenize=False, lower=False)
+    print(len(m.data[0]))
     print("> Extracting Opinion Targets")
     m.predict_opinion_targets()
     print("> Splitting Sentences")
+    print(len(m.data[0]))
     m.split_sentences()
+    print(len(m.data[0]))
     print("> Classifying Aspect Categories")
     m.predict_categories()
     print("> Predicting Sentiment Polarities")
@@ -323,8 +330,8 @@ def main():
     m.get_tuples()
     print("> Getting Ratings")
     print(m.get_ratings())
-    print("> Evaluating Sentiment Cummulatively")
-    m.evaluate_sentiment_cummulative()
+    # print("> Evaluating Sentiment Cummulatively")
+    # m.evaluate_sentiment_cummulative()
 
 if __name__ == '__main__':
     utils.time_log(main)

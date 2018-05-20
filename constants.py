@@ -8,6 +8,7 @@ class Const():
     SPC_ROOT = ROOT + 'sentiment_polarity/'
     WE_ROOT = ROOT + 'we/'
     CLUSTER_ROOT = ROOT + 'we/cluster/'
+    REVIEWS_ROOT = ROOT + 'reviews/'
 
     TOKENIZER_PATH = ROOT + 'we/tokenizer.pkl'
 

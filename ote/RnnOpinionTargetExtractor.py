@@ -8,10 +8,11 @@ params = [
     ('activation', ['softmax']),
     ('optimizer', ["nadam"]),
     ('loss_function', ['categorical_crossentropy']),
-    ('rnn_units', [64, 128]),
-    ('dense_units', [32, 64]),
+    ('rnn_units', [64]),
+    ('dense_units', [32]),
     ('trainable', [False]),
-    ('dense_layers', [1, 2, 3])
+    ('dense_layers', [1, 2, 3]),
+    ('stack_rnn_layer', [True, False])
 ]
 
 """
@@ -96,6 +97,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         is_save = False,
         trainable = False,
         show_summary = False,
+        stack_rnn_layer = False,
         **kwargs):
 
         self.rnn_model = self._create_model(
@@ -109,6 +111,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             dense_units = dense_units,
             trainable = trainable,
             dense_layers = dense_layers,
+            stack_rnn_layer = stack_rnn_layer,
         )
         if show_summary:
             self.rnn_model.summary()
@@ -149,7 +152,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             tmp = np.array(tmp)
             return tmp
 
-        y_pred_raw = rnn_model.predict(X, batch_size=1, verbose=verbose)
+        y_pred_raw = rnn_model.predict(X, batch_size=32, verbose=verbose)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
@@ -215,6 +218,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         dense_units = 256,
         trainable = False,
         dense_layers = 1,
+        stack_rnn_layer = False,
 
         **kwargs
     ):
@@ -227,9 +231,10 @@ class RNNOpinionTargetExtractor (MyClassifier):
         layer_concat = Concatenate()([layer_embedding, layer_input_pos])
         layer_blstm = Bidirectional(LSTM(rnn_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_concat)
         layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
-        for i in range(dense_layers-1):
-            layer_blstm = Bidirectional(LSTM(rnn_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_dropout)
-            layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
+        if stack_rnn_layer:
+            for i in range(dense_layers-1):
+                layer_blstm = Bidirectional(LSTM(rnn_units, return_sequences=True, recurrent_dropout=dropout_rate, stateful=False))(layer_dropout)
+                layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_blstm)
         for i in range(dense_layers):
             layer_dense = TimeDistributed(Dense(dense_units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
             layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense)
@@ -322,15 +327,14 @@ def main():
     #     sample_weight = sample_weight,
     #     is_save=True,
     # )
-    # ote.score(X_test, pos_test, y_test, dense_layers = 1)
 
-    ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
+    # ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
 
     """
         Load best estimator and score it
     """
-    # ote.load_best_model()
-    # ote.score(X_test, pos_test, y_test, dense_layers = 1)
+    ote.load_best_model()
+    ote.score([X_test, pos_test], y_test, dense_layers = 1)
     
 if __name__ == "__main__":
     utils.time_log(main)

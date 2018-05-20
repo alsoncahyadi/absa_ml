@@ -1,14 +1,14 @@
 params = [
-    ('epochs', [75]),
+    ('epochs', [50]),
     ('batch_size', [64]),
     ('validation_split', [0.]),
-    ('dropout_rate', [0., 0.2, 0.5]),
-    ('dense_activation', ['tanh', 'relu']),
+    ('dropout_rate', [0.2, 0.5]),
+    ('dense_activation', ['tanh']),
     ('dense_l2_regularizer', [0.01, 0.001]),
     ('activation', ['softmax']),
     ('optimizer', ["nadam"]),
     ('loss_function', ['categorical_crossentropy']),
-    ('rnn_units', [64, 128, 256]),
+    ('rnn_units', [64, 128]),
     ('dense_units', [32, 64]),
     ('trainable', [False]),
     ('dense_layers', [1, 2, 3])
@@ -312,7 +312,7 @@ def main():
     #     "loss_function": 'categorical_crossentropy',
     #     "rnn_units": 64,
     #     "dense_units": 32,
-    #     'dense_layers' : 2,
+    #     'dense_layers' : 3,
     # }
     # ote.fit(
     #     [X, pos], y,
@@ -329,8 +329,8 @@ def main():
     """
         Load best estimator and score it
     """
-    ote.load_best_model()
-    ote.score(X_test, pos_test, y_test, dense_layers = 1)
+    # ote.load_best_model()
+    # ote.score(X_test, pos_test, y_test, dense_layers = 1)
     
 if __name__ == "__main__":
     utils.time_log(main)

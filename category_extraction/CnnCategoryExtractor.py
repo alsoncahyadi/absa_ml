@@ -241,7 +241,7 @@ def cnn():
 
     # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
     thresh_to_try = [0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.975, 0.999]
-    # thresh_to_try = [0.5]
+    thresh_to_try = [0.5]
     """
         Make the model
     """
@@ -259,17 +259,17 @@ def cnn():
         epochs = 100,
         batch_size = 64,
         # validation_split = 0.2,
-        filters = 320,
+        filters = 128,
         kernel_size = 5,
         conv_activation = 'relu',
         conv_l2_regularizer = 0.001,
-        dropout_rate = 0.2,
+        dropout_rate = 0.5,
         dense_activation = 'tanh',
         dense_l2_regularizer = 0.01,
         activation = 'sigmoid',
         optimizer = "nadam",
         loss_function = 'binary_crossentropy',
-        units = 256,
+        units = 64,
         trainable = False,
         dense_layers=1,
 
@@ -278,15 +278,16 @@ def cnn():
     )
     """
     
-    ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
+    # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
         Load best estimator and score it
     """
-    # ce.load_best_model()
-    # for thresh in thresh_to_try:
-    #     print("\nTHRESH: {}".format(thresh))
-    #     ce.set_threshold(thresh); ce.score(X_test, y_test)
+    ce.load_best_model()
+    ce.cnn_model.summary()
+    for thresh in thresh_to_try:
+        print("\nTHRESH: {}".format(thresh))
+        ce.set_threshold(thresh); ce.score(X_test, y_test)
 
 
 if __name__ == "__main__":

@@ -267,13 +267,10 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
     # GET CLUSTERS
     list_of_clusters = None
     with open(Const.CLUSTER_ROOT + 'cluster_list_1000.pkl', 'rb') as fi:
-    K.clear_session()
-ad(fi)
-    K.clear_session()
-transform
-    K.clear_session()
-st_of_clusters)
-    K.clear_session()
+        list_of_clusters = dill.load(fi)
+    
+    from we.cluster.KMeans import transform
+    clusters = transform(X_rnn, list_of_clusters)
 
     X = []
     K.clear_session()

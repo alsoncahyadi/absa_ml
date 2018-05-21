@@ -9,6 +9,7 @@ from pprint import pprint
 from polyglot.text import Text
 from devina.tuple_generator import TupleGenerator
 from keras import backend as K
+import numpy as np
 import nltk.data
 import utils
 
@@ -28,7 +29,7 @@ class Main():
         4 ==> tuples
         5 ==> ratings
     """
-    def __init__(self, sentence_tokenizer='normal'):
+    def __init__(self, sentence_tokenizer='normal', review='test'):
         """
             Sentence Tokenizers: normal, punkt
         """
@@ -39,9 +40,10 @@ class Main():
             self.sent_tokenize = nltk.data.load('tokenizers/punkt/english.pickle').tokenize
 
         self.tokenizer = utils.get_tokenizer()
-        self.raw_reviews = utils.get_raw_test_reviews()
+        self.raw_reviews = utils.get_raw_test_reviews(review=review)
+
         self.data = []
-        for _ in range(5):
+        for _ in range(6):
             self.data.append([])
         
         self.categories = ['food', 'service', 'price', 'place']
@@ -119,7 +121,7 @@ class Main():
 
     """ ==========================================================================================="""
 
-    def preprocess(self, skip_sentence_tokenize=False):
+    def preprocess(self, skip_sentence_tokenize=False, lower=False):
         sents_tokenized = []
         if skip_sentence_tokenize:
             sents_tokenized = self.raw_reviews
@@ -131,7 +133,10 @@ class Main():
         for sent_tokenize in sents_tokenized:
             tmp = Text(sent_tokenize)
             tmp.language = 'id'
-            word_tokenized.append(" ".join(tmp.words))
+            words = tmp.words
+            if lower:
+                words = [w.lower() for w in words]
+            word_tokenized.append(" ".join(words))
         self.data[0] = word_tokenized
     
     def predict_opinion_targets(self):
@@ -145,7 +150,7 @@ class Main():
         return y_pred
 
     def split_sentences(self):
-        tokens = []
+        sentences = []
         labels = []
         for i in range(len(self.data[0])):
             # sentence = " ".join(self.results[0][i])
@@ -153,10 +158,10 @@ class Main():
             splitted_tokens, label = self.split_sentence(sentence, self.data[1][i])
 
             for j in range(len(splitted_tokens)):
-                tokens.append(splitted_tokens[j])
+                sentences.append(splitted_tokens[j])
                 labels.append(label[j])
 
-        self.data[0] = " ".join(tokens)
+        self.data[0] = [" ".join(tokens) for tokens in sentences]
         self.data[1] = labels
 
     def predict_categories(self):
@@ -165,18 +170,21 @@ class Main():
         bin_ce.load_estimators()
         X = utils.prepare_ce_X(self.data[0], self.tokenizer)
         y_pred = bin_ce.predict(X)
-        self.category_target_names = bin_ce.target_names
         self.data[2] = y_pred
         return y_pred
 
     def predict_sentiment_polarities(self):
         K.clear_session()
         y_preds = []
-        for category in self.category_target_names:
+        for i, category in enumerate(self.categories):
             spc = CNNSentimentPolarityClassifier()
             spc.load_best_model(category)
             X = utils.prepare_ce_X(self.data[0], self.tokenizer)
-            y_preds.append(spc.predict(X))
+            y_pred = spc.predict(X)
+            for j, is_category in enumerate(self.data[2][:,i]):
+                if not is_category:
+                    y_pred[j] = 2
+            y_preds.append(y_pred)
         self.data[3] = y_preds
         return y_preds
 
@@ -196,12 +204,12 @@ class Main():
             category_sentiment = {}
             for j in range(len(self.data[2][i])):
                 if self.data[2][i][j] == 1:
-                    category = self.category_target_names[j]
+                    category = self.categories[j]
                     polarity = 'positive' if self.data[3][j][i] == 1. else 'negative'
                     category_sentiment[category] = polarity
 
             if len(aspects) > 0 and len(category_sentiment) > 0:
-                result = tuple_generator.generate_tuples(aspects, category_sentiment)
+                result = tuple_generator.generate_tuples([a.lower() for a in aspects], category_sentiment)
 
                 for key in result:
                     for sentiment in result[key]:
@@ -225,17 +233,105 @@ class Main():
             neg = len(tuples[category]["negative"])
             ratings[category].append((pos * 4 / (pos + neg)) + 1)
             ratings[category].append(round((float(pos) * 4 / (pos + neg)) + 1, 2))
-
+        
+        self.data[5] = ratings
         return ratings
+    
+    def get_average_scores(self, scoress):
+        f1_macro = []
+        precision_macro = []
+        recall_macro = []
+
+        for score in scoress:
+            f1_macro.append(score['f1_score_macro'])
+            precision_macro.append(score['precision_score_macro'])
+            recall_macro.append(score['recall_score_macro'])
+        
+        f1_mean = np.array(f1_macro).mean()
+        precision_mean = np.array(precision_macro).mean()
+        recall_mean = np.array(recall_macro).mean()
+
+        print("F1-MEAN:",f1_mean)
+        print("P -MEAN:",precision_mean)
+        print("R -MEAN:",recall_mean)
+
+        averages = {
+            'f1_mean': f1_mean,
+            'precision_mean': precision_mean,
+            'recall_mean': recall_mean,
+        }
+
+        return averages
+
+    def evaluate_sentiment_cummulative(self):
+        K.clear_session()
+        scoress = []
+
+        from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score, confusion_matrix
+
+        for category, y_pred in zip(self.categories, self.data[3]):
+            print("====== Checking:", category.upper(), len(y_pred), "======")
+            _, _, _, y = utils.get_spc_dataset(category, get_relevant_categories_only=False)
+
+            f1_score_macro = f1_score(y, y_pred, average='macro', labels=[0,1])
+            precision_score_macro = precision_score(y, y_pred, average='macro', labels=[0,1])
+            recall_score_macro = recall_score(y, y_pred, average='macro', labels=[0,1])
+            f1_scores = f1_score(y, y_pred, average=None, labels=[0,1])
+            precision_scores = precision_score(y, y_pred, average=None, labels=[0,1])
+            recall_scores = recall_score(y, y_pred, average=None, labels=[0,1])
+            accuracy = accuracy_score(y, y_pred)
+
+            scores = {
+                'f1_score_macro': f1_score_macro,
+                'precision_score_macro': precision_score_macro,
+                'recall_score_macro': recall_score_macro,
+                'f1_scores': f1_scores,
+                'precision_scores': precision_scores,
+                'recall_scores': recall_scores,
+                'accuracy': accuracy
+            }
+
+            print("    F1-Score  : {}".format(f1_scores))
+            print("    Precision : {}".format(precision_scores))
+            print("    Recall    : {}".format(recall_scores))
+            print("    Accuracy  : {}".format(accuracy))
+            print("    F1-Score-Macro:", f1_score_macro)
+            print("    P -Score-Macro:", precision_score_macro)
+            print("    R -Score-Macro:", recall_score_macro)
+            print("    Confusion Matrix:")
+            try:
+                print(confusion_matrix(y, y_pred))
+            except:
+                print("Can't be shown")
+            print('\n')
+
+            scoress.append(scores)
+        
+        averages = self.get_average_scores(scoress)
+        return scoress, averages
 
 def main():
-    m = Main(sentence_tokenizer='normal')
-    m.preprocess(skip_sentence_tokenize=True)
+    m = Main(sentence_tokenizer='normal', review='cafe_halaman')
+    print(len(m.raw_reviews))
+    print("> Preprocessing")
+    m.preprocess(skip_sentence_tokenize=False, lower=False)
+    print(len(m.data[0]))
+    print("> Extracting Opinion Targets")
     m.predict_opinion_targets()
+    print("> Splitting Sentences")
+    print(len(m.data[0]))
+    m.split_sentences()
+    print(len(m.data[0]))
+    print("> Classifying Aspect Categories")
     m.predict_categories()
+    print("> Predicting Sentiment Polarities")
     m.predict_sentiment_polarities()
+    print("> Building Tuples")
     m.get_tuples()
+    print("> Getting Ratings")
     print(m.get_ratings())
+    # print("> Evaluating Sentiment Cummulatively")
+    # m.evaluate_sentiment_cummulative()
 
 if __name__ == '__main__':
     utils.time_log(main)

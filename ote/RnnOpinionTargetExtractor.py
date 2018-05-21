@@ -267,7 +267,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.rnn_model.load_weights(path)
 
     def load_best_model(self):
-        best_model = load_model(Const.OTE_ROOT + 'model/brnn/best.model')
+        best_model = load_model(Const.OTE_ROOT + 'model/brnn/BRNN.model')
         del self.rnn_model
         self.rnn_model = best_model
         
@@ -300,41 +300,34 @@ def main():
 
     ote = RNNOpinionTargetExtractor()
 
-    # n_epoch = 25
-    # for i in range(n_epoch):
-    #     print('Epoch #', i)
-    #     model.fit(x=X_train, y=y_train, epochs=1, batch_size=32,
-    #           validation_data=(X_validate, y_validate), callbacks=[checkpointer]
-    #           ,sample_weight=sample_weight)
-    #     model.reset_states()
+    params_for_fit = {
+        "dropout_rate": 0.2,
+        "dense_activation": 'relu',
+        "dense_l2_regularizer": 0.001,
+        "activation": 'softmax',
+        "optimizer": 'nadam',
+        "loss_function": 'categorical_crossentropy',
+        "rnn_units": 64,
+        "dense_units": 32,
+        'dense_layers' : 3,
+        "stack_rnn_layer": True,
+    }
+    ote.fit(
+        [X, pos], y,
+        epochs = 100,
+        batch_size = 64,
+        **params_for_fit,
+        sample_weight = sample_weight,
+        is_save=True,
+    )
 
-    # params_for_fit = {
-    #     "dropout_rate": 0.2,
-    #     "dense_activation": 'relu',
-    #     "dense_l2_regularizer": 0.01,
-    #     "activation": 'softmax',
-    #     "optimizer": 'nadam',
-    #     "loss_function": 'categorical_crossentropy',
-    #     "rnn_units": 64,
-    #     "dense_units": 32,
-    #     'dense_layers' : 3,
-    # }
-    # ote.fit(
-    #     [X, pos], y,
-    #     epochs = 100,
-    #     batch_size = 64,
-    #     **params_for_fit,
-    #     sample_weight = sample_weight,
-    #     is_save=True,
-    # )
-
-    ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
+    # ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
 
     """
         Load best estimator and score it
     """
     # ote.load_best_model()
-    # ote.score([X_test, pos_test], y_test, dense_layers = 1)
+    ote.score([X_test, pos_test], y_test, dense_layers = 1)
     
 if __name__ == "__main__":
     utils.time_log(main)

@@ -1,0 +1,53 @@
+
+===============================
+Started on: 24-05-2018 20:22:24
+===============================
+
+1099
+F1-Score  : [0.99600798 1.         0.99598394 0.99886493]
+Precision : [1.         1.         1.         0.99773243]
+Recall    : [0.99204771 1.         0.992      1.        ]
+Accuracy  : 0.9945404913557779
+F1-Score-Macro: 0.997714211498778
+P -Score-Macro: 0.9994331065759637
+R -Score-Macro: 0.9960119284294234
+Confusion Matrix:
+Can't be shown
+==================106==================
+harganya sedikit mahal saya bought the suasana  . 
+PRED: [0.0, 0.0, 1.0, 1.0]
+ACTL: [0, 0, 1, 0]
+
+==================323==================
+cocok untuk makan bersama temannoteman  . 
+PRED: [0.0, 0.0, 0.0, 0.0]
+ACTL: [1, 0, 0, 0]
+
+==================465==================
+interiornya lucu   , seru buat kumpulnokumpul   , makan minum enak harga pantas  . 
+PRED: [0.0, 0.0, 1.0, 1.0]
+ACTL: [1, 0, 1, 1]
+
+==================511==================
+meskipun harganoharga makannanya agak mahal  .
+PRED: [0.0, 0.0, 0.0, 0.0]
+ACTL: [0, 0, 1, 0]
+
+==================617==================
+secara keseluruhan kami senang makan malam di sini  . 
+PRED: [0.0, 0.0, 0.0, 0.0]
+ACTL: [1, 0, 0, 0]
+
+==================705==================
+lokasi yang strategis membuat mudah untuk menemukannya , harga juga standar tidak terlalu mahal , minum khas kesukaan saya adalah mojito yang segar .
+PRED: [0.0, 0.0, 1.0, 1.0]
+ACTL: [1, 0, 1, 1]
+
+6 sentences missclasified
+
+================================
+DONE IN 0:00:03
+Started  on: 24-05-2018 20:22:24
+Finished on: 24-05-2018 20:22:28
+================================
+

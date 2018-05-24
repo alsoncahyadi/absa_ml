@@ -1,0 +1,558 @@
+
+===============================
+Started on: 24-05-2018 20:20:37
+===============================
+
+383
+3) ternyata sudah banyak yang berubah , dimulai dari keramahan penyambutan yang menurun dan tempat yang saya peroleh tidak sesuai yang saya harapkan .
+tempat 	 | P: ASPECT-B 	| A: O
+
+5) menu dan kualitas makanan tidak seistimewa yang kami bayangkan dari pengalaman kami dulu .
+menu 	 | P: O 	| A: ASPECT-B
+
+8) bertemakan seperti di bali , restoran ini sangat nyaman dilengkapi dengan live band dan pelayanan yang baik dari pelayan .
+restoran 	 | P: O 	| A: ASPECT-B
+live 	 | P: ASPECT-B 	| A: O
+band 	 | P: ASPECT-I 	| A: O
+
+14) suasana restoran sangat baik , terutama interior dalam bangunan utama .
+interior 	 | P: O 	| A: ASPECT-B
+
+16) makanan yang ditawarkan banyak ala barat dengan pelayanan yang cepat dan pelayan cukup tangkas menjelaskan menu-menunya .
+makanan 	 | P: ASPECT-B 	| A: O
+
+21) tempat ternyaman di gazebo belakang .
+tempat 	 | P: ASPECT-B 	| A: O
+
+22) untuk di lantai 2 sebaiknya sarung busa lesehannya sering dicuci karena terakhir bersama tamu ke sana para tamu merasakan kurang nyaman karena gatal-gatal .
+busa 	 | P: O 	| A: ASPECT-I
+lesehannya 	 | P: O 	| A: ASPECT-I
+
+28) saat kami datang ada live music dan play listnya cukup oke .
+play 	 | P: O 	| A: ASPECT-B
+listnya 	 | P: O 	| A: ASPECT-I
+
+34) tempatnya enak buat bersantai dengan suasana yang asri , parkiran penuh tetapi ada fasilitas valetnya .
+parkiran 	 | P: O 	| A: ASPECT-B
+
+35) yang kurang live musicnya lagu lama semua .
+live 	 | P: O 	| A: ASPECT-B
+lagu 	 | P: ASPECT-I 	| A: O
+
+38) paling enak nasi gorengnya , sate ayam , steak braga permai , dan chicken snitzel .
+sate 	 | P: O 	| A: ASPECT-B
+ayam 	 | P: O 	| A: ASPECT-I
+steak 	 | P: O 	| A: ASPECT-B
+braga 	 | P: O 	| A: ASPECT-I
+permai 	 | P: O 	| A: ASPECT-I
+snitzel 	 | P: O 	| A: ASPECT-I
+
+39) setiap kali ke restoran ini saya pasti memesan menu yang sama crispy duck noodle with szechuan sauce .
+crispy 	 | P: ASPECT-B 	| A: O
+duck 	 | P: ASPECT-I 	| A: O
+
+41) salah satu tempat makan nasi goreng kepiting yang wajib dikunjungi .
+tempat 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: O
+nasi 	 | P: ASPECT-B 	| A: O
+goreng 	 | P: ASPECT-I 	| A: O
+kepiting 	 | P: ASPECT-I 	| A: O
+
+42) restoran tempo dulu yang banyak dikunjungi turis asing .
+restoran 	 | P: ASPECT-B 	| A: O
+
+44) tempat makan jaman dulu yang terletak di jalan yang sangat legend di pusat kota bandung .
+tempat 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: O
+jalan 	 | P: ASPECT-B 	| A: O
+
+45) jalan braga adalah jalan tempat banyak orang kumpul-kumpul dari segala kalangan .
+jalan 	 | P: ASPECT-B 	| A: O
+tempat 	 | P: ASPECT-I 	| A: O
+
+50) kue-kue-nya beragam pilihan cukup menarik .
+kue-kue-nya 	 | P: O 	| A: ASPECT-B
+
+51) pilih es krim rhum raisin jika ingin merasakan sensasi hangat dan aroma rhum .
+es 	 | P: ASPECT-B 	| A: O
+krim 	 | P: ASPECT-I 	| A: O
+sensasi 	 | P: ASPECT-B 	| A: O
+aroma 	 | P: ASPECT-B 	| A: O
+
+52) tempatnya nyaman untuk duduk-duduk sambal sekedar minum the .
+sambal 	 | P: ASPECT-B 	| A: O
+
+54) ini salah satu restoran tua di bandung , jadi banyak sekali turis-turis bule tua yang mampir di sini .
+restoran 	 | P: ASPECT-B 	| A: O
+
+57) restoran ini memiliki nilai sejarah yang tinggi karena sudah ada sejak dahulu kala .
+restoran 	 | P: ASPECT-B 	| A: O
+
+59) dusun bambu punya restoran yang makan sepuasnya tetapi exclude minuman .
+minuman 	 | P: ASPECT-B 	| A: O
+
+63) disini ada beberapa tempat makan , dan ada foodcourtnya juga .
+tempat 	 | P: ASPECT-B 	| A: O
+
+64) sejak melupakan pekerjaan di rumah mengurus ank-ank , bandung benar-benar enak buat jalan , makan dan shoping bagi yang hobi shoping , tempat rekreasi juga bagus-bagus dan bnyak pilihan , saya pergi jalan ke bandung dngan teman-teman arisan .
+tempat 	 | P: ASPECT-B 	| A: O
+pilihan 	 | P: ASPECT-B 	| A: O
+
+65) jalan ke dusun bambu saja tempat dingin banget smpai lantai saja dingin apalagi air serasa kluar dari kulkas xixiixixi .
+lantai 	 | P: O 	| A: ASPECT-B
+
+66) benar-benar tempat yang menyenangkan .
+benar-benar 	 | P: ASPECT-B 	| A: O
+tempat 	 | P: ASPECT-I 	| A: ASPECT-B
+
+68) mdh-mdhan saya bisa berkunjung lagi ke bandung dngan tempat yang lebih asyik lagi .
+tempat 	 | P: ASPECT-B 	| A: O
+
+71) harga sesuai dengan kualitas dan rasa .
+kualitas 	 | P: ASPECT-B 	| A: O
+
+72) b dan b yang menyenangkan , unik .
+b 	 | P: O 	| A: ASPECT-B
+b 	 | P: O 	| A: ASPECT-B
+
+78) koleksi menu makanan lumayan banyak .
+koleksi 	 | P: ASPECT-B 	| A: O
+menu 	 | P: ASPECT-I 	| A: ASPECT-B
+
+79) harga agak mahal namun sesuai dengan suguhan yang sangat enak .
+suguhan 	 | P: O 	| A: ASPECT-B
+
+80) kondisi cafenya bersih .
+kondisi 	 | P: O 	| A: ASPECT-B
+cafenya 	 | P: ASPECT-B 	| A: ASPECT-I
+
+82) asyik untuk tempat hangout bersama kekasih ataupun teman-teman .
+hangout 	 | P: ASPECT-I 	| A: O
+
+88) makanan penutupnya enak , pancake , lalu ada juga menu-menu sarapan yang enak untuk dicoba .
+pancake 	 | P: ASPECT-B 	| A: O
+menu-menu 	 | P: O 	| A: ASPECT-B
+sarapan 	 | P: ASPECT-B 	| A: ASPECT-I
+
+95) nasi rendang hitam mungkin tidak dikenal di khazanah masakan perancis yang menjadi barometer gastronomy dunia .
+nasi 	 | P: ASPECT-B 	| A: O
+rendang 	 | P: ASPECT-I 	| A: O
+hitam 	 | P: ASPECT-I 	| A: O
+
+96) tetapi di hummingbird rendang bisa duduk setara dengan berbagai sajian istimewa dunia .
+sajian 	 | P: ASPECT-B 	| A: O
+
+97) desain cafe unik dan hangat , khususnya konsep gambar tangan dan furniture yang didominasi kayu , sangat authentic dan chic .
+furniture 	 | P: ASPECT-B 	| A: O
+
+102) salah satu dari sekian banyak restoran khas sunda yang rasa masakanya enak , bervariasi , dengan tempat yang sangat sejuk dan nyaman .
+restoran 	 | P: ASPECT-B 	| A: O
+
+103) sangat cocok untuk menu keluarga .
+menu 	 | P: ASPECT-B 	| A: O
+
+105) tetapi kalau buat makanan saya rasa biasa saja .
+makanan 	 | P: O 	| A: ASPECT-B
+rasa 	 | P: ASPECT-B 	| A: O
+
+106) pernah order gurame bakar , guramenya sedikit overburn .
+gurame 	 | P: ASPECT-B 	| A: O
+bakar 	 | P: ASPECT-I 	| A: O
+guramenya 	 | P: O 	| A: ASPECT-B
+
+108) tempatnya natural , dekat dengan alam , apalagi pada sore menjelang malam saat suhu mulai sejuk dan lampu-lampu mulai dinyalakan .
+alam 	 | P: ASPECT-B 	| A: O
+suhu 	 | P: O 	| A: ASPECT-B
+
+109) makanannya ada pilihan tradisional .
+makanannya 	 | P: ASPECT-B 	| A: O
+
+113) tempat berkumpul yang romantis .
+berkumpul 	 | P: ASPECT-I 	| A: O
+
+118) iya wajar lah dengan tempat tang bagus .
+tang 	 | P: ASPECT-I 	| A: O
+
+124) untuk variasi makanan juga sewajarnya restoran sunda .
+variasi 	 | P: ASPECT-B 	| A: O
+makanan 	 | P: ASPECT-I 	| A: O
+
+126) tetapi yang spesial lingkungannya .
+spesial 	 | P: ASPECT-B 	| A: O
+lingkungannya 	 | P: O 	| A: ASPECT-B
+
+131) kapanpun waktu berkunjungnya , parkirannya selalu penuh , membuktikan betapa larisnya tempat ini .
+, 	 | P: ASPECT-B 	| A: O
+parkirannya 	 | P: ASPECT-I 	| A: ASPECT-B
+
+135) karnivor menyediakan makanan untuk personal maupun untuk bersama dengan porsi monster .
+porsi 	 | P: ASPECT-B 	| A: O
+monster 	 | P: ASPECT-I 	| A: O
+
+143) menunggu sejam lebih , tetapi maklum karena jam buka puasa dan banyakan ^ ^ steaknya enak dan tidak terlalu mahal , makanan selain steak dan minumannya juga beragam .
+menunggu 	 | P: ASPECT-B 	| A: O
+makanan 	 | P: O 	| A: ASPECT-B
+
+144) jika datang ke tempat ini disarankan jangan weekend , menghindari antrian panjang .
+tempat 	 | P: ASPECT-B 	| A: O
+antrian 	 | P: O 	| A: ASPECT-B
+
+151) menu yang terkenal di sini adalah monster steak , monster sosis dan minumannya adalah gorilla punch .
+menu 	 | P: ASPECT-B 	| A: O
+monster 	 | P: ASPECT-B 	| A: O
+sosis 	 | P: ASPECT-I 	| A: O
+
+155) dengan harga yang pantas tetapi kita bisa menikmati steak yang enak dengan pilihan yang oke .
+pilihan 	 | P: ASPECT-B 	| A: O
+
+160) menjadikan makan malam yang berkesan bersama istri tercinta .
+makan 	 | P: ASPECT-B 	| A: O
+malam 	 | P: ASPECT-I 	| A: O
+
+161) , akses tidak terlalu susah cuma , hati-hati yang bawa orang tua sepuh penuh dengan trapcukup tinggi menuju restauranya .
+akses 	 | P: O 	| A: ASPECT-B
+
+162) sesampai di restaurannya , wuow bagus enough , suasana yang menyenangkan .
+restaurannya 	 | P: ASPECT-B 	| A: O
+
+164) makanan cukup variatif , tease oke , , but too kecil porsi .
+tease 	 | P: O 	| A: ASPECT-B
+
+165) bapak denya mungkin head di tempat itu cukup cooperative , dan cukup ramah .
+tempat 	 | P: ASPECT-B 	| A: O
+
+166) menginap di stevie tidak hotel saya memilih untuk makan malam di maja house yang cukup tersohor .
+maja 	 | P: O 	| A: ASPECT-B
+house 	 | P: O 	| A: ASPECT-I
+
+170) udaranya yang sejuk membuat tempat ini semakin terasa nyaman .
+tempat 	 | P: O 	| A: ASPECT-B
+
+171) hal negatif menurut saya adalah sulit untuk mendapatkan tempat duduk yang bisa melihat pemandangan kota bandung karena ramainya pengunjung .
+tempat 	 | P: O 	| A: ASPECT-B
+duduk 	 | P: O 	| A: ASPECT-I
+
+172) restoran ini saudah sangat dikenal sebagai tempat hang out ataupun dine in .
+restoran 	 | P: O 	| A: ASPECT-B
+tempat 	 | P: ASPECT-B 	| A: O
+hang 	 | P: ASPECT-I 	| A: O
+out 	 | P: ASPECT-I 	| A: O
+
+174) tetapi dari beberapa pilihan menu , kami kurang tertarik karena tidak ada yang cukup khas .
+pilihan 	 | P: ASPECT-B 	| A: O
+menu 	 | P: ASPECT-I 	| A: O
+
+177) sofa bed yang nyaman dengan angin yang sejuk , benar-benar asyik untuk bersantai .
+bed 	 | P: O 	| A: ASPECT-I
+
+178) restoran ini cocok untuk bersantai dan foto-foto .
+restoran 	 | P: ASPECT-B 	| A: O
+
+182) jadi tidak cuma bisa melihat pemandangan indah tetapi juga desain interior restoran memberi kesan khas tersendiri .
+pemandangan 	 | P: O 	| A: ASPECT-B
+desain 	 | P: O 	| A: ASPECT-B
+interior 	 | P: O 	| A: ASPECT-I
+restoran 	 | P: O 	| A: ASPECT-I
+
+185) pemandangan alam indah sejauh mata memandang , desain unik di dalam restoran untuk bersantai .
+alam 	 | P: O 	| A: ASPECT-I
+
+188) makanan enak , porsi lumayan besar , namun di menu tidak ada explainnya sehingga harus bertanga ke waiternga .
+menu 	 | P: O 	| A: ASPECT-B
+
+192) jika anda menginap di padma hotel , lokasi miss bee tidak jauh dari sana .
+miss 	 | P: ASPECT-I 	| A: O
+
+195) coba usan salmon cream pasta dan kopi affogato .
+salmon 	 | P: ASPECT-B 	| A: O
+cream 	 | P: ASPECT-I 	| A: O
+pasta 	 | P: ASPECT-I 	| A: O
+kopi 	 | P: ASPECT-B 	| A: O
+affogato 	 | P: ASPECT-I 	| A: O
+
+196) di belakang juga ada area playground , jadi sangat cocok untuk dikunjungi bersama keluarga .
+area 	 | P: ASPECT-B 	| A: O
+
+197) restoran ini tidak kelihatan dari jalan besar karena tempatnya masuk-masuk ke jalan kecil , dari rumah nampak seperti rumah begitu masuk , konsepnya lucuk .
+konsepnya 	 | P: O 	| A: ASPECT-B
+
+200) biasanya seperti yang udah-udah saya datangi restoran atau kopi ship yang berkonsep biasanya makanannya tidak terlalu enak , tetapi di miss bee dari ke empat makanan yang saya pesan itu enak semua dan segar !
+makanan 	 | P: O 	| A: ASPECT-B
+
+202) tetapi sayangnya agak susah memanggil pelayannya karena tempatnya terlalu luas dan ber - part part jadi kita mesti jalan cari pelayannya dulu karena tidak disediakan lonceng atau bell pemanggil pelayannya .
+pelayannya 	 | P: O 	| A: ASPECT-B
+
+204) karena ramai dan biasanya orang-orang yang makan agak lama atau semacam leyeh-leyeh dulu .
+makan 	 | P: ASPECT-B 	| A: O
+
+207) untuk ukuran rumah , tempat ini luas tetapi untuk ukuran restoran tempat ini kecil , tidak dapat menampung orang banyak dan harus mengantri untuk mendapatkan tempat duduk .
+ukuran 	 | P: ASPECT-B 	| A: O
+tempat 	 | P: O 	| A: ASPECT-B
+tempat 	 | P: O 	| A: ASPECT-B
+
+208) setelah order makanan , kami tidak menunggu terlalu lama sampai makanan terhidang .
+menunggu 	 | P: ASPECT-B 	| A: O
+
+211) minuman dihidangkan dalam gelas besar .
+minuman 	 | P: ASPECT-B 	| A: O
+
+217) kemudian setelah duduk kami order makanan dan minuman . minum datang dalam waktu 15 menit ( oke mungkin karena ramai kami maklum ) 2 . steak yang dipesan suami saya datang dalam waktu 30 menit dan burger pesanan saya belum disajikan .
+makanan 	 | P: ASPECT-B 	| A: O
+
+220) suasananya enak dan adem , tentram , makanan eropa enak-enak , bangunan jaman belanda dulu , terletak di jalan ciumbuleuit ke kanan .
+makanan 	 | P: O 	| A: ASPECT-B
+eropa 	 | P: O 	| A: ASPECT-I
+
+223) cocok dilidah saya makanannya dan makanan penutup enak-enak .
+makanan 	 | P: O 	| A: ASPECT-B
+penutup 	 | P: O 	| A: ASPECT-I
+
+224) suka daftar tunggu tetapi bisa sambil main di tamannya dan photoable .
+. 	 | P: ASPECT-B 	| A: O
+
+225) restoran yang terletak di kota bandung ini , tepatnya di daerah ciumbeluit yang terkenal dengan universitas parahiyangan .
+restoran 	 | P: ASPECT-B 	| A: O
+
+227) soal rasa di restoran ini jangan khawatir , harga sangat seuai dengan kualitas dan rasa makanan .
+rasa 	 | P: ASPECT-B 	| A: O
+
+234) namun yang paling mengesankan adalah dekitasi serta adanya sebuah angklung elektronik yang bisa memainkan lagu-lagu secara otomatis .
+dekitasi 	 | P: ASPECT-B 	| A: O
+
+236) raja rasa memiliki suasana yang nyaman , variasi menu makanan indonesia yang beragam ( meskipun mayoritas adalah masakan sunda dan jawa ) , kualitas rasa yang baik , penyajian makanan yang menarik .
+variasi 	 | P: O 	| A: ASPECT-I
+menu 	 | P: O 	| A: ASPECT-B
+makanan 	 | P: O 	| A: ASPECT-I
+indonesia 	 | P: O 	| A: ASPECT-I
+penyajian 	 | P: O 	| A: ASPECT-B
+
+237) tamu saya merasa nyaman dengan tempat dan variasi makanan yang disajikan dan sangat terkesan dengan pedasnya cabe rawit yang luar biasa pedas .
+pedasnya 	 | P: ASPECT-B 	| A: O
+cabe 	 | P: ASPECT-I 	| A: O
+
+238) raja rasa ini memang sesuai dengan judulnya , rasanya meraja .
+rasa 	 | P: ASPECT-I 	| A: O
+
+242) restoran ini menyajikan makanan khas sunda dan cocok menjadi tempat makan untuk keluarga besar .
+makanan 	 | P: ASPECT-B 	| A: O
+tempat 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: O
+
+246) bulan nov lalu saat biz trip ke bandungsaya sempat makan siang di restoran ini dengan variasi menu yang oke banget ada kepiting , udang , cumi dan ikan bakar yang oke .
+kepiting 	 | P: O 	| A: ASPECT-B
+udang 	 | P: O 	| A: ASPECT-B
+cumi 	 | P: ASPECT-B 	| A: O
+ikan 	 | P: O 	| A: ASPECT-B
+bakar 	 | P: ASPECT-I 	| A: ASPECT-B
+
+248) tidak disemua tempat ada sayuran inidan hasil masakannya juga enak .
+hasil 	 | P: O 	| A: ASPECT-B
+
+253) salah satu yang sering kami kunjungi adalah raja rasa , karena makanannya enak , restorannya nyaman , harganya juga terjangkau .
+raja 	 | P: ASPECT-B 	| A: O
+rasa 	 | P: ASPECT-I 	| A: O
+
+254) selain itu lokasi tempat restoran tersebut juga sangat strategis .
+restoran 	 | P: O 	| A: ASPECT-I
+
+255) tempat - nyaman .
+- 	 | P: ASPECT-I 	| A: O
+
+259) sushi yang lain juga enak , terutama salmon cheese roll .
+juga 	 | P: ASPECT-B 	| A: O
+roll 	 | P: ASPECT-I 	| A: O
+
+260) favorit kali ini .
+. 	 | P: ASPECT-B 	| A: O
+
+263) semuanya enak , pas di lidah .
+semuanya 	 | P: ASPECT-B 	| A: O
+
+265) defineltely will come here again .
+defineltely 	 | P: ASPECT-B 	| A: O
+
+268) kami makan cukup lama karena bersantai sambil ngobrol dan memesan makanan sampai beberapa kali , sampai tidak terasa kami makan 1 jam lebih dan sampai sangat kenyang .
+makan 	 | P: ASPECT-B 	| A: O
+
+271) pelayanan oke , ada free ocha dingin / panas .
+dingin 	 | P: O 	| A: ASPECT-I
+/ 	 | P: O 	| A: ASPECT-I
+panas 	 | P: O 	| A: ASPECT-I
+
+272) tempat romantis buat berduaan dengan pemandangan kota bandung di malam hari yang indah , makanan eropa enak rasa , .
+pemandangan 	 | P: O 	| A: ASPECT-B
+eropa 	 | P: O 	| A: ASPECT-I
+
+273) suasana disini sangat enak , makan diatas tebing dan udara yang dingin , dengan lantar belakang lampu-lampu kota bandung .
+makan 	 | P: ASPECT-B 	| A: O
+
+275) restoran yang cukup indah namun pelayanan yang kurang maksimal saya harus beberapa kali memanggil pelayan untuk memesan untuk rasa standar dan harga cukup tinggi .
+rasa 	 | P: O 	| A: ASPECT-B
+
+277) bersama suami kami sempat tersesat karena memang kami kesana malam hari dengan jalan sempit dan gelap akhirnya kami menemukannya .
+jalan 	 | P: ASPECT-B 	| A: O
+
+278) tempatnya terkesan suram kurang menarik , pelayan yang tidak acuh , bahkan mengobrol tanpa memperdulikan kehadiran kami , setelah duduk agak lama , tidak ada yang menyodorkan daftar menu , akhirnya kami pergi mencari restoran lainnya yang sangat banyak di kota bandung , dan pelayan yang sangat ramah untuk kami datangi .
+acuh 	 | P: O 	| A: ASPECT-B
+restoran 	 | P: ASPECT-B 	| A: O
+lainnya 	 | P: ASPECT-I 	| A: O
+
+281) karena letak restoran diatas , udaranya jadi agak dingin apalagi kalau malam .
+letak 	 | P: ASPECT-B 	| A: O
+restoran 	 | P: ASPECT-I 	| A: O
+
+284) tempatnya sangat bagus untuk anda yang mencari suasana malam romantis , dengan pemandangan malam kota yang menakjubkan .
+malam 	 | P: O 	| A: ASPECT-I
+malam 	 | P: O 	| A: ASPECT-I
+kota 	 | P: O 	| A: ASPECT-I
+
+285) interior restoran mungkin dapat lebih diperbaharui , karena terkesan agak tua dan kurang modern .
+, 	 | P: ASPECT-B 	| A: O
+
+286) kebersihan taplak meja dan sofa juga patut diperhatikan , untuk menjaga kualitas restauran fine dining .
+kebersihan 	 | P: ASPECT-B 	| A: O
+meja 	 | P: ASPECT-B 	| A: O
+sofa 	 | P: ASPECT-B 	| A: O
+
+287) makanan dan pilihan wine / minuman cukup memuaskan .
+makanan 	 | P: O 	| A: ASPECT-B
+/ 	 | P: O 	| A: ASPECT-I
+minuman 	 | P: O 	| A: ASPECT-I
+
+289) makan dan minum di tempat ini dengan suasana santai dan menyenangkan bersama dengan orang-orang dekat , khususnya keluarga , adalah salah satu tempat terbaik di bandung .
+tempat 	 | P: ASPECT-B 	| A: O
+
+290) lokasi memang cukup jauh dari bandung , tetapi layak dicoba untuk menikmati pemandangan bandung dan lembang pada malam hari serasa sedang terbang di angkasa .
+lokasi 	 | P: O 	| A: ASPECT-B
+
+304) makan dengan teman-teman arisan sangat menyenangkan walaupun pelayanan sedikit lama dan harganya yang cukup mahal tetapi pemandangan untuk foto-foto bagus banget .
+makan 	 | P: O 	| A: ASPECT-B
+teman-teman 	 | P: ASPECT-B 	| A: O
+pemandangan 	 | P: O 	| A: ASPECT-B
+
+305) + lokasi gampang akses + makanannya enak ( walaupun mahal ) + suasananya nyaman + wifi cepat + cocok buat pasangan maupun keluarga .
+wifi 	 | P: ASPECT-B 	| A: O
+
+306) cafe stone cocok untuk sekedar hang out bersama reman ataupun keluarga harga makanan dan minuman setimpal .
+out 	 | P: ASPECT-I 	| A: O
+makanan 	 | P: ASPECT-I 	| A: O
+
+308) tetapi saya tidak kecewa dengan apa yang saya keluarkan karena terbayar semuanya suasana yang dapat dan makanan yang enak .
+suasana 	 | P: ASPECT-B 	| A: O
+
+309) one of the best fine dining restoran , makanannya enak-enak , pemandangan restoran yang sangat bagus berada diatas bukit dan pemandangan kota bandung , namun jika akan berkunjung kesini pada saat weekend sebaiknya harus buat appointment dahulu dikarenakan restoran sangat ramai , saya think this is one of the best recomended restoran in bandung yang harus dikunjungi jika ke bandung .
+makanannya 	 | P: O 	| A: ASPECT-B
+
+311) walaupun makanannya tidak bisa di bilang the best , harganya mahal , tetapi saya suka tempatnya .
+makanannya 	 | P: O 	| A: ASPECT-B
+tempatnya 	 | P: O 	| A: ASPECT-B
+
+315) cocok untuk acara yang orang-orangnya banyak .
+acara 	 | P: ASPECT-B 	| A: O
+
+320) tempat makan ini memiliki pemandangan kota bandung yang indah di waktu malam .
+tempat 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: O
+pemandangan 	 | P: O 	| A: ASPECT-B
+kota 	 | P: O 	| A: ASPECT-I
+bandung 	 | P: O 	| A: ASPECT-I
+
+322) hanya saja , harus sabar menunggu pesanan datang , karena pengunjungnya selalu ramai di malam hari .
+menunggu 	 | P: ASPECT-B 	| A: O
+pesanan 	 | P: ASPECT-B 	| A: O
+pengunjungnya 	 | P: ASPECT-B 	| A: O
+
+325) sendok garpunya agak agak vintage begitu .
+sendok 	 | P: ASPECT-I 	| A: O
+garpunya 	 | P: ASPECT-I 	| A: O
+
+328) yang khas dari cafe ini adalah menu sarapan pagi bergaya amerika .
+menu 	 | P: ASPECT-B 	| A: O
+sarapan 	 | P: ASPECT-I 	| A: O
+
+330) tersedia juga berbagai minuman kopi dari capucinno , latte , dan lain-lain . suasana ruangan agak remang-remang , kecuali anda duduk dibagian dekat jendela .
+minuman 	 | P: ASPECT-B 	| A: O
+
+331) sangat direkomendasikan untuk mencoba di tempat ini .
+tempat 	 | P: O 	| A: ASPECT-B
+
+332) tempatnya cukup enak hanya terlalu gelap dan kurang privasi karena semua customer berada di ruangan yang sama dan jarak antar mejanya cukup dekat .
+antar 	 | P: ASPECT-I 	| A: O
+mejanya 	 | P: ASPECT-I 	| A: ASPECT-B
+
+333) dimaklumi karena luas area tidak terlalu besar .
+luas 	 | P: O 	| A: ASPECT-B
+area 	 | P: ASPECT-B 	| A: ASPECT-I
+
+334) ada smoking room juga terpisah di area luar .
+area 	 | P: ASPECT-B 	| A: O
+
+340) konsepnya adalah industrial , jadi mungkin agak sedikit remang-remang .
+konsepnya 	 | P: ASPECT-B 	| A: O
+
+341) jika bosan , ada pilihan bahan bacaan yang cukup bagus .
+pilihan 	 | P: ASPECT-B 	| A: O
+bahan 	 | P: ASPECT-I 	| A: ASPECT-B
+
+343) makanannya enak sekali , pilihan makan paginya memang tidak terlalu banyak tetapi cukup variatif dan bisa memenuhi berbagai selera yang beda .
+pilihan 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: ASPECT-B
+paginya 	 | P: O 	| A: ASPECT-I
+
+347) petugas ramah .
+petugas 	 | P: O 	| A: ASPECT-B
+
+352) dekat dengan pvj dan mudah dijangkau .
+mudah 	 | P: ASPECT-B 	| A: O
+
+354) menunya tidak terlalu banyak tetapi menarik dan enak , terutama big breaky dengan baconnya dan porsi cukup besar .
+menunya 	 | P: O 	| A: ASPECT-B
+
+361) selain itu konsep desain cafe industrial yang ada didalamnya sangat menarik untuk menjadi tempat yang cocok untuk bersanai di pagi hari maupun sore hari .
+konsep 	 | P: ASPECT-B 	| A: O
+desain 	 | P: ASPECT-I 	| A: ASPECT-B
+cafe 	 | P: O 	| A: ASPECT-I
+industrial 	 | P: O 	| A: ASPECT-I
+tempat 	 | P: ASPECT-B 	| A: O
+
+363) hal ini mengingatkan sama sebuah novel sastra karya dee lestari , filosofi kopi .
+kopi 	 | P: ASPECT-B 	| A: O
+
+365) anyway , tidak tahu mengapa seruputan kopi yang saya pesan saat itu mengingatkan sama giyanti di menteng , jakarta .
+kopi 	 | P: ASPECT-B 	| A: O
+
+368) menu tadi dihidangkan dengan tiga potong roti , yang kalau tebakan saya benar , adalah baguette .
+potong 	 | P: ASPECT-B 	| A: O
+roti 	 | P: ASPECT-I 	| A: O
+baguette 	 | P: ASPECT-B 	| A: O
+
+371) bangunan dan tata ruangnya memang terasa klasik .
+bangunan 	 | P: O 	| A: ASPECT-B
+ruangnya 	 | P: O 	| A: ASPECT-I
+
+373) awalnya kami pikir seperti tom yam dan menu rica-rica biasanya .
+tom 	 | P: ASPECT-B 	| A: O
+yam 	 | P: ASPECT-I 	| A: O
+
+375) begitu pula penampakan menu seafood rica-rica , jadi bahkan mirip mie disiram saus seafood rica-rica .
+menu 	 | P: ASPECT-B 	| A: O
+seafood 	 | P: ASPECT-I 	| A: O
+
+379) tetapi , sop buntut dan pannacota - lumayan enak .
+pannacota 	 | P: O 	| A: ASPECT-B
+
+380) sangat direkomendasikan jalan jalan kesini bareng keluargaa .
+jalan 	 | P: ASPECT-B 	| A: O
+
+382) walaupun cukup jauh tempatnya , tetapi untuk piknik kesini rasanya setimpal iya : ) .
+tempatnya 	 | P: O 	| A: ASPECT-B
+rasanya 	 | P: ASPECT-B 	| A: O
+
+256 words misclasified
+
+================================
+DONE IN 0:00:12
+Started  on: 24-05-2018 20:20:37
+Finished on: 24-05-2018 20:20:49
+================================
+

@@ -1,0 +1,17 @@
+
+===============================
+Started on: 24-05-2018 20:20:03
+===============================
+
+992
+963) harga makanannya mahal namun cukup sepadan dengan kualitas dan suasana restorannya .
+makanannya 	 | P: ASPECT-I 	| A: O
+
+1 words misclasified
+
+================================
+DONE IN 0:00:13
+Started  on: 24-05-2018 20:20:03
+Finished on: 24-05-2018 20:20:16
+================================
+

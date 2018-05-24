@@ -1,0 +1,46 @@
+
+===============================
+Started on: 24-05-2018 20:17:26
+===============================
+
+max : 81
+min : 2
+mean: 12.5625
+mode: ModeResult(mode=array([5]), count=array([72]))
+992
+260) the valley merupakan restoran yang mengedepankan cita rasa tinggi , sehingga rasa makanan , tampilan makanan , lokasi dan pelayanan benar-benar prima .
+benar-benar 	 | P: ASPECT-I 	| A: O
+
+345) kami memutuskan makan disini karena ada live music lagu-lagu jaman dulu yang dimainkan di area pintu masuknya , pas sekali dengan suasana restonya .
+suasana 	 | P: ASPECT-B 	| A: O
+
+385) saya suka sekali dengan sup burung dara - , menurut saya disarankan !
+- 	 | P: ASPECT-I 	| A: O
+
+410) menu makanannya cukup banyak dan enak - enak .
+- 	 | P: ASPECT-B 	| A: O
+
+426) makanannya enak-enak dan bervariasi .
+enak-enak 	 | P: ASPECT-I 	| A: O
+
+686) makanannya lumayan enak-enak diudara dingin dan banyak variasinya dari mulai restoran burangrang , saung purbasari dan area foodcourtnya .
+diudara 	 | P: ASPECT-B 	| A: O
+
+698) interior meja-meja kayunya berkesan natural , ada lokasi makan di luar juga .
+lokasi 	 | P: ASPECT-B 	| A: O
+makan 	 | P: ASPECT-I 	| A: O
+
+707) sandwich - enak-enak .
+- 	 | P: ASPECT-I 	| A: O
+
+963) harga makanannya mahal namun cukup sepadan dengan kualitas dan suasana restorannya .
+makanannya 	 | P: ASPECT-I 	| A: O
+
+10 words misclasified
+
+================================
+DONE IN 0:00:16
+Started  on: 24-05-2018 20:17:26
+Finished on: 24-05-2018 20:17:42
+================================
+

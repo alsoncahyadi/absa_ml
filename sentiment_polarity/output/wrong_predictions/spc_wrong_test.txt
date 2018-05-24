@@ -1,0 +1,184 @@
+
+===============================
+Started on: 24-05-2018 18:57:00
+===============================
+
+
+
+	######################################################
+	############## CHECKING CATEGORY: FOOD ##############
+	######################################################
+
+104
+F1-Score  : [0.72       0.96174863]
+Precision : [0.81818182 0.94623656]
+Recall    : [0.64285714 0.97777778]
+Accuracy  : 0.9326923076923077
+F1-Score-Macro: 0.8408743169398907
+P -Score-Macro: 0.8822091886608017
+R -Score-Macro: 0.8103174603174603
+Confusion Matrix:
+[[ 9  5]
+ [ 2 88]]
+================= 1 =================
+menu dan kualitas makanan tidak seistimewa yang kami bayangkan dari pengalaman kami dulu .
+PRED: 1
+ACTL: 0
+
+================= 47 =================
+porsi di menu tidak ada explainnya sehingga harus bertanga ke waiternga .
+PRED: 1
+ACTL: 0
+
+================= 56 =================
+sayangnya steaknya tidak setimpal untuk dipesan , sangat sangat keras dan hambar ( pesen lokal steak bukan berarti harus dapat steak kaya sendal karet begini lah ) 3 .
+PRED: 0
+ACTL: 1
+
+================= 57 =================
+total waktu yang saya butuhkan untuk menunggu makanan saya yang berup bur geradalah 1 . 5 jam ! ! ! bagusnya adl rasanya jauh lebih enak dari steak sendal karet semoga manajemen miss bee baca review saya dan dapat memperbaiki manajemen di sana dan kualitaspegawainya .
+PRED: 0
+ACTL: 1
+
+================= 85 =================
+makananya mahal ) + suasananya nyaman + wifi cepat + cocok buat pasangan maupun keluarga .
+PRED: 1
+ACTL: 0
+
+================= 89 =================
+walaupun makanannya tidak bisa di bilang the best , harganya mahal .
+PRED: 1
+ACTL: 0
+
+================= 102 =================
+sayang , saat itu saya bersama teman sedikit kecewa dengan menu yang disajikan .
+PRED: 1
+ACTL: 0
+
+7 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: SERVICE ##############
+	######################################################
+
+21
+F1-Score  : [0.92307692 0.96551724]
+Precision : [1.         0.93333333]
+Recall    : [0.85714286 1.        ]
+Accuracy  : 0.9523809523809523
+F1-Score-Macro: 0.9442970822281167
+P -Score-Macro: 0.9666666666666667
+R -Score-Macro: 0.9285714285714286
+Confusion Matrix:
+[[ 6  1]
+ [ 0 14]]
+================= 0 =================
+ternyata sudah banyak yang berubah , dimulai dari keramahan penyambutan yang menurun dan tempat yang saya peroleh tidak sesuai yang saya harapkan .
+PRED: 1
+ACTL: 0
+
+1 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: PRICE ##############
+	######################################################
+
+29
+F1-Score  : [0.95652174 0.97142857]
+Precision : [0.91666667 1.        ]
+Recall    : [1.         0.94444444]
+Accuracy  : 0.9655172413793104
+F1-Score-Macro: 0.9639751552795031
+P -Score-Macro: 0.9583333333333333
+R -Score-Macro: 0.9722222222222222
+Confusion Matrix:
+[[11  0]
+ [ 1 17]]
+================= 21 =================
+rasanya oke , harga premium .
+PRED: 0
+ACTL: 1
+
+1 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: PLACE ##############
+	######################################################
+
+134
+F1-Score  : [0.74418605 0.95111111]
+Precision : [0.84210526 0.93043478]
+Recall    : [0.66666667 0.97272727]
+Accuracy  : 0.917910447761194
+F1-Score-Macro: 0.8476485788113696
+P -Score-Macro: 0.8862700228832951
+R -Score-Macro: 0.8196969696969697
+Confusion Matrix:
+[[ 16   8]
+ [  3 107]]
+================= 15 =================
+yang kurang live musicnya lagu lama semua .
+PRED: 1
+ACTL: 0
+
+================= 43 =================
+kapanpun waktu berkunjungnya , parkirannya selalu penuh , membuktikan betapa larisnya tempat ini .
+PRED: 1
+ACTL: 0
+
+================= 48 =================
+, akses tidak terlalu susah , cuma hati-hati yang bawa orang tua sepuh penuh dengan trapcukup tinggi menuju restauranya .
+PRED: 0
+ACTL: 1
+
+================= 67 =================
+tetapi sayangnya agak susah memanggil pelayannya karena tempatnya terlalu luas dan ber - part part jadi kita mesti jalan cari pelayannya dulu karena tidak disediakan lonceng atau bell pemanggil pelayannya .
+PRED: 0
+ACTL: 1
+
+================= 91 =================
+sayangnya jika datang di jam makan malam seringkali harus antri menunggu giliran karena tempat duduknya kurang .
+PRED: 0
+ACTL: 1
+
+================= 97 =================
+tempatnya terkesan suram kurang menarik , pelayan yang tidak acuh , bahkan mengobrol tanpa memperdulikan kehadiran kami , setelah duduk agak lama , tidak ada yang menyodorkan daftar menu , akhirnya kami pergi mencari restoran lainnya yang sangat banyak di kota bandung , dan pelayan yang sangat ramah untuk kami datangi .
+PRED: 1
+ACTL: 0
+
+================= 104 =================
+lokasi memang cukup jauh dari bandung .
+PRED: 1
+ACTL: 0
+
+================= 116 =================
+namun jika akan berkunjung kesini pada saat weekend sebaiknya harus buat appointment dahulu dikarenakan restoran sangat ramai , saya think this is one of the best recomended restoran in bandung yang harus dikunjungi jika ke bandung .
+PRED: 1
+ACTL: 0
+
+================= 120 =================
+tempatnya mahall .
+PRED: 1
+ACTL: 0
+
+================= 125 =================
+tempatnya cukup enak hanya terlalu gelap dan kurang privasi karena semua customer berada di ruangan yang sama dan jarak antar mejanya cukup dekat .
+PRED: 1
+ACTL: 0
+
+================= 133 =================
+walaupun cukup jauh tempatnya .
+PRED: 1
+ACTL: 0
+
+11 sentences missclasified
+
+================================
+DONE IN 0:00:05
+Started  on: 24-05-2018 18:57:00
+Finished on: 24-05-2018 18:57:05
+================================
+

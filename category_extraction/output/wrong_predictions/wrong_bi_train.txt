@@ -1,0 +1,603 @@
+
+===============================
+Started on: 24-05-2018 20:38:16
+===============================
+
+422
+F1-Score  : [0.82656827 0.88888889 0.98245614 0.78369906]
+Precision : [0.72727273 0.86956522 1.         0.68681319]
+Recall    : [0.95726496 0.90909091 0.96551724 0.91240876]
+Accuracy  : 0.7251184834123223
+F1-Score-Macro: 0.8704030886208879
+P -Score-Macro: 0.8209127828693046
+R -Score-Macro: 0.9360704667148161
+Confusion Matrix:
+Can't be shown
+==================2==================
+kami datang merayakan hari jadi kami ke atmosphere cafe dengan harapan yang cukup tinggi .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================3==================
+ternyata sudah banyak yang berubah , dimulai dari keramahan penyambutan yang menurun dan tempat yang saya peroleh tidak sesuai yang saya harapkan .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 1, 0, 1]
+
+==================7==================
+berlokasi di dekat pergunungan sejuk , restoran ini menyediakan bale-bale outdoor juga indoor .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================18==================
+makanan yang ditawarkan banyak ala barat dengan pelayanan yang cepat dan pelayan cukup tangkas menjelaskan menu-menunya .
+PRED: [1, 1, 0, 0]
+ACTL: [0, 1, 0, 0]
+
+==================23==================
+tempat ternyaman di gazebo belakang .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================24==================
+untuk di lantai 2 sebaiknya sarung busa lesehannya sering dicuci karena terakhir bersama tamu ke sana para tamu merasakan kurang nyaman karena gatal-gatal .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================27==================
+saya memilih bebek sambal hijau ala padang .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================30==================
+saat kami datang ada live music dan play listnya cukup oke .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================38==================
+yang kurang live musicnya lagu lama semua .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================39==================
+ini restoran jaman dulu yang sampai sekarang eksis .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================42==================
+setiap kali ke restoran ini saya pasti memesan menu yang sama crispy duck noodle with szechuan sauce .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================44==================
+salah satu tempat makan nasi goreng kepiting yang wajib dikunjungi .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================45==================
+restoran tempo dulu yang banyak dikunjungi turis asing .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================47==================
+tempat makan jaman dulu yang terletak di jalan yang sangat legend di pusat kota bandung .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================48==================
+jalan braga adalah jalan tempat banyak orang kumpul-kumpul dari segala kalangan .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================50==================
+nuansa kolonial terasa sekali di restoran ini .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================54==================
+pilih es krim rhum raisin jika ingin merasakan sensasi hangat dan aroma rhum .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================57==================
+ini salah satu restoran tua di bandung , jadi banyak sekali turis-turis bule tua yang mampir di sini .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================60==================
+restoran ini memiliki nilai sejarah yang tinggi karena sudah ada sejak dahulu kala .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================62==================
+dusun bambu punya restoran yang makan sepuasnya .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================67==================
+disini ada beberapa tempat makan , dan ada foodcourtnya juga .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================68==================
+sejak melupakan pekerjaan di rumah mengurus ank-ank , bandung benar-benar enak buat jalan , makan dan shoping bagi yang hobi shoping , tempat rekreasi juga bagus-bagus dan bnyak pilihan , saya pergi jalan ke bandung dngan teman-teman arisan .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================72==================
+mdh-mdhan saya bisa berkunjung lagi ke bandung dngan tempat yang lebih asyik lagi .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================75==================
+harga sesuai dengan kualitas dan rasa .
+PRED: [1, 0, 1, 0]
+ACTL: [0, 0, 1, 0]
+
+==================84==================
+namun sesuai dengan suguhan yang sangat enak .
+PRED: [0, 0, 0, 0]
+ACTL: [1, 0, 0, 0]
+
+==================96==================
+makan disini enak suasananya .
+PRED: [1, 0, 0, 1]
+ACTL: [0, 0, 0, 1]
+
+==================97==================
+makanan western yang anda pesan pasti akan memuaskan rasa lapar anda .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================98==================
+penampilannya bagus dan rasanya enak .
+PRED: [1, 0, 0, 0]
+ACTL: [1, 0, 0, 1]
+
+==================102==================
+nasi rendang hitam mungkin tidak dikenal di khazanah masakan perancis yang menjadi barometer gastronomy dunia .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================107==================
+alamnya kerasa banget .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================114==================
+kalau tujuan utama buat makan sih biasa saja lebih baik cari tempat lain .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================117==================
+makanannya ada pilihan tradisional .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================126==================
+iya wajar lah dengan tempat tang bagus .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================130==================
+gazebo gazebo seperti di kampung .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================134==================
+untuk variasi makanan juga sewajarnya restoran sunda .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================136==================
+tetapi yang spesial lingkungannya .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================137==================
+para tamu makan di dalam saung yang jaraknya berjauhan satu sama lain antara saung .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================138==================
+jadi bisa dibilang tiap tamu mendapat private room di tengah alam hijau yang sejuk .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================145==================
+karnivor menyediakan makanan untuk personal maupun untuk bersama dengan porsi monster .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================150==================
+terutama menu tenderloin steak with mash potato dengan kuah barbeque !
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================151==================
+untuk must come to karnivor if untuk ever drop in bandung .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================156==================
+saya dan suami datang kesini saat malam minggu , kami menunggu hampir 30 menit baru dapat tempat duduk .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================162==================
+menu yang terkenal di sini adalah monster steak , monster sosis dan minumannya adalah gorilla punch .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================165==================
+silahkan mampir saja letaknya di jalan riau .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================168==================
+oiya restoran ini terkenal dengan menu raksasanya alias menu kelaperan , ada kg steak , beef tower dan lain-lain . mantablah .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================169==================
+awal juli saya menginap di hotel stevie tidak yang bersebelahan dengan restoran maja house .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================171==================
+yang unik ada bale bisa buat tiduran menghadap ke pemandangan gunung malam hari .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================175==================
+terbagi menjadi 3 style : ada restoran style , cafe style dan lesehan .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================178==================
+bapak denya mungkin head di tempat itu cukup cooperative , dan cukup ramah .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================179==================
+menginap di stevie tidak hotel saya memilih untuk makan malam di maja house yang cukup tersohor .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+==================182==================
+hal positif dari tempat ini adalah kita bisa melihat bandung dari atas .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================187==================
+tetapi dari beberapa pilihan menu , kami kurang tertarik karena tidak ada yang cukup khas .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================190==================
+saya suka sekali duduk di sisi sampig yang menghadap ke pemandangan bukit .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================192==================
+restoran ini cocok untuk bersantai dan foto-foto .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================209==================
+jika anda menginap di padma hotel , lokasi miss bee tidak jauh dari sana .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================213==================
+coba usan salmon cream pasta dan kopi affogato .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================214==================
+di belakang juga ada area playground , jadi sangat cocok untuk dikunjungi bersama keluarga .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================216==================
+di dalamnya seperti dibagi beberapa bagian dengan berbeda konsep , ada bagian yang seperti di rumah , ada bagian yang berkonsep seperti di rumah kaca atau cafe modern minimalis , ada yang konsep seperti di taman , dan ada juga konsep seperti di teras belakang rumah .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================217==================
+terdapat play ground dan dapurnya juga berkonsepkan open kitchen .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================218==================
+biasanya seperti yang udah-udah saya datangi restoran atau kopi ship yang berkonsep biasanya makanannya tidak terlalu enak .
+PRED: [1, 0, 0, 1]
+ACTL: [1, 0, 0, 0]
+
+==================222==================
+oiya kalau kesini jangan kaget iya kalau tidak langsung dapat tempat duduk .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================228==================
+setelah order makanan , kami tidak menunggu terlalu lama sampai makanan terhidang .
+PRED: [1, 1, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================233==================
+minuman dihidangkan dalam gelas besar .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================234==================
+secara keseluruhan , saya tidak merekomendasikan restoran ini jika anda datang dalam keadaan lapar apalagi jika datang bersama keluarga besar atau bersama teman dalam jumlah banyak .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================239==================
+kemudian setelah duduk kami order makanan dan minuman.1.minum datang dalam waktu 15 menit ( oke mungkin karena ramai kami maklum ) 2 . steak yang dipesan suami saya datang dalam waktu 30 menit dan burger pesanan saya belum disajikan .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================242==================
+suasananya enak dan adem , tentram , makanan eropa enak-enak , bangunan jaman belanda dulu , terletak di jalan ciumbuleuit ke kanan .
+PRED: [0, 0, 0, 1]
+ACTL: [1, 0, 0, 1]
+
+==================245==================
+makanannya eropa kebanyakan , segrup sama hummingbird .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================249==================
+restoran yang terletak di kota bandung ini , tepatnya di daerah ciumbeluit yang terkenal dengan universitas parahiyangan .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================251==================
+soal rasa di restoran ini jangan khawatir , harga sangat seuai dengan kualitas dan rasa makanan .
+PRED: [1, 0, 1, 0]
+ACTL: [0, 0, 1, 0]
+
+==================252==================
+jika ke bandung anda tidak ke raja rasa berarti kurang komplit .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================254==================
+dan udang bakar , ayam goreng enak .
+PRED: [1, 0, 0, 0]
+ACTL: [1, 0, 0, 1]
+
+==================256==================
+namun restotan seafood ini merupakan salah satu tempat favorit untuk menjamu teman bisnis .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================258==================
+namun yang paling mengesankan adalah dekitasi serta adanya sebuah angklung elektronik yang bisa memainkan lagu-lagu secara otomatis .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================259==================
+merinding hayi dan jiwa mendengarkan lagu rayuan pulau kelapa dari angklung hantu ini .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================266==================
+restoran ini menyajikan makanan khas sunda dan cocok menjadi tempat makan untuk keluarga besar .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================278==================
+salah satu yang sering kami kunjungi adalah raja rasa , karena makanannya enak , restorannya nyaman , harganya juga terjangkau .
+PRED: [1, 0, 1, 0]
+ACTL: [1, 0, 1, 1]
+
+==================288==================
+semuanya enak , pas di lidah .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================292==================
+saya makan di sushi tei bersama teman-teman ( kami bera ) .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================295==================
+namun sangat sebanding dengan menu yang disajikan .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 0, 1, 0]
+
+==================297==================
+pelayanan oke , ada free ocha dingin / panas .
+PRED: [0, 1, 0, 0]
+ACTL: [1, 1, 0, 0]
+
+==================300==================
+restoran ini sangat terkenal dibandung , untuk menu favoriteku beef steak karena steak disini real tanpa msg .
+PRED: [1, 0, 0, 1]
+ACTL: [0, 0, 0, 1]
+
+==================303==================
+the peak , salah satu restoran di daerah lembang kabupaten bandung yang ingin sekali kami coba .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================304==================
+bersama suami kami sempat tersesat karena memang kami kesana malam hari dengan jalan sempit dan gelap akhirnya kami menemukannya .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================313==================
+kebersihan taplak meja dan sofa juga patut diperhatikan , untuk menjaga kualitas restauran fine dining .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================315==================
+secara keseluruhan , a great escape to celebrate something romantic with your beloved person .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================322==================
+romantis sekali .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================328==================
+tempat sangat mudah di capai , makan enak , tempat sangat bersih dan rapi , pelayanan sangat ramah dan yang terpenting pesanan cepat tidak lambat .
+PRED: [0, 1, 0, 1]
+ACTL: [1, 1, 0, 1]
+
+==================329==================
+seperti banyak restoran di daerah dago , pemandangan bandung juga bisa dilihat di restoran ini .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================332==================
+makan dengan teman-teman arisan sangat menyenangkan .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================336==================
+makananya mahal ) + suasananya nyaman + wifi cepat + cocok buat pasangan maupun keluarga .
+PRED: [0, 0, 0, 1]
+ACTL: [1, 0, 0, 1]
+
+==================337==================
+cafe stone cocok untuk sekedar hang out bersama reman ataupun keluarga harga makanan dan minuman setimpal .
+PRED: [0, 0, 1, 1]
+ACTL: [0, 0, 1, 0]
+
+==================345==================
+sambil menikmati pemandangan , anak-anak saya bisa main di playground kecilnya .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================351==================
+romantis pula disinii .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================356==================
+hanya saja , harus sabar menunggu pesanan datang , karena pengunjungnya selalu ramai di malam hari .
+PRED: [0, 1, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================357==================
+romantis banget .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================359==================
+sendok garpunya agak agak vintage begitu .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================362==================
+yang khas dari cafe ini adalah menu sarapan pagi bergaya amerika .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================363==================
+kebanyakan menu berupa toast ( roti tawar panggang ) , dengan telor , sosis , bacon , atau campuran lain .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================372==================
+ada segar orange jus juga tanpa gula .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================374==================
+konsepnya adalah industrial , jadi mungkin agak sedikit remang-remang .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================375==================
+jika bosan , ada pilihan bahan bacaan yang cukup bagus .
+PRED: [0, 0, 0, 0]
+ACTL: [0, 1, 0, 0]
+
+==================380==================
+menu terbatas pada jenis makanan sarapan pagi ala western , dihidangkan sepanjang waktu .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================381==================
+waktu tunggu cepat .
+PRED: [0, 1, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================398==================
+com , di artikel itu disebut , setiap kopi yang dipesan akan disertakan kartu kecil yang berisi informasi seputar kopi yang dihidangkan .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================399==================
+hal ini mengingatkan sama sebuah novel sastra karya dee lestari , filosofi kopi .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================401==================
+anyway , tidak tahu mengapa seruputan kopi yang saya pesan saat itu mengingatkan sama giyanti di menteng , jakarta .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================402==================
+untuk makanan , mereka menyediakan all - hari sarapan menu dan hari itu saya memesan something with eggs , sausage , dan cheese , lupa namanya apa .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================404==================
+menu tadi dihidangkan dengan tiga potong roti , yang kalau tebakan saya benar , adalah baguette .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================405==================
+bagi kamu yang muslim , kafe ini menyuguhkan menu pork .
+PRED: [1, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================407==================
+konon braga permai ini ada sejak zaman kolonial belanda .
+PRED: [0, 0, 0, 1]
+ACTL: [0, 0, 0, 0]
+
+==================410==================
+awalnya kami pikir seperti tom yam dan menu rica-rica biasanya .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================411==================
+ternyata , setelah pesanan datang , memang masih berupa tom yam .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================412==================
+tetapi dicampur mie .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================413==================
+begitu pula penampakan menu seafood rica-rica , jadi bahkan mirip mie disiram saus seafood rica-rica .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================415==================
+sebab , di menu tidak ada penjelasan ataupun disebutkan berisi mie .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 0]
+
+==================421==================
+tetapi untuk piknik kesini rasanya setimpal iya : ) .
+PRED: [1, 0, 0, 0]
+ACTL: [0, 0, 0, 1]
+
+116 sentences missclasified
+
+================================
+DONE IN 0:00:09
+Started  on: 24-05-2018 20:38:16
+Finished on: 24-05-2018 20:38:25
+================================
+

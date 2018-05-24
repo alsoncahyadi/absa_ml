@@ -1,0 +1,84 @@
+
+===============================
+Started on: 24-05-2018 18:56:46
+===============================
+
+
+
+	######################################################
+	############## CHECKING CATEGORY: FOOD ##############
+	######################################################
+
+554
+F1-Score  : [1. 1.]
+Precision : [1. 1.]
+Recall    : [1. 1.]
+Accuracy  : 1.0
+F1-Score-Macro: 1.0
+P -Score-Macro: 1.0
+R -Score-Macro: 1.0
+Confusion Matrix:
+[[ 61   0]
+ [  0 493]]
+0 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: SERVICE ##############
+	######################################################
+
+293
+F1-Score  : [1. 1.]
+Precision : [1. 1.]
+Recall    : [1. 1.]
+Accuracy  : 1.0
+F1-Score-Macro: 1.0
+P -Score-Macro: 1.0
+R -Score-Macro: 1.0
+Confusion Matrix:
+[[ 54   0]
+ [  0 239]]
+0 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: PRICE ##############
+	######################################################
+
+375
+F1-Score  : [1. 1.]
+Precision : [1. 1.]
+Recall    : [1. 1.]
+Accuracy  : 1.0
+F1-Score-Macro: 1.0
+P -Score-Macro: 1.0
+R -Score-Macro: 1.0
+Confusion Matrix:
+[[144   0]
+ [  0 231]]
+0 sentences missclasified
+
+
+	######################################################
+	############## CHECKING CATEGORY: PLACE ##############
+	######################################################
+
+464
+F1-Score  : [1. 1.]
+Precision : [1. 1.]
+Recall    : [1. 1.]
+Accuracy  : 1.0
+F1-Score-Macro: 1.0
+P -Score-Macro: 1.0
+R -Score-Macro: 1.0
+Confusion Matrix:
+[[ 63   0]
+ [  0 401]]
+0 sentences missclasified
+
+================================
+DONE IN 0:00:09
+Started  on: 24-05-2018 18:56:46
+Finished on: 24-05-2018 18:56:55
+================================
+

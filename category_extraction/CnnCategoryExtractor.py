@@ -266,7 +266,7 @@ def cnn():
         # validation_split = 0.2,
         filters = 128,
         kernel_size = 5,
-        conv_activation = 'relu',
+        conv_activation = 'tanh',
         conv_l2_regularizer = 0.001,
         dropout_rate = 0.5,
         dense_activation = 'tanh',

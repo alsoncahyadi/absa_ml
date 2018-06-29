@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>ASBA</title>
+  <!-- Bootstrap core CSS-->
+  <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom fonts for this template-->
+  <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"> -->
+  <!-- Page level plugin CSS-->
+  <link href="/static/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+  <!-- Custom styles for this template-->
+  <link href="/static/css/sb-admin.css" rel="stylesheet">
+  <link href="/static/css/upload.css" rel="stylesheet">
+</head>
+<body class="bg-dark" id="page-top">
+  <div style="margin:50px 100px 50px 100px">
+    <div class="container-fluid">
+      <div class="col-lg-offset-2 col-lg-8 card upload-container" style="margin:auto; height:100%; min-height: 80%">
+            <form class="form-horizontal" method="POST" enctype=multipart/form-data action="/results">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Restaurant Reviews Filename</label>
+                    <input type="file" name="file" class="file">
+                    <div class="input-group col-sm-offset-4 col-sm-6">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-file"></i></span>
+                        <input type="text" class="form-control" disabled placeholder="Upload Restaurant Reviews">
+                        <span class="input-group-btn">
+                            <button class="browse btn btn-default" type="button"><i class="fa fa-search"></i> Browse</button>
+                            <button type="submit" class="btn btn-primary">Analyze</button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+      </div>
+    </div>
+    <!-- /.container-fluid-->
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Page level plugin JavaScript-->
+    <script src="/static/vendor/chart.js/Chart.min.js"></script>
+    <script src="/static/vendor/datatables/jquery.dataTables.js"></script>
+    <script src="/static/vendor/datatables/dataTables.bootstrap4.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="/static/js/sb-admin.min.js"></script>
+    <!-- Custom scripts for this page-->
+    <script src="/static/js/sb-admin-datatables.min.js"></script>
+    <script src="/static/js/upload.js"></script>
+    <!-- <script src="/static/js/sb-admin-charts.js"></script> -->
+
+    <script>
+
+// Chart.js scripts
+// -- Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+// -- Bar Chart Example
+
+function make_bar_chart(bar_chart) {
+  var ctx = document.getElementById("myBarChart");
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ["Food", "Service", "Price", "Place"],
+      datasets: [
+        {
+          label: "Negative",
+          backgroundColor: '#dc3545',
+          borderColor: '#dc3545',
+          data: bar_chart["negative"],
+        },
+        {
+          label: "Positive",
+          backgroundColor: '#28a745',
+          borderColor: '#28a745',
+          data: bar_chart["positive"],
+        },
+      ],
+    },
+    options: {
+      scales: {
+        xAxes: [{
+        }],
+        yAxes: [{
+          // stacked:true,
+          logarithmic: {
+            min: 0,
+          },
+          gridLines: {
+            display: true
+          }
+        }],
+      },
+      legend: {
+        display: true
+      }
+    }
+  });
+}
+
+var myLineChart = make_bar_chart({{ bar_chart }});
+// -- Pie Chart Example
+
+function make_pie_chart(pie_chart) {
+  console.log("MAKING PIE CHART")
+  var ctx = document.getElementById("myPieChart");  
+  return new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ["Food", "Service", "Price", "Place"],
+      legend:{
+        cursor: "pointer",
+      },
+      datasets: [
+        {
+          data: pie_chart,
+          backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545'],
+        }
+      ],
+    },
+  });
+}
+
+var myPieChart = make_pie_chart({{ pie_chart }});
+
+    </script>
+
+  </div>
+</body>
+
+</html>

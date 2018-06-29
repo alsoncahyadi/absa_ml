@@ -144,6 +144,11 @@ class CNNCategoryExtractor (MyClassifier):
         y_pred[y_pred < threshold] = 0.
         return y_pred
 
+    def predict_proba(self, X):
+        threshold = self.threshold
+        y_pred = self.cnn_model.predict(X)
+        return y_pred
+
     def _fit_train_validate_split(self, X, y):
         pass
 
@@ -289,6 +294,44 @@ def cnn():
         print("\nTHRESH: {}".format(thresh))
         ce.set_threshold(thresh); ce.score(X_test, y_test)
 
+def get_wrong_preds(data='train'):
+    import pandas as pd
+    ce = CNNCategoryExtractor()
+    ce.load_best_model()
+    ce.set_threshold(0.5)
+
+    X, y, X_test, y_test, df, df_test = utils.get_ce_dataset(return_df = True)
+    
+    data = 'train'
+    if data == 'test':
+        df = df_test
+        X = X_test
+        y = y_test
+
+    print(len(df))
+    y_pred = ce.predict(X)
+    
+    ce.score(X, y)
+
+    str_to_pred = {
+        'food': [1,0,0,0],
+        'service': [0,1,0,0],
+        'price': [0,0,1,0],
+        'place': [0,0,0,1],
+    }
+
+    cnt = 0
+    for i, (review, y_pred_single, y_single) in enumerate(list(zip(df['review'], y_pred, y.values.tolist()))):
+        y_pred_single = list(y_pred_single)
+        if y_pred_single != y_single:
+            cnt += 1
+            print("=================={}==================".format(i))
+            print(review)
+            print('PRED:', y_pred_single)
+            print('ACTL:', y_single)
+            print()
+    print(cnt, "sentences missclasified")
 
 if __name__ == "__main__":
     utils.time_log(cnn)
+    # utils.time_log(get_wrong_preds)

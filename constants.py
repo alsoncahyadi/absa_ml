@@ -15,5 +15,8 @@ class Const():
     # Numbers
     EMBEDDING_VECTOR_LENGTH = 500
     VOCABULARY_SIZE = 15000
+
+    CATEGORIES = ["food", "service", "price", "place"]
+    SENTIMENTS = ["negative", "positive"]
     
     

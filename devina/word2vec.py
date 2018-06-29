@@ -56,7 +56,10 @@ class MyWord2Vec():
     def get_max_similarity_score(self, key, words):
         max = 0
         for word in words:
-            score = self.get_similarity_score(key, word)
+            try:
+                score = self.get_similarity_score(key, word)
+            except:
+                return 1
             if score > max:
                 max = score
         return max

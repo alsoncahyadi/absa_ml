@@ -24,12 +24,12 @@ class Main():
         data:
         0 ==> preprocessed (tokenized)
         1 ==> aspects extracted
-        2 ==> categorys extracted
+        2 ==> categories extracted
         3 ==> sentiments extracted
         4 ==> tuples
         5 ==> ratings
     """
-    def __init__(self, sentence_tokenizer='normal', review='test'):
+    def __init__(self, sentence_tokenizer='normal', raw_reviews_path=None):
         """
             Sentence Tokenizers: normal, punkt
         """
@@ -40,7 +40,12 @@ class Main():
             self.sent_tokenize = nltk.data.load('tokenizers/punkt/english.pickle').tokenize
 
         self.tokenizer = utils.get_tokenizer()
-        self.raw_reviews = utils.get_raw_test_reviews(review=review)
+        
+        if utils.is_none(raw_reviews_path):
+            self.raw_reviews = utils.get_raw_test_reviews(review='tizi')
+        else:
+            with open(raw_reviews_path, 'r') as fi:
+                self.raw_reviews = [line.rstrip() for line in fi]
 
         self.data = []
         for _ in range(6):
@@ -169,6 +174,7 @@ class Main():
         bin_ce = BinCategoryExtractor(included_features=[0])
         bin_ce.load_estimators()
         X = utils.prepare_ce_X(self.data[0], self.tokenizer)
+        print(X)
         y_pred = bin_ce.predict(X)
         self.data[2] = y_pred
         return y_pred
@@ -197,9 +203,11 @@ class Main():
                          "price": {"positive": [], "negative": []},
                          "place": {"positive": [], "negative": []},
                          "service": {"positive": [], "negative": []}}
+        tuples_of_tokens = []
         tuple_generator = TupleGenerator()
 
         for i in range(len(self.data[0])):
+            tuples_in_sentence = []
             aspects = self._get_aspects_from_tokens(self.data[0][i].split(), self.data[1][i])
             category_sentiment = {}
             for j in range(len(self.data[2][i])):
@@ -217,6 +225,7 @@ class Main():
                         for item in result[key][sentiment]:
                             if item not in tuples_unique[key][sentiment]:
                                 tuples_unique[key][sentiment].append(item)
+            tuples_of_tokens.append(tuples_in_sentence)
         
         self.data[4] = {
             'tuples': tuples,
@@ -231,8 +240,9 @@ class Main():
         for category in tuples:
             pos = len(tuples[category]["positive"])
             neg = len(tuples[category]["negative"])
-            ratings[category].append((pos * 4 / (pos + neg)) + 1)
-            ratings[category].append(round((float(pos) * 4 / (pos + neg)) + 1, 2))
+            rating = (pos * 4 / (pos + neg)) + 1
+            ratings[category].append(int(rating))
+            ratings[category].append(round(rating, 2))
         
         self.data[5] = ratings
         return ratings
@@ -310,26 +320,34 @@ class Main():
         averages = self.get_average_scores(scoress)
         return scoress, averages
 
-def main():
-    m = Main(sentence_tokenizer='normal', review='cafe_halaman')
+def main(raw_reviews_path):
+    m = Main(sentence_tokenizer='normal', raw_reviews_path=raw_reviews_path)
     print(len(m.raw_reviews))
     print("> Preprocessing")
-    m.preprocess(skip_sentence_tokenize=False, lower=False)
+    m.preprocess(skip_sentence_tokenize=False, lower=True)
     print(len(m.data[0]))
+
     print("> Extracting Opinion Targets")
     m.predict_opinion_targets()
+
     print("> Splitting Sentences")
     print(len(m.data[0]))
     m.split_sentences()
     print(len(m.data[0]))
+
     print("> Classifying Aspect Categories")
     m.predict_categories()
+
     print("> Predicting Sentiment Polarities")
     m.predict_sentiment_polarities()
+
     print("> Building Tuples")
     m.get_tuples()
+    
     print("> Getting Ratings")
     print(m.get_ratings())
+
+    return m.data
     # print("> Evaluating Sentiment Cummulatively")
     # m.evaluate_sentiment_cummulative()
 

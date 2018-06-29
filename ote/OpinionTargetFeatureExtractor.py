@@ -13,7 +13,10 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from keras.models import load_model
 from keras.preprocessing import sequence
 from keras import backend as K
-from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
+try:
+    from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
+except:
+    from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np
 
@@ -217,7 +220,7 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
 
 def sent2features(iob_tagged_sentence, proba, clusters, feature_detector, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
     X_sent = []
-    for index in range(len(iob_tagged_sentence)):
+    for index in range(min(len(iob_tagged_sentence),81)):
         X_sent.append(feature_detector(iob_tagged_sentence, index, proba=proba, clusters=clusters, included_features=included_features, included_words=included_words))
 
     return X_sent

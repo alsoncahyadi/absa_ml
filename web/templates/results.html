@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <title>ASBA</title>
+  <!-- Bootstrap core CSS-->
+  <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom fonts for this template-->
+  <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"> -->
+  <!-- Page level plugin CSS-->
+  <link href="/static/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+  <!-- Custom styles for this template-->
+  <link href="/static/css/sb-admin.css" rel="stylesheet">
+</head>
+<body class="sticky-footer bg-dark" id="page-top">
+  <div style="margin:50px 100px 50px 100px">
+    <div class="container-fluid">
+      <div id="accordion">
+        <!-- Icon Cards-->
+        <div class="row">
+          <div class="col-xl-3 col-sm-6 mb-3" data-toggle="collapse" data-target="#detail-food" data-parent="#accordion">
+            <div class="card text-white bg-primary o-hidden h-100">
+              <div class="card-body detail-click">
+                <div class="card-body-icon">
+                  <i class="fa fa-fw fa-cutlery"></i>
+                </div>
+                <div class="mr-5 rating">{{ ratings["food"][1] }}</div>
+                <div class="star-container">
+                    {% for i in range(stars["food"][2]) %}
+                    <i class="fa star fa-star"></i>
+                    {% endfor %}
+                    {% for i in range(stars["food"][1]) %}
+                    <i class="fa star fa-star-half-o"></i>
+                    {% endfor %}
+                    {% for i in range(stars["food"][0]) %}
+                    <i class="fa star fa-star-o"></i>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 mb-3" data-toggle="collapse" data-target="#detail-service" data-parent="#accordion">
+            <div class="card text-white bg-warning o-hidden h-100">
+              <div class="card-body detail-click">
+                <div class="card-body-icon">
+                  <i class="fa fa-fw fa-hand-paper-o"></i>
+                </div>
+                <div class="mr-5 rating">{{ ratings["service"][1] }}</div>
+                <div class="star-container">
+                    {% for i in range(stars["service"][2]) %}
+                    <!-- #ffd700 -->
+                    <i class="fa star fa-star"></i>
+                    {% endfor %}
+                    {% for i in range(stars["service"][1]) %}
+                    <i class="fa star fa-star-half-o"></i>
+                    {% endfor %}
+                    {% for i in range(stars["service"][0]) %}
+                    <i class="fa star fa-star-o"></i>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 mb-3" data-toggle="collapse" data-target="#detail-price" data-parent="#accordion">
+            <div class="card text-white bg-success o-hidden h-100">
+              <div class="card-body detail-click">
+                <div class="card-body-icon">
+                  <i class="fa fa-fw fa-money"></i>
+                </div>
+                <div class="mr-5 rating">{{ ratings["price"][1] }}</div>
+                <div class="star-container">
+                    {% for i in range(stars["price"][2]) %}
+                    <i class="fa star fa-star"></i>
+                    {% endfor %}
+                    {% for i in range(stars["price"][1]) %}
+                    <i class="fa star fa-star-half-o"></i>
+                    {% endfor %}
+                    {% for i in range(stars["price"][0]) %}
+                    <i class="fa star fa-star-o"></i>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 mb-3" data-toggle="collapse" data-target="#detail-place" data-parent="#accordion">
+            <div class="card text-white bg-danger o-hidden h-100">
+              <div class="card-body detail-click">
+                <div class="card-body-icon">
+                  <i class="fa fa-fw fa-home"></i>
+                </div>
+                <div class="mr-5 rating">{{ ratings["place"][1] }}</div>
+                <div class="star-container">
+                    {% for i in range(stars["place"][2]) %}
+                    <i class="fa star fa-star"></i>
+                    {% endfor %}
+                    {% for i in range(stars["place"][1]) %}
+                    <i class="fa star fa-star-half-o"></i>
+                    {% endfor %}
+                    {% for i in range(stars["place"][0]) %}
+                    <i class="fa star fa-star-o"></i>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Details -->
+        <div class="panel-group">
+          {% for category in categories %}
+          <div id="detail-{{category}}" class="panel-collapse collapse indent container">
+            <div class="container">
+                <table class="table detail">
+                    <thead>
+                        <th>Sentiment</th>
+                        <th>Aspects</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pos">Positive</td>
+                            <td>
+                                {{ " ".join(tuples[category]['positive']) | safe }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="neg">Negative</td>
+                            <td>
+                                {{ " ".join(tuples[category]['negative']) | safe }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <!-- Charts -->
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Example Bar Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-bar-chart"></i> Sentimen Setiap Kategori Aspek</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-8 my-auto">
+                  <canvas class="margin:auto" id="myBarChart" width="100%" height="71"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <!-- Example Pie Chart Card-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa fa-pie-chart"></i> Komposisi Kategori Aspek</div>
+            <div class="card-body">
+              <canvas id="myPieChart" width="100%" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Example DataTables Card-->
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fa fa-table"></i> Kalimat-kalimat </div>
+        <div class="card-body">
+          <div class="table-responsive table-sents">
+            <table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th class="head"></th>
+                  <th class="head"></th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th class="head"></th>
+                  <th class="head"></th>
+                </tr>
+              </tfoot>
+              <tbody>
+                {% for sent, sentiment_color in table %}
+                <tr>
+                <td>
+                  <i class="fa cat-logo fa-cutlery" style="color: {{ sentiment_color[0] }}"></i><i class="fa cat-logo fa-hand-paper-o" style="color: {{ sentiment_color[1] }}"></i><i class="fa cat-logo fa-money" style="color: {{ sentiment_color[2] }}"></i><i class="fa cat-logo fa-home" style="color: {{ sentiment_color[3] }}"></i>
+                </td>
+                <td class='sentence'>{{ sent }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid-->
+    <!-- /.content-wrapper-->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fa fa-angle-up"></i>
+    </a>
+    <!-- Bootstrap core JavaScript-->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Page level plugin JavaScript-->
+    <script src="/static/vendor/chart.js/Chart.min.js"></script>
+    <script src="/static/vendor/datatables/jquery.dataTables.js"></script>
+    <script src="/static/vendor/datatables/dataTables.bootstrap4.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="/static/js/sb-admin.min.js"></script>
+    <!-- Custom scripts for this page-->
+    <script src="/static/js/sb-admin-datatables.min.js"></script>
+    <!-- <script src="/static/js/sb-admin-charts.js"></script> -->
+
+    <script>
+
+// Chart.js scripts
+// -- Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+// -- Bar Chart Example
+
+function make_bar_chart(bar_chart) {
+  var ctx = document.getElementById("myBarChart");
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ["Food", "Service", "Price", "Place"],
+      datasets: [
+        {
+          label: "Negative",
+          backgroundColor: '#dc3545',
+          borderColor: '#dc3545',
+          data: bar_chart["negative"],
+        },
+        {
+          label: "Positive",
+          backgroundColor: '#28a745',
+          borderColor: '#28a745',
+          data: bar_chart["positive"],
+        },
+      ],
+    },
+    options: {
+      scales: {
+        xAxes: [{
+        }],
+        yAxes: [{
+          // stacked:true,
+          logarithmic: {
+            min: 0,
+          },
+          gridLines: {
+            display: true
+          }
+        }],
+      },
+      legend: {
+        display: true
+      }
+    }
+  });
+}
+
+var myLineChart = make_bar_chart({{ bar_chart }});
+// -- Pie Chart Example
+
+function make_pie_chart(pie_chart) {
+  console.log("MAKING PIE CHART")
+  var ctx = document.getElementById("myPieChart");  
+  return new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ["Food", "Service", "Price", "Place"],
+      legend:{
+        cursor: "pointer",
+      },
+      datasets: [
+        {
+          data: pie_chart,
+          backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545'],
+        }
+      ],
+    },
+  });
+}
+
+var myPieChart = make_pie_chart({{ pie_chart }});
+
+    </script>
+
+  </div>
+</body>
+
+</html>

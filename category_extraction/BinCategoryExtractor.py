@@ -317,5 +317,44 @@ def binary():
         print("\nTHRESH: {}".format(thresh))
         bi.set_threshold(thresh); bi.score(X_test, y_test)
 
+def get_wrong_preds():
+    import pandas as pd
+    bi = BinCategoryExtractor(included_features=[0])
+    bi.load_estimators()
+    bi.set_threshold(0.5)
+
+    X, y, X_test, y_test, df, df_test = utils.get_ce_dataset(return_df = True)
+
+    data = 'test'
+    if data == 'test':
+        df = df_test
+        X = X_test
+        y = y_test
+
+    print(len(df))
+    y_pred = bi.predict(X)
+    
+    bi.score(X, y)
+
+    str_to_pred = {
+        'food': [1,0,0,0],
+        'service': [0,1,0,0],
+        'price': [0,0,1,0],
+        'place': [0,0,0,1],
+    }
+
+    cnt = 0
+    for i, (review, y_pred_single, y_single) in enumerate(list(zip(df['review'], y_pred, y.values.tolist()))):
+        y_pred_single = list(y_pred_single)
+        if y_pred_single != y_single:
+            cnt += 1
+            print("=================={}==================".format(i))
+            print(review)
+            print('PRED:', y_pred_single)
+            print('ACTL:', y_single)
+            print()
+    print(cnt, "sentences missclasified")
+
 if __name__ == "__main__":
-    utils.time_log(binary)
+    utils.time_log(get_wrong_preds)
+    # utils.time_log(binary)

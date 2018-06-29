@@ -34,8 +34,10 @@ except:
     sys.path.insert(0, '..')
     from constants import Const
 
-
-from .OpinionTargetFeatureExtractor import extract_features
+try:
+    from .OpinionTargetFeatureExtractor import extract_features
+except:
+    from OpinionTargetFeatureExtractor import extract_features
 import dill
 import matplotlib.pyplot as plt
 import numpy as np
@@ -233,22 +235,57 @@ def crf():
     # crf_ote._fit_new_gridsearch_cv(X_pos, y, params, score_verbose=True, result_path=Const.OTE_ROOT + 'output/gridsearch_cv_result_crf.csv')
 
     """ FIT """
-    crf_ote.fit(X_pos, y,
-        algorithm='lbfgs',
-        c1=0.01,
-        c2=1.0,
-        max_iterations=None,
-        epsilon=1e-5,
-        delta=1e-5,
-        included_features=included_features,
-        included_words=included_words,
-        verbose=False,
-        is_save=True,
-    )
+    # crf_ote.fit(X_pos, y,
+    #     algorithm='lbfgs',
+    #     c1=0.01,
+    #     c2=1.0,
+    #     max_iterations=None,
+    #     epsilon=1e-5,
+    #     delta=1e-5,
+    #     included_features=included_features,
+    #     included_words=included_words,
+    #     verbose=False,
+    #     is_save=True,
+    # )
 
-    # crf_ote.load_best_model()
+    crf_ote.load_best_model()
     print("> scoring")
-    crf_ote.score(X_test_pos, y_test, verbose=1)
+    crf_ote.score(X_test_pos, y_test, verbose=2)
+
+def get_wrong_preds(data='train'):
+    ote_crf = CRFOpinionTargetExtractor()
+    ote_crf.load_best_model()
+
+    X_pos, y, X_pos_test, y_test, df, df_test = utils.get_crf_ote_dataset(return_df = True)
+    
+    data = 'test'
+    if data == 'test':
+        df = df_test
+        X_pos = X_pos_test
+        y = y_test
+
+    print(len(df))
+    X = extract_features(X_pos)
+    y_pred = ote_crf.predict(X)
+
+    # ote_crf.score(X_pos, y)
+
+    cnt = 0
+    for i, (words, y_pred_single, y_single) in enumerate(list(zip(df['sentences'].tolist(), y_pred, y.tolist()))):
+        is_wrong_word_present = False
+        is_first_wrong_word = True
+        for j, (word, y_pred_token, y_token) in enumerate(list(zip(words, y_pred_single, y_single))):
+            if y_pred_token != y_token:
+                cnt += 1
+                is_wrong_word_present = True
+                if is_first_wrong_word:
+                    print("{})".format(i), " ".join(words))
+                    is_first_wrong_word = False
+                print(word, '\t | P:',y_pred_token, '\t| A:', y_token)
+        if is_wrong_word_present:
+            print()
+    print(cnt, "words misclasified")
 
 if __name__ == "__main__":
+    # utils.time_log(get_wrong_preds)
     utils.time_log(crf)

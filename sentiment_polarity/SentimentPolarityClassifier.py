@@ -353,5 +353,43 @@ def main():
     print("P -MEAN-MACRO:", np.array(p_scores).mean())
     print("R -MEAN-MACRO:", np.array(r_scores).mean())
 
+def get_wrong_preds(data='train'):
+    categories = ['food', 'service', 'price', 'place']
+    
+    for category in categories:
+        print()
+        print()
+        print("\t######################################################")
+        print("\t############## CHECKING CATEGORY: {} ##############".format(category.upper()))
+        print("\t######################################################")
+        print()
+        spc = CNNSentimentPolarityClassifier()
+        spc.load_best_model(category=category)
+        X, y, X_test, y_test, df, df_test = utils.get_spc_dataset(category, return_df = True)
+        
+        data = 'train'
+        if data == 'test':
+            df = df_test
+            X = X_test
+            y = y_test
+
+        print(len(df))
+        y_pred = spc.predict(X)
+        
+        spc.score(X, y)
+
+        cnt = 0
+        for i, (review, y_pred_single, y_single) in enumerate(list(zip(df['review'], y_pred, y.values.tolist()))):
+            y_pred_single = int(y_pred_single[0])
+            if y_pred_single != y_single:
+                cnt += 1
+                print("================= {} =================".format(i))
+                print(review)
+                print('PRED:', y_pred_single)
+                print('ACTL:', y_single)
+                print()
+        print(cnt, "sentences missclasified")
+
 if __name__ == "__main__":
-    utils.time_log(main)
+    # utils.time_log(main)
+    utils.time_log(get_wrong_preds)

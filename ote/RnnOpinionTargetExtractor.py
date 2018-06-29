@@ -79,7 +79,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.MODEL_PATH = Const.OTE_ROOT + 'model/brnn/BRNN.model'
         self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
        
-        self.target_names = ['O', 'B-ASPECT', 'I-ASPECT']
+        self.target_names = ['O', 'ASPECT-B', 'ASPECT-I']
         self.rnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -127,6 +127,42 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = self.rnn_model.predict(X)
         return y_pred
     
+    def predict_y_flatten(self, X, **kwargs):
+        y_pred_raw = self.rnn_model.predict(X)
+        y_pred = []
+
+        for y_pred_raw_sents in y_pred_raw:
+            y_pred_sents = []
+            for y_pred_raw_tokens in y_pred_raw_sents:
+                max_i = self._max_index(y_pred_raw_tokens)
+                y = [0.] * len(self.target_names) #number of classes to be predicted
+                y[max_i] = 1.
+                y_pred_sents.append(y)
+            y_pred.append(y_pred_sents)
+        y_pred = np.array(y_pred)
+        
+        end = utils.get_sentence_end_index(X[0])
+        # y_pred = self._get_decreased_dimension(y_pred, end)
+
+        return y_pred
+
+    def _max_index(self, cat):
+        i_max = -1
+        val_max = -1
+        for i, y in enumerate(cat):
+            if val_max < y:
+                i_max = i
+                val_max = y
+        return i_max
+
+    def _get_decreased_dimension(self, y, end):
+        tmp = []
+        for i, y_sent in enumerate(y):
+            for y_token in y_sent[:end[i]]:
+                tmp.append(y_token)
+        tmp = np.array(tmp)
+        return tmp
+    
     def score(self, X, y, verbose=1, dense_layers=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
@@ -134,31 +170,14 @@ class RNNOpinionTargetExtractor (MyClassifier):
             print("Scoring using untrained model")
             rnn_model = self._create_model()
         y_test = y
-
-        def max_index(cat):
-            i_max = -1
-            val_max = -1
-            for i, y in enumerate(cat):
-                if val_max < y:
-                    i_max = i
-                    val_max = y
-            return i_max
-
-        def get_decreased_dimension(y, end):
-            tmp = []
-            for i, y_sent in enumerate(y):
-                for y_token in y_sent[:end[i]]:
-                    tmp.append(y_token)
-            tmp = np.array(tmp)
-            return tmp
-
+        
         y_pred_raw = rnn_model.predict(X, batch_size=32, verbose=verbose)
         y_pred = []
 
         for y_pred_raw_sents in y_pred_raw:
             y_pred_sents = []
             for y_pred_raw_tokens in y_pred_raw_sents:
-                max_i = max_index(y_pred_raw_tokens)
+                max_i = self._max_index(y_pred_raw_tokens)
                 y = [0.] * len(self.target_names) #number of classes to be predicted
                 y[max_i] = 1.
                 y_pred_sents.append(y)
@@ -168,8 +187,8 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
         
         end = utils.get_sentence_end_index(X[0])
-        y_pred = get_decreased_dimension(y_pred, end)
-        y_test = get_decreased_dimension(y_test, end)
+        y_pred = self._get_decreased_dimension(y_pred, end)
+        y_test = self._get_decreased_dimension(y_test, end)
 
         f1_score_macro = f1_score(y_test, y_pred, average='macro')
         precision_score_macro = precision_score(y_test, y_pred, average='macro')
@@ -267,7 +286,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         self.rnn_model.load_weights(path)
 
     def load_best_model(self):
-        best_model = load_model(Const.OTE_ROOT + 'model/brnn/BRNN.model')
+        best_model = load_model(Const.OTE_ROOT + 'model/brnn/best.model')
         del self.rnn_model
         self.rnn_model = best_model
         
@@ -301,7 +320,7 @@ def main():
     ote = RNNOpinionTargetExtractor()
 
     params_for_fit = {
-        "dropout_rate": 0.2,
+        "dropout_rate": 0.5,
         "dense_activation": 'relu',
         "dense_l2_regularizer": 0.001,
         "activation": 'softmax',
@@ -309,25 +328,62 @@ def main():
         "loss_function": 'categorical_crossentropy',
         "rnn_units": 64,
         "dense_units": 32,
-        'dense_layers' : 3,
+        'dense_layers' : 2,
         "stack_rnn_layer": True,
     }
-    ote.fit(
-        [X, pos], y,
-        epochs = 100,
-        batch_size = 64,
-        **params_for_fit,
-        sample_weight = sample_weight,
-        is_save=True,
-    )
+    # ote.fit(
+    #     [X, pos], y,
+    #     epochs = 100,
+    #     batch_size = 64,
+    #     **params_for_fit,
+    #     sample_weight = sample_weight,
+    #     is_save=True,
+    # )
 
     # ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
 
     """
         Load best estimator and score it
     """
-    # ote.load_best_model()
+    ote.load_best_model()
     ote.score([X_test, pos_test], y_test, dense_layers = 1)
+
+def get_wrong_preds(data='train'):
+    import pandas as pd
+    ote = RNNOpinionTargetExtractor()
+    ote.load_best_model()
+
+    X, y, pos, X_test, y_test, pos_test, df, df_test = utils.get_ote_dataset(return_df = True)
+    
+    data = 'test'
+    if data == 'test':
+        df = df_test
+        X = X_test
+        y = y_test
+
+    print(len(df))
+    y_pred = ote.predict_y_flatten([X, pos])
+
+    from sklearn_crfsuite.utils import flatten
+    
+    cnt = 0
+    for i, (words, y_pred_single, y_single) in enumerate(list(zip(df['sentences'].tolist(), y_pred, y.tolist()))):
+        is_wrong_word_present = False
+        is_first_wrong_word = True
+        for j, (word, y_pred_token, y_token) in enumerate(list(zip(words, y_pred_single, y_single))):
+            y_pred_token = y_pred_token.argmax()
+            y_token = np.array(y_token).argmax()
+            if y_pred_token != y_token:
+                cnt += 1
+                is_wrong_word_present = True
+                if is_first_wrong_word:
+                    print("{})".format(i), " ".join(words))
+                    is_first_wrong_word = False
+                print(word, '\t | P:', ote.target_names[y_pred_token], '\t| A:', ote.target_names[y_token])
+        if is_wrong_word_present:
+            print()
+    print(cnt, "words misclasified")
     
 if __name__ == "__main__":
     utils.time_log(main)
+    # utils.time_log(get_wrong_preds)

@@ -58,7 +58,6 @@ def get_raw_test_reviews(review="test"):
         X = []
         with open(Const.REVIEWS_ROOT + 'cafe_halaman_reviews.txt', 'r') as fi:
             X = fi.read().split('\n')
-        print(X)
         return X
     else:
         print("REVIEWS: test, tizi, cafe_halaman")
@@ -89,7 +88,7 @@ def prepare_ce_y(df):
     y = y.replace(to_replace=np.nan, value=0)
     return y
 
-def get_ce_dataset():
+def get_ce_dataset(return_df=False):
     tokenizer = get_tokenizer()
     
     """
@@ -108,9 +107,12 @@ def get_ce_dataset():
     y = prepare_ce_y(df)
     y_test = prepare_ce_y(df_test)
 
-    return X, y, X_test, y_test
+    if return_df:
+        return X, y, X_test, y_test, df, df_test
+    else:
+        return X, y, X_test, y_test
 
-def get_spc_dataset(category, get_relevant_categories_only=True):
+def get_spc_dataset(category, get_relevant_categories_only=True, return_df = False):
     tokenizer = get_tokenizer()
 
     """
@@ -149,9 +151,12 @@ def get_spc_dataset(category, get_relevant_categories_only=True):
     y_test = y_test.replace(to_replace='positive', value=1)
     y_test = y_test.replace(to_replace='negative', value=0)
 
-    return X, y, X_test, y_test
+    if return_df:
+        return X, y, X_test, y_test, df[df[category] != '-' ], df_test[df_test[category] != '-' ]
+    else:
+        return X, y, X_test, y_test
 
-def get_ote_dataset():
+def get_ote_dataset(return_df = False):
     def read_data_from_file(path):
         data = {
             'all' : [],
@@ -262,7 +267,10 @@ def get_ote_dataset():
     y = y[:,:,1:]
     y_test = y_test[:,:,1:]
 
-    return X, y, pos, X_test, y_test, pos_test
+    if return_df:
+        return X, y, pos, X_test, y_test, pos_test, df, df_test
+    else:
+        return X, y, pos, X_test, y_test, pos_test
 
 def filter_sentence(sentence):
     # new_sentence = sentence
@@ -280,7 +288,7 @@ def prepare_crf_X(X_raw):
         X_pos_tagged.append(tagged_sentence)
     return X_pos_tagged
 
-def get_crf_ote_dataset():
+def get_crf_ote_dataset(return_df = False):
     def read_data_from_file(path):
         data = {
             'all' : [],
@@ -345,7 +353,10 @@ def get_crf_ote_dataset():
     y = df['list_of_iobs'].as_matrix()
     y_test = df_test['list_of_iobs'].as_matrix()
 
-    return X_pos_tagged, y, X_test_pos_tagged, y_test
+    if return_df:
+        return X_pos_tagged, y, X_test_pos_tagged, y_test, df, df_test
+    else:
+        return X_pos_tagged, y, X_test_pos_tagged, y_test
 
 def create_class_weight(labels_dict,mu=0.1, threshold=1., **kwargs):
     import math

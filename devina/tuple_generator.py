@@ -58,11 +58,40 @@ class TupleGenerator():
                     for category in similarity_scores:
                         similarity_scores[category] /= len(tokens)
 
-                # print (similarity_scores)
                 category = max(similarity_scores.items(), key=operator.itemgetter(1))[0]
             else:
                 category = list(categories_sentiments.keys())[0]
 
-            tuples[category][categories_sentiments[category]].append(aspect)
+            try:
+                tuples[category][categories_sentiments[category]].append(aspect)
+            except:
+                category = list(categories_sentiments.keys())[0]
+                tuples[category][categories_sentiments[category]].append(aspect)
             # tuples.append((aspect, category, categories_sentiments[category]))
         return tuples
+
+    def get_tuple_of_opinion_target(self, aspect, categories_sentiments):
+        regex = re.compile('[^0-9a-zA-Z]+')
+        if len(categories_sentiments) > 1:
+            aspect = regex.sub(" ", aspect)
+            similarity_scores = {"food": 0, "price": 0, "place": 0, "service": 0}
+            tokens = aspect.split()
+            for token in tokens:
+                if "food" in categories_sentiments:
+                    similarity_scores["food"] += self.my_word2vec.get_max_similarity_score(token, self.food_seed_words)
+                if "price" in categories_sentiments:
+                    similarity_scores["price"] += self.my_word2vec.get_max_similarity_score(token, self.price_seed_words)
+                if "place" in categories_sentiments:
+                    similarity_scores["place"] += self.my_word2vec.get_max_similarity_score(token, self.place_seed_words)
+                if "service" in categories_sentiments:
+                    similarity_scores["service"] += self.my_word2vec.get_max_similarity_score(token, self.service_seed_words)
+            if len(tokens) > 1:
+                for category in similarity_scores:
+                    similarity_scores[category] /= len(tokens)
+
+            # print (similarity_scores)
+            category = max(similarity_scores.items(), key=operator.itemgetter(1))[0]
+        else:
+            category = list(categories_sentiments.keys())[0]
+
+        return (category, aspect, categories_sentiments[category])

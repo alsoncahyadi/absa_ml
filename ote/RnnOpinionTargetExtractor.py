@@ -52,7 +52,7 @@ import numpy as np
 from keras import backend as K
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
-from keras.layers import (GRU, LSTM, RNN, Bidirectional, CuDNNGRU, CuDNNLSTM,
+from keras.layers import (GRU, LSTM, RNN, Bidirectional,
                           Dense, Dropout, Lambda, RepeatVector,
                           TimeDistributed, Concatenate)
 from keras.layers.convolutional import Conv1D
@@ -69,7 +69,7 @@ from sklearn.model_selection import train_test_split
 from MyClassifier import KerasClassifier, MultilabelKerasClassifier, MyClassifier, Model
 import utils
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class RNNOpinionTargetExtractor (MyClassifier):
@@ -78,12 +78,12 @@ class RNNOpinionTargetExtractor (MyClassifier):
 
         self.MODEL_PATH = Const.OTE_ROOT + 'model/brnn/BRNN.model'
         self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
-       
+
         self.target_names = ['O', 'ASPECT-B', 'ASPECT-I']
         self.rnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     def fit(self, X, y,
         dropout_rate = 0.6,
         dense_activation = 'tanh',
@@ -119,14 +119,14 @@ class RNNOpinionTargetExtractor (MyClassifier):
             X, y,
             **kwargs
         )
-        
+
         if is_save:
             self.rnn_model.save(self.MODEL_PATH)
-    
+
     def predict(self, X, **kwargs):
         y_pred = self.rnn_model.predict(X)
         return y_pred
-    
+
     def predict_y_flatten(self, X, **kwargs):
         y_pred_raw = self.rnn_model.predict(X)
         y_pred = []
@@ -140,7 +140,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
                 y_pred_sents.append(y)
             y_pred.append(y_pred_sents)
         y_pred = np.array(y_pred)
-        
+
         end = utils.get_sentence_end_index(X[0])
         # y_pred = self._get_decreased_dimension(y_pred, end)
 
@@ -162,7 +162,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
                 tmp.append(y_token)
         tmp = np.array(tmp)
         return tmp
-    
+
     def score(self, X, y, verbose=1, dense_layers=1, **kwargs):
         if self.rnn_model != None:
             rnn_model = self.rnn_model
@@ -170,7 +170,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
             print("Scoring using untrained model")
             rnn_model = self._create_model()
         y_test = y
-        
+
         y_pred_raw = rnn_model.predict(X, batch_size=32, verbose=verbose)
         y_pred = []
 
@@ -185,7 +185,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         y_pred = np.array(y_pred)
         # y_pred = np.argmax(get_decreased_dimension(y_pred_raw), axis=-1)
         # y_test = np.argmax(get_decreased_dimension(y_test), axis=-1)
-        
+
         end = utils.get_sentence_end_index(X[0])
         y_pred = self._get_decreased_dimension(y_pred, end)
         y_test = self._get_decreased_dimension(y_test, end)
@@ -257,7 +257,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         for i in range(dense_layers):
             layer_dense = TimeDistributed(Dense(dense_units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer)))(layer_dropout)
             layer_dropout = TimeDistributed(Dropout(dropout_rate, seed=7))(layer_dense)
-            
+
         layer_softmax = TimeDistributed(Dense(3, activation=activation))(layer_dropout)
         rnn_model = Model(inputs=[layer_input, layer_input_pos], outputs=layer_softmax)
 
@@ -267,7 +267,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
                         sample_weight_mode="temporal")
 
         return rnn_model
-        
+
         # layer_input = Input(shape=(max_review_length,))
         # layer_embedding = kwargs.get('layer_embedding', Embedding(n_words, embedding_vector_length))(layer_input)
         # layer_lstm = LSTM(256, recurrent_dropout=0.2)(layer_embedding)
@@ -277,7 +277,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         # layer_dense_1 = TimeDistributed(Dense(256, activation='relu', kernel_regularizer=regularizers.l2(0.01)))(layer_dropout_1)
         # layer_softmax = TimeDistributed(Dense(3, activation='softmax'))(layer_dense_1)
         # rnn_model = Model(inputs=layer_input, outputs=layer_softmax)
-    
+
     def _get_features(self, x):
         return x
 
@@ -289,7 +289,7 @@ class RNNOpinionTargetExtractor (MyClassifier):
         best_model = load_model(Const.OTE_ROOT + 'model/brnn/best.model')
         del self.rnn_model
         self.rnn_model = best_model
-        
+
 
 def get_params_from_grid(param_grid):
     import itertools as it
@@ -305,13 +305,13 @@ def main():
     """
     X, y, pos, X_test, y_test, pos_test = utils.get_ote_dataset()
     # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.15, random_state=7)
-    
+
     """
         Calculate Sample Weight
     """
     sample_weight = utils.get_sample_weight(X, y, mu=0.1, threshold=1.)
     print(sample_weight)
-    
+
     """
         Make and fit the model
     """
@@ -354,7 +354,7 @@ def get_wrong_preds(data='train'):
     ote.load_best_model()
 
     X, y, pos, X_test, y_test, pos_test, df, df_test = utils.get_ote_dataset(return_df = True)
-    
+
     data = 'test'
     if data == 'test':
         df = df_test
@@ -365,7 +365,7 @@ def get_wrong_preds(data='train'):
     y_pred = ote.predict_y_flatten([X, pos])
 
     from sklearn_crfsuite.utils import flatten
-    
+
     cnt = 0
     for i, (words, y_pred_single, y_single) in enumerate(list(zip(df['sentences'].tolist(), y_pred, y.tolist()))):
         is_wrong_word_present = False
@@ -383,7 +383,7 @@ def get_wrong_preds(data='train'):
         if is_wrong_word_present:
             print()
     print(cnt, "words misclasified")
-    
+
 if __name__ == "__main__":
     utils.time_log(main)
     # utils.time_log(get_wrong_preds)

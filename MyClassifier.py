@@ -6,7 +6,7 @@ import itertools
 import abc, time
 from keras import Sequential
 from keras.layers.embeddings import Embedding
-from keras.wrappers.scikit_learn import BaseWrapper
+from tensorflow.python.keras.wrappers.scikit_learn import BaseWrapper
 from keras.utils import to_categorical
 from keras.models import Model as KerasModel
 from keras.callbacks import ModelCheckpoint
@@ -23,7 +23,7 @@ class Model (KerasModel):
             monitor = 'loss'
         else:
             monitor = 'val_loss'
-        
+
         checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0, monitor=monitor)
 
         super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer] + callbacks,
@@ -46,10 +46,10 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
 
     def fit(self, X, y, **kwargs):
         raise NotImplementedError
-    
+
     def predict(self, X):
         raise NotImplementedError
-    
+
     def score(self, X, y, verbose=1, **kwargs):
         y_pred = self.predict(X, **kwargs)
         f1_score_macro = f1_score(y, y_pred, average='macro')
@@ -160,7 +160,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         recall_means = []
         f1_means = []
         thresholds_used = []
-        
+
         total_score_time = 0.
 
         for i in range(k):
@@ -212,7 +212,7 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
                     f1_temp.append(scoress[j]['f1_score_macro'])
                 f1_temp = np.array(f1_temp)
                 max_f1_idx = f1_temp.argmax()
-                
+
                 scores = scoress[max_f1_idx]
                 thresholds_used.append(thresholds[max_f1_idx])
             else:

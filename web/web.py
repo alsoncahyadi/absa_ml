@@ -38,7 +38,7 @@ def get_bolded_tokens(data):
 
 def get_processed_data(data):
     new_data = {}
-    
+
     # BAR CHART
     new_data['bar_chart'] = {}
     new_data['bar_chart']['positive'] = []
@@ -49,7 +49,7 @@ def get_processed_data(data):
             tuples = data[4]['tuples']
             count = len(tuples[category][sentiment])
             new_data['bar_chart'][sentiment].append(count)
-    
+
     # PIE CHART
     new_data['pie_chart'] = []
     for i in range(4):
@@ -160,4 +160,4 @@ if __name__ == '__main__':
     app.secret_key = 'super secret key'
 
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0')

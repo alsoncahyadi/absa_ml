@@ -1,0 +1,105 @@
+absl-py==0.9.0
+ansible==2.9.1
+asn1crypto==0.24.0
+astor==0.8.0
+astroid==2.3.3
+astunparse==1.6.3
+blinker==1.4
+boto==2.49.0
+boto3==1.14.28
+botocore==1.17.28
+brotlipy==0.7.0
+cachetools==4.1.1
+certifi==2020.6.20
+cffi==1.12.2
+chardet==3.0.4
+click==7.1.2
+cryptography==2.6.1
+cycler==0.10.0
+dill @ file:///tmp/build/80754af9/dill_1593202311028/work
+docutils==0.15.2
+Flask==1.1.2
+gast==0.3.3
+gensim==3.8.3
+google-auth==1.19.2
+google-auth-oauthlib==0.4.1
+google-pasta==0.2.0
+grpcio==1.30.0
+gunicorn==20.0.4
+h5py @ file:///opt/concourse/worker/volumes/live/98bee3fd-2687-4017-5421-d742d1f18c35/volume/h5py_1593454156895/work
+idna @ file:///tmp/build/80754af9/idna_1593446292537/work
+importlib-metadata==1.7.0
+isort==4.3.21
+itsdangerous==1.1.0
+Jinja2==2.11.2
+jmespath==0.10.0
+joblib @ file:///tmp/build/80754af9/joblib_1594236160679/work
+Keras==2.4.3
+Keras-Applications @ file:///tmp/build/80754af9/keras-applications_1594366238411/work
+Keras-Preprocessing==1.1.2
+kiwisolver==1.2.0
+kubernetes==9.0.0
+lazy-object-proxy==1.4.3
+Mako==1.1.0
+Markdown==3.2.2
+MarkupSafe==1.1.1
+matplotlib==3.3.0
+mccabe==0.6.1
+mkl-fft==1.1.0
+mkl-random==1.1.1
+mkl-service==2.3.0
+Morfessor==2.0.6
+nltk==3.5
+numpy==1.19.1
+oauthlib==3.1.0
+opt-einsum==3.3.0
+pandas @ file:///opt/concourse/worker/volumes/live/38d1301c-8fa9-4d2f-662e-34dddf33b183/volume/pandas_1592841668171/work
+pexpect==4.7.0
+Pillow==7.2.0
+polyglot==16.7.4
+protobuf==3.12.2
+ptyprocess==0.6.0
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycld2==0.41
+pycosat==0.6.3
+pycparser==2.19
+pygpu==0.7.6
+PyICU==2.5
+PyJWT==1.7.1
+pylint==2.4.4
+pyOpenSSL==19.0.0
+pyparsing==2.4.7
+PySocks==1.6.8
+python-crfsuite==0.9.7
+python-dateutil==2.8.1
+pytz==2020.1
+PyYAML==5.3.1
+regex==2020.7.14
+requests @ file:///tmp/build/80754af9/requests_1592841827918/work
+requests-oauthlib==1.3.0
+rsa==4.6
+ruamel.yaml==0.15.46
+s3transfer==0.3.3
+scikit-learn @ file:///opt/concourse/worker/volumes/live/eab838ab-55a5-40d0-5cbd-f1854d35aa9d/volume/scikit-learn_1592503039331/work
+scipy==1.4.1
+six==1.15.0
+sklearn==0.0
+sklearn-crfsuite==0.3.6
+smart-open==2.1.0
+sqlparse==0.3.0
+tabulate==0.8.7
+tensorboard==2.2.2
+tensorboard-plugin-wit==1.7.0
+tensorflow==2.2.0
+tensorflow-estimator==2.2.0
+termcolor==1.1.0
+Theano==1.0.4
+threadpoolctl @ file:///tmp/tmp9twdgx9k/threadpoolctl-2.1.0-py3-none-any.whl
+tqdm==4.47.0
+typed-ast==1.4.0
+urllib3==1.25.10
+websocket-client==0.56.0
+Werkzeug==1.0.1
+wrapt==1.12.1
+zipp==3.1.0

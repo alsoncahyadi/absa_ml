@@ -17,9 +17,9 @@ from sklearn.utils.multiclass import (_check_partial_fit_first_call,
                                _ovr_decision_function)
 from sklearn.utils.metaestimators import _safe_split, if_delegate_has_method
 
-from sklearn.externals.joblib import Parallel
-from sklearn.externals.joblib import delayed
-from sklearn.externals.six.moves import zip as izip
+from joblib import Parallel
+from joblib import delayed
+from six.moves import zip as izip
 
 def _fit_binary(estimator, X, y, classes=None):
     """Fit a single binary estimator."""
@@ -250,7 +250,7 @@ class MyOneVsRestClassifier(BaseEstimator, ClassifierMixin, MetaEstimatorMixin):
             self.thresh = 0
         else:
             thresh = self.thresh
-        
+
         n_samples = _num_samples(X)
         if self.label_binarizer_.y_type_ == "multiclass":
             maxima = np.empty(n_samples, dtype=float)

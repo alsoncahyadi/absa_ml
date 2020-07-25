@@ -13,10 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from keras.models import load_model
 from keras.preprocessing import sequence
 from keras import backend as K
-try:
-    from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
-except:
-    from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
+from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np
 
@@ -36,7 +33,7 @@ def get_shape(word):
         word_shape = 'mixedcase'
     elif re.match('__.+__$', word):
         word_shape = 'wildcard'
- 
+
     return word_shape
 
 def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', 'word', 'pos', 'cluster'], included_words=[-2,-1,0,1,2]):
@@ -81,7 +78,7 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
                 ('-2proba-B', ppproba[1]),
                 ('-2proba-I', ppproba[2]),
             ],
-            
+
             [
                 ('-1proba-O', pproba[0]),
                 ('-1proba-B', pproba[1]),
@@ -118,12 +115,12 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
             # ('cluster_bigram[-1,0]', " ".join([str(c) for c in [clusters[i-1], clusters[i]]])),
             # ('cluster_bigram[0,+1]', " ".join([str(c) for c in [clusters[i], clusters[i+1]]])),
             # ('cluster_bigram[+1,+2]', " ".join([str(c) for c in [clusters[i+1], clusters[i+2]]])),
-            
+
             # ('cluster_trigram[-2,-1,0]', " ".join([str(c) for c in [clusters[i-2], clusters[i-1], clusters[i]]])),
             # ('cluster_trigram[-1,0,1]', " ".join([str(c) for c in [clusters[i-1], clusters[i], clusters[i+1]]])),
             # ('cluster_trigram[0,+1,+1]', " ".join([str(c) for c in [clusters[i], clusters[i+1], clusters[i+2]]])),
         ],
-        
+
         'word': [
             [
                 ('-2word', ppword),
@@ -167,12 +164,12 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
             # ('word_bigram[-1,0]', " ".join([pword, word])),
             # ('word_bigram[0,+1]', " ".join([word, nword])),
             # ('word_bigram[+1,+2]', " ".join([nword, nnword])),
-            
+
             # ('word_trigram[-2,-1,0]', " ".join([ppword, pword, word])),
             # ('word_trigram[-1,0,1]', " ".join([pword, word, nword])),
             # ('word_trigram[0,+1,+1]', " ".join([word, nword, nnword])),
 
-            
+
         ],
 
         'shape': [
@@ -186,7 +183,7 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
             # ('shape_bigram[-1,0]', " ".join([pshape, shape])),
             # ('shape_bigram[0,+1]', " ".join([shape, nshape])),
             # ('shape_bigram[+1,+2]', " ".join([nshape, nnshape])),
-            
+
             # ('shape_trigram[-2,-1,0]', " ".join([ppshape, pshape, shape])),
             # ('shape_trigram[-1,0,1]', " ".join([pshape, shape, nshape])),
             # ('shape_trigram[0,+1,+1]', " ".join([shape, nshape, nnshape])),
@@ -203,13 +200,13 @@ def ner_features(tokens, i, proba, clusters, included_features = ['rnn_proba', '
             # ('pos_bigram[-1,0]', " ".join([ppos, pos])),
             # ('pos_bigram[0,+1]', " ".join([pos, npos])),
             # ('pos_bigram[+1,+2]', " ".join([npos, nnpos])),
-            
+
             # ('pos_trigram[-2,-1,0]', " ".join([pppos, ppos, pos])),
             # ('pos_trigram[-1,0,1]', " ".join([ppos, pos, npos])),
             # ('pos_trigram[0,+1,+1]', " ".join([pos, npos, nnpos])),
         ],
     }
-        
+
     for feature in included_features:
         for imin2 in included_words:
             i = imin2 + 2
@@ -238,13 +235,13 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
         sentence, pos = zip(*pos_tagged_sentence)
         sentences.append(sentence)
     sentences = [" ".join(words) for words in sentences]
-    
+
     # GET RNN PROBA
     X_rnn = tokenizer.texts_to_sequences(sentences)
     X_rnn = sequence.pad_sequences(X_rnn, maxlen=81, padding='post', value=-1)
 
     tags = [
-        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 
+        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
         'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
     ]
     from keras.preprocessing.text import Tokenizer
@@ -262,7 +259,7 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
             pos.append(" ".join(list(plg)))
         pos = pos_tokenizer.texts_to_sequences(pos)
         return pos
-    
+
     pos_rnn = read_pos_from_sentences(sentences)
     pos_rnn = sequence.pad_sequences(pos_rnn, maxlen=81, padding='post', value=-1)
     pos_rnn = to_categorical(pos_rnn)
@@ -271,7 +268,7 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
     list_of_clusters = None
     with open(Const.CLUSTER_ROOT + 'cluster_list_1000.pkl', 'rb') as fi:
         list_of_clusters = dill.load(fi)
-    
+
     from we.cluster.KMeans import transform
     clusters = transform(X_rnn, list_of_clusters)
 

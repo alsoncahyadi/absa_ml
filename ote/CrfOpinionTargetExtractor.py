@@ -34,17 +34,14 @@ except:
     sys.path.insert(0, '..')
     from constants import Const
 
-try:
-    from .OpinionTargetFeatureExtractor import extract_features
-except:
-    from OpinionTargetFeatureExtractor import extract_features
+from .OpinionTargetFeatureExtractor import extract_features
 import dill
 import matplotlib.pyplot as plt
 import numpy as np
 from keras import backend as K
 from keras import optimizers, regularizers
 from keras.callbacks import ModelCheckpoint
-from keras.layers import (GRU, LSTM, RNN, Bidirectional, CuDNNGRU, CuDNNLSTM,
+from keras.layers import (GRU, LSTM, RNN, Bidirectional,
                           Dense, Dropout, Lambda, RepeatVector,
                           TimeDistributed)
 from keras.layers.convolutional import Conv1D
@@ -72,7 +69,7 @@ from sklearn_crfsuite.utils import flatten
 
 # from OpinionTargetFeatureExtractor import OpinionTargetFeatureExtractor
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 sys.path.insert(0, Const.ROOT)
 
@@ -85,7 +82,7 @@ class CRFOpinionTargetExtractor (MyClassifier):
         self.target_names = ['O', 'ASPECT-B', 'ASPECT-I']
         self.MODEL_PATH = Const.OTE_ROOT + 'model/crf/CRF.model'
         super(CRFOpinionTargetExtractor).__init__()
-    
+
     def fit(self, X, y,
         is_save=False,
         algorithm='lbfgs',
@@ -111,7 +108,7 @@ class CRFOpinionTargetExtractor (MyClassifier):
     def predict(self, X):
         y_pred = self.crf_model.predict(X)
         return y_pred
-    
+
     def _print_transitions(self, trans_features):
         for (label_from, label_to), weight in trans_features:
             print("%-6s -> %-7s %0.6f" % (label_from, label_to, weight))
@@ -149,12 +146,12 @@ class CRFOpinionTargetExtractor (MyClassifier):
         X = extract_features(X)
         y_pred = self.predict(X, **kwargs)
         if verbose == 2:
-            print("=========================================")        
+            print("=========================================")
             print(self.bio_classification_report(y, y_pred))
             self._print_top_state_features()
             self._print_top_transitions()
             print("=========================================")
-        
+
         for i in range(len(y)):
             if len(y[i]) != len(y_pred[i]):
                 print(i, ')', len(y[i]), len(y_pred[i]))
@@ -207,7 +204,7 @@ def crf():
     """
         Initialize data
     """
-    
+
     included_features = [
         'rnn_proba',
         'word',
@@ -220,7 +217,7 @@ def crf():
     print("> extracting features")
     X_pos, y, X_test_pos, y_test = utils.get_crf_ote_dataset()
     print(len(X_test_pos))
-    
+
     # for idx, (i, j) in enumerate(zip(X, y)):
     #     if len(i) != len(j):
     #         print(idx, len(i), len(j))
@@ -257,7 +254,7 @@ def get_wrong_preds(data='train'):
     ote_crf.load_best_model()
 
     X_pos, y, X_pos_test, y_test, df, df_test = utils.get_crf_ote_dataset(return_df = True)
-    
+
     data = 'test'
     if data == 'test':
         df = df_test

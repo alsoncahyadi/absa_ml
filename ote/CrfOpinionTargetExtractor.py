@@ -34,7 +34,7 @@ except:
     sys.path.insert(0, '..')
     from constants import Const
 
-from .OpinionTargetFeatureExtractor import extract_features
+from OpinionTargetFeatureExtractor import extract_features
 import dill
 import matplotlib.pyplot as plt
 import numpy as np

@@ -4,12 +4,12 @@ import numpy as np
 import dill
 import itertools
 import abc, time
-from keras import Sequential
-from keras.layers.embeddings import Embedding
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Embedding
 from tensorflow.python.keras.wrappers.scikit_learn import BaseWrapper
-from keras.utils import to_categorical
-from keras.models import Model as KerasModel
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Model as KerasModel
+from tensorflow.keras.callbacks import ModelCheckpoint
 from constants import Const
 
 class Model (KerasModel):
@@ -24,7 +24,7 @@ class Model (KerasModel):
         else:
             monitor = 'val_loss'
 
-        checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=0, monitor=monitor)
+        checkpointer = ModelCheckpoint(filepath=best_weights_path, save_best_only=True, verbose=1, monitor=monitor)
 
         super(Model, self).fit(x=x, y=y, batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[checkpointer] + callbacks,
             validation_split=validation_split, validation_data=validation_data, shuffle=shuffle, class_weight=class_weight,
@@ -92,10 +92,12 @@ class MyClassifier (BaseEstimator, ClassifierMixin, object):
         with open(path_to_embedding_matrix, 'rb') as fi:
             embedding_matrix = dill.load(fi)
 
-        layer_embedding = Embedding(self.VOCABULARY_SIZE,
+        input_dim = self.VOCABULARY_SIZE
+        layer_embedding = Embedding(input_dim,
                                     self.EMBEDDING_VECTOR_LENGTH,
-                                    weights=[embedding_matrix[:self.VOCABULARY_SIZE]],
-                                    trainable=kwargs.get('trainable', False))
+                                    weights=[embedding_matrix[:input_dim]],
+                                    trainable=kwargs.get('trainable', False),
+                                    mask_zero=True)
         return layer_embedding
 
     def _fit_new_gridsearch_cv(self, X, y, params, k=5, verbose=0, fit_verbose=0, score_verbose=0, thresholds=None,

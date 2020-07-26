@@ -49,18 +49,19 @@ except:
 import dill
 import matplotlib.pyplot as plt
 import numpy as np
-from keras import backend as K
-from keras import optimizers, regularizers
-from keras.callbacks import ModelCheckpoint
-from keras.layers import (GRU, LSTM, RNN, Bidirectional,
+from tensorflow.keras import backend as K
+from tensorflow.keras import optimizers, regularizers
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import (GRU, LSTM, RNN, Bidirectional,
                           Dense, Dropout, Lambda, RepeatVector,
                           TimeDistributed, Concatenate)
-from keras.layers.convolutional import Conv1D
-from keras.layers.embeddings import Embedding
-from keras.layers.pooling import (AveragePooling1D, GlobalMaxPooling1D,
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import (AveragePooling1D, GlobalMaxPooling1D,
                                   MaxPooling1D)
-from keras.models import Input, Sequential, load_model
-from keras.preprocessing import sequence, text
+from tensorflow.keras import Input, Sequential
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import sequence, text
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score)
@@ -324,21 +325,21 @@ def main():
         "dense_activation": 'relu',
         "dense_l2_regularizer": 0.001,
         "activation": 'softmax',
-        "optimizer": 'nadam',
+        "optimizer": 'adam',
         "loss_function": 'categorical_crossentropy',
         "rnn_units": 64,
         "dense_units": 32,
         'dense_layers' : 2,
         "stack_rnn_layer": True,
     }
-    # ote.fit(
-    #     [X, pos], y,
-    #     epochs = 100,
-    #     batch_size = 64,
-    #     **params_for_fit,
-    #     sample_weight = sample_weight,
-    #     is_save=True,
-    # )
+    ote.fit(
+        [X, pos], y,
+        epochs = 2,
+        batch_size = 64,
+        **params_for_fit,
+        sample_weight = sample_weight,
+        is_save=True,
+    )
 
     # ote._fit_new_gridsearch_cv([X, pos], y, params, sample_weight=sample_weight, score_verbose=1, keras_multiple_output=True)
 

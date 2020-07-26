@@ -90,7 +90,7 @@ def prepare_ce_y(df):
 
 def get_ce_dataset(return_df=False):
     tokenizer = get_tokenizer()
-    
+
     """
         Construct X and y
     """
@@ -144,7 +144,7 @@ def get_spc_dataset(category, get_relevant_categories_only=True, return_df = Fal
     else:
         y = y.replace(to_replace='-', value=2)
         y_test = y_test.replace(to_replace='-', value=2)
-    
+
     y = y.replace(to_replace='positive', value=1)
     y = y.replace(to_replace='negative', value=0)
 
@@ -189,7 +189,7 @@ def get_ote_dataset(return_df = False):
 
     train_data = read_data_from_file(Const.OTE_ROOT + 'data/train_data_fixed.txt')
     test_data = read_data_from_file(Const.OTE_ROOT + 'data/test_data_fixed.txt')
-                
+
     df = pd.DataFrame(train_data)
     df_test = pd.DataFrame(test_data)
 
@@ -210,7 +210,7 @@ def get_ote_dataset(return_df = False):
     from polyglot.text import Text
     from keras.utils import to_categorical
     tags = [
-        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM', 
+        'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
         'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
     ]
     pos_tokenizer = Tokenizer()
@@ -225,7 +225,7 @@ def get_ote_dataset(return_df = False):
             pos.append(" ".join(list(plg)))
         pos = pos_tokenizer.texts_to_sequences(pos)
         return pos
-    
+
     pos = read_pos_from_raw(train_data)
     pos_test = read_pos_from_raw(test_data)
 
@@ -240,8 +240,14 @@ def get_ote_dataset(return_df = False):
     # truncate and pad input sequences
     max_review_length = 81
     PADDING = 'post'
-    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING, value=-1)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING, value=-1)
+
+    def is_valid(arr):
+        return not np.any(np.isnan(arr))
+
+    X = sequence.pad_sequences(X, maxlen=max_review_length, padding=PADDING, value=Const.PADDING)
+    assert is_valid(X)
+    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length, padding=PADDING, value=Const.PADDING)
+    assert is_valid(X_test)
 
     dum = ['O ASPECT-B ASPECT-I']
     iob_tokenizer = Tokenizer(filters='')
@@ -251,13 +257,17 @@ def get_ote_dataset(return_df = False):
     y_raw = [" ".join(x) for x in df['list_of_iobs']]
     y_raw = iob_tokenizer.texts_to_sequences(y_raw)
     y = sequence.pad_sequences(y_raw, maxlen=max_review_length, padding=PADDING, value=1.)
+    assert is_valid(y)
 
     y_test_raw = [" ".join(x) for x in df_test['list_of_iobs']]
     y_test_raw = iob_tokenizer.texts_to_sequences(y_test_raw)
     y_test = sequence.pad_sequences(y_test_raw, maxlen=max_review_length, padding=PADDING, value=1.)
+    assert is_valid(y_test)
 
-    pos = sequence.pad_sequences(pos, maxlen=max_review_length, padding='post', value=-1)
-    pos_test = sequence.pad_sequences(pos_test, maxlen=max_review_length, padding='post', value=-1)
+    pos = sequence.pad_sequences(pos, maxlen=max_review_length, padding='post', value=Const.PADDING)
+    assert is_valid(pos)
+    pos_test = sequence.pad_sequences(pos_test, maxlen=max_review_length, padding='post', value=Const.PADDING)
+    assert is_valid(pos_test)
 
     y = to_categorical(y)
     y_test = to_categorical(y_test)
@@ -350,8 +360,8 @@ def get_crf_ote_dataset(return_df = False):
     """
         Create Y
     """
-    y = df['list_of_iobs'].as_matrix()
-    y_test = df_test['list_of_iobs'].as_matrix()
+    y = df['list_of_iobs'].to_numpy()
+    y_test = df_test['list_of_iobs'].to_numpy()
 
     if return_df:
         return X_pos_tagged, y, X_test_pos_tagged, y_test, df, df_test
@@ -364,7 +374,7 @@ def create_class_weight(labels_dict,mu=0.1, threshold=1., **kwargs):
     keys = labels_dict.keys()
     class_weight = dict()
     scale = kwargs.get('scale', 1.)
-    
+
     """ OLD """
     # for key in keys:
     #     score = (total-float(labels_dict[key]))/total * scale
@@ -398,7 +408,7 @@ def get_sample_weight(X_train, y_train, threshold=0.1, mu=2.5):
     for i, samples in enumerate(sample_weight):
         first_padding = True
         for j, _ in enumerate(samples):
-            if X_train[i][j] == -1: #if is padding
+            if X_train[i][j] == Const.PADDING: #if is padding
                 if first_padding and learn_first_padding:
                     sample_weight[i][j] = class_weight[0]
                     first_padding = False
@@ -416,7 +426,7 @@ def get_sentence_end_index(X):
     for j, datum in enumerate(X):
         end.append(datum.shape[0])
         for i, token in enumerate(datum):
-            if token == -1:
+            if token == Const.PADDING:
                 end[j] = i
                 break
     return np.array(end)
@@ -438,7 +448,7 @@ def time_log(func):
     print("Finished on:", time.strftime("%d-%m-%Y %H:%M:%S", time.localtime()))
     print("================================")
     print()
-    
+
 def save_object(obj, filename):
     with open(filename, 'wb') as output_file:
         dill.dump(obj, output_file)

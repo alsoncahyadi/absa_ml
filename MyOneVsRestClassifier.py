@@ -26,7 +26,7 @@ def _fit_binary(estimator, X, y, classes=None):
     unique_y = np.unique(y)
     if len(unique_y) == 1:
         if classes is not None:
-            if y[0] == -1:
+            if y[0] == Const.PADDING:
                 c = 0
             else:
                 c = y[0]

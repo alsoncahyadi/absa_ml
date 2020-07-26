@@ -13,7 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from keras.models import load_model
 from keras.preprocessing import sequence
 from keras import backend as K
-from .RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
+from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np
 
@@ -238,7 +238,7 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
 
     # GET RNN PROBA
     X_rnn = tokenizer.texts_to_sequences(sentences)
-    X_rnn = sequence.pad_sequences(X_rnn, maxlen=81, padding='post', value=-1)
+    X_rnn = sequence.pad_sequences(X_rnn, maxlen=81, padding='post', value=Const.PADDING)
 
     tags = [
         'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
@@ -261,7 +261,7 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
         return pos
 
     pos_rnn = read_pos_from_sentences(sentences)
-    pos_rnn = sequence.pad_sequences(pos_rnn, maxlen=81, padding='post', value=-1)
+    pos_rnn = sequence.pad_sequences(pos_rnn, maxlen=81, padding='post', value=Const.PADDING)
     pos_rnn = to_categorical(pos_rnn)
 
     # GET CLUSTERS

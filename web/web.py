@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, redirect, flash, Markup
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 import sys
 import os
 
+load_dotenv()
 sys.path.insert(0, '..')
+
 import utils
 import main
 from constants import Const

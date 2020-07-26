@@ -1,8 +1,9 @@
 from enum import Enum
+import os
 
 class Const():
     # Paths
-    ROOT = '/home/alson/Desktop/ta/'
+    ROOT = os.getenv('ABSA_ML_ROOT')
     CE_ROOT = ROOT + 'category_extraction/'
     OTE_ROOT = ROOT + 'ote/'
     SPC_ROOT = ROOT + 'sentiment_polarity/'
@@ -18,5 +19,5 @@ class Const():
 
     CATEGORIES = ["food", "service", "price", "place"]
     SENTIMENTS = ["negative", "positive"]
-    
-    
+
+    PADDING = 0

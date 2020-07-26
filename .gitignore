@@ -110,3 +110,6 @@ ENV/
 
 # vscode
 .vscode/
+
+# IDK
+.DS_Store

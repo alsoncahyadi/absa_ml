@@ -7,7 +7,7 @@ params = [
     ("optimizer", ["nadam"]),
     ("loss_function", ['binary_crossentropy']),
     ("units", [4, 256]),
-    ("included_features", [[0], [0,1], [0,2], [1,2], [0,1,2], [1], [2]]),
+    ("included_features", [(0,), (0,1), (0,2), (1,2), (0,1,2), (1), (2)]),
     ("dense_layers", [1, 2]),
 ]
 thresholds = [0.2, 0.5, 0.8]
@@ -76,7 +76,7 @@ class BinCategoryExtractor (MyClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.included_features = kwargs.get('included_features', [0,1,2])
+        self.included_features = kwargs.get('included_features', (0,1,2))
         self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
         self.COUNT_VECTORIZER_VOCAB_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary.pkl'
         self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary_cluster.pkl'
@@ -92,6 +92,17 @@ class BinCategoryExtractor (MyClassifier):
         with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
             self.count_vectorizer_vocab_cluster = dill.load(fi)
 
+        self.pipeline = Pipeline([
+            ('data', CategoryFeatureExtractor()),
+            (
+                'features', FeatureUnion(
+                    transformer_list=self._get_feature_transform_list()
+                )
+            ),
+            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=50)))
+        ])
+
+    def _get_feature_transform_list(self):
         transformer_list = [
             ('cnn_probability', ItemSelector(key='cnn_probability')),
             ('bag_of_bigram', Pipeline([
@@ -104,15 +115,7 @@ class BinCategoryExtractor (MyClassifier):
             ])),
         ]
 
-        self.pipeline = Pipeline([
-            ('data', CategoryFeatureExtractor()),
-            (
-                'features', FeatureUnion(
-                    transformer_list= [transformer_list[included_feature] for included_feature in self.included_features]
-                )
-            ),
-            ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=50)))
-        ])
+        return [transformer_list[included_feature] for included_feature in self.included_features]
 
     def _create_ann_model(
         self,
@@ -133,7 +136,6 @@ class BinCategoryExtractor (MyClassifier):
         n_bag_of_bigrams_cluster = 3679
 
         sums = [n_cnn_proba, n_bag_of_bigrams, n_bag_of_bigrams_cluster]
-        included_features = included_features
         included_sums = []
         for included_feature in included_features:
             included_sums.append(sums[included_feature])
@@ -284,7 +286,7 @@ def binary():
         Make the model
     """
     np.random.seed(7)
-    bi = BinCategoryExtractor(included_features=[0])
+    bi = BinCategoryExtractor(included_features=(0,))
     # bi._fit_new_gridsearch_cv(X, y, params, verbose=1, fit_verbose = 1, score_verbose=1, thresholds=thresholds, result_path='output/gridsearch_cv_result_bin.csv')
 
     """
@@ -305,7 +307,7 @@ def binary():
         optimizer= "nadam",
         loss_function= 'binary_crossentropy',
         threshold= 0.5,
-        included_features= [0],
+        included_features= (0,),
         units=4,
         dense_layers= 2,
         verbose = 0
@@ -321,7 +323,7 @@ def binary():
 
 def get_wrong_preds():
     import pandas as pd
-    bi = BinCategoryExtractor(included_features=[0])
+    bi = BinCategoryExtractor(included_features=(0,))
     bi.load_estimators()
     bi.set_threshold(0.5)
 

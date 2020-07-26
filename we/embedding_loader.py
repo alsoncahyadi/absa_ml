@@ -10,8 +10,8 @@ print(texts[:5])
 print("Length:", len(texts))
 print("Unique:", len(set(texts)))
 
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import dill
 
@@ -99,7 +99,7 @@ print("LENGTH", len(embedding_matrix))
     Make Embedding layer
 """
 
-from keras.layers.embeddings import Embedding
+from tensorflow.keras.layers import Embedding
 
 embedding_layer = Embedding(num_words,
                             EMBEDDING_DIM,
@@ -107,7 +107,7 @@ embedding_layer = Embedding(num_words,
                             input_length=MAX_SEQUENCE_LENGTH,
                             trainable=False)
 
-from keras import Sequential
+from tensorflow.keras import Sequential
 model = Sequential()
 model.add(embedding_layer)
 

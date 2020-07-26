@@ -18,7 +18,7 @@ import warnings
 warnings.warn = warn
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 try:
@@ -35,22 +35,26 @@ sys.setrecursionlimit(999999999)
 import utils
 from ItemSelector import ItemSelector
 
-from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier
+from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifier, Model
 from MyOneVsRestClassifier import MyOneVsRestClassifier
 try:
     from .CategoryFeatureExtractor import CategoryFeatureExtractor
 except:
     from CategoryFeatureExtractor import CategoryFeatureExtractor
 
-from keras import backend as K
-from keras.models import Sequential, Input, Model, load_model
-from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
-from keras.layers.convolutional import Conv1D
-from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence, text
-from keras import regularizers, optimizers
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras import backend as K
+from tensorflow.keras import optimizers, regularizers
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import (GRU, LSTM, RNN, Bidirectional,
+                          Dense, Dropout, Lambda, RepeatVector,
+                          TimeDistributed, Concatenate)
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import (AveragePooling1D, GlobalMaxPooling1D,
+                                  MaxPooling1D)
+from tensorflow.keras import Input, Sequential
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import sequence, text
 
 import dill
 import numpy as np
@@ -69,20 +73,21 @@ N_CV = 5
 
 
 class BinCategoryExtractor (MyClassifier):
-    def __init__(self, included_features=[0,1,2], **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.included_features = kwargs.get('included_features', [0,1,2])
         self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
         self.COUNT_VECTORIZER_VOCAB_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary.pkl'
         self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH = Const.CE_ROOT + 'data/count_vectorizer_vocabulary_cluster.pkl'
         self.target_names = ['food', 'service', 'price', 'place']
-       
+
         self.layer_embedding = self._load_embedding(self.WE_PATH, trainable=True, vocabulary_size=15000, embedding_vector_length=500)
 
         self.count_vectorizer_vocab = None
         with open(self.COUNT_VECTORIZER_VOCAB_PATH, 'rb') as fi:
             self.count_vectorizer_vocab = dill.load(fi)
-        
+
         self.count_vectorizer_vocab_cluster = None
         with open(self.COUNT_VECTORIZER_VOCAB_CLUSTER_PATH, 'rb') as fi:
             self.count_vectorizer_vocab_cluster = dill.load(fi)
@@ -103,7 +108,7 @@ class BinCategoryExtractor (MyClassifier):
             ('data', CategoryFeatureExtractor()),
             (
                 'features', FeatureUnion(
-                    transformer_list= [transformer_list[included_feature] for included_feature in included_features]
+                    transformer_list= [transformer_list[included_feature] for included_feature in self.included_features]
                 )
             ),
             ('clf', MyOneVsRestClassifier(KerasClassifier(build_fn = self._create_ann_model, verbose=0, epochs=50)))
@@ -146,15 +151,14 @@ class BinCategoryExtractor (MyClassifier):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
         layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
         layer_softmax = Dense(1, activation=activation)(layer_dropout)
-        
+
         # Create Model
         ann_model = Model(inputs=layer_input, outputs=layer_softmax)
-        
+
         # Compile
         ann_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         return ann_model
 
-    
     def fit(self, X, y,
             epochs = 50,
             batch_size = 64,
@@ -204,7 +208,7 @@ class BinCategoryExtractor (MyClassifier):
             ))
         ])
         self.pipeline.fit(X, y)
-    
+
     def predict(self, X):
         # print(self.get_threshold())
         return self.pipeline.predict(X)
@@ -275,7 +279,7 @@ def binary():
     """
     X, y, X_test, y_test = utils.get_ce_dataset()
     # X_train, X_validate, y_train, y_validate = train_test_split(X, y, test_size=0.20, random_state=7)
-    
+
     """
         Make the model
     """
@@ -292,8 +296,7 @@ def binary():
             4: Bag of Custers
     """
 
-    """
-    bi.fit(X, y, 
+    bi.fit(X, y,
         epochs= 100,
         dropout_rate= 0.5,
         dense_activation= 'tanh',
@@ -307,10 +310,9 @@ def binary():
         dense_layers= 2,
         verbose = 0
     )
-    """
-    # bi.save_estimators()
-    bi.load_estimators()
-    
+    bi.save_estimators()
+    # bi.load_estimators()
+
     thresh_to_try = [0.2, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.925, 0.95]
     thresh_to_try = [0.5]
     for thresh in thresh_to_try:
@@ -333,7 +335,7 @@ def get_wrong_preds():
 
     print(len(df))
     y_pred = bi.predict(X)
-    
+
     bi.score(X, y)
 
     str_to_pred = {
@@ -356,5 +358,5 @@ def get_wrong_preds():
     print(cnt, "sentences missclasified")
 
 if __name__ == "__main__":
-    utils.time_log(get_wrong_preds)
-    # utils.time_log(binary)
+    # utils.time_log(get_wrong_preds)
+    utils.time_log(binary)

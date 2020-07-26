@@ -10,9 +10,9 @@ import dill
 import re
 import string
 from sklearn.base import BaseEstimator, TransformerMixin
-from keras.models import load_model
-from keras.preprocessing import sequence
-from keras import backend as K
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras import backend as K
 from RnnOpinionTargetExtractor import RNNOpinionTargetExtractor
 import utils
 import numpy as np
@@ -244,8 +244,8 @@ def extract_features(pos_tagged_sentences, feature_detector=ner_features, includ
         'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
         'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
     ]
-    from keras.preprocessing.text import Tokenizer
-    from keras.utils import to_categorical
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.utils import to_categorical
     from polyglot.text import Text
     pos_tokenizer = Tokenizer()
     pos_tokenizer.fit_on_texts(tags)

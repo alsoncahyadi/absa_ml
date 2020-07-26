@@ -8,7 +8,7 @@ from nltk.tokenize import sent_tokenize
 from pprint import pprint
 from polyglot.text import Text
 from devina.tuple_generator import TupleGenerator
-from keras import backend as K
+from tensorflow.keras import backend as K
 import numpy as np
 import nltk.data
 import utils
@@ -40,7 +40,7 @@ class Main():
             self.sent_tokenize = nltk.data.load('tokenizers/punkt/english.pickle').tokenize
 
         self.tokenizer = utils.get_tokenizer()
-        
+
         if utils.is_none(raw_reviews_path):
             self.raw_reviews = utils.get_raw_test_reviews(review='tizi')
         else:
@@ -50,7 +50,7 @@ class Main():
         self.data = []
         for _ in range(6):
             self.data.append([])
-        
+
         self.categories = ['food', 'service', 'price', 'place']
         self.conjunctions = ["tetapi sayangnya", "namun", "tetapi", "walaupun", "akan tetapi", "sayangnya",
                              "hanya sayang", "sayang", "meski", "walau", "but"]
@@ -133,7 +133,7 @@ class Main():
         else:
             for raw_review in self.raw_reviews:
                 sents_tokenized += self.sent_tokenize(raw_review)
-        
+
         word_tokenized = []
         for sent_tokenize in sents_tokenized:
             tmp = Text(sent_tokenize)
@@ -143,7 +143,7 @@ class Main():
                 words = [w.lower() for w in words]
             word_tokenized.append(" ".join(words))
         self.data[0] = word_tokenized
-    
+
     def predict_opinion_targets(self):
         K.clear_session()
         crf_ote = CRFOpinionTargetExtractor()
@@ -226,7 +226,7 @@ class Main():
                             if item not in tuples_unique[key][sentiment]:
                                 tuples_unique[key][sentiment].append(item)
             tuples_of_tokens.append(tuples_in_sentence)
-        
+
         self.data[4] = {
             'tuples': tuples,
             'tuples_unique': tuples_unique
@@ -243,10 +243,10 @@ class Main():
             rating = (pos * 4 / (pos + neg)) + 1
             ratings[category].append(int(rating))
             ratings[category].append(round(rating, 2))
-        
+
         self.data[5] = ratings
         return ratings
-    
+
     def get_average_scores(self, scoress):
         f1_macro = []
         precision_macro = []
@@ -256,7 +256,7 @@ class Main():
             f1_macro.append(score['f1_score_macro'])
             precision_macro.append(score['precision_score_macro'])
             recall_macro.append(score['recall_score_macro'])
-        
+
         f1_mean = np.array(f1_macro).mean()
         precision_mean = np.array(precision_macro).mean()
         recall_mean = np.array(recall_macro).mean()
@@ -316,7 +316,7 @@ class Main():
             print('\n')
 
             scoress.append(scores)
-        
+
         averages = self.get_average_scores(scoress)
         return scoress, averages
 
@@ -343,7 +343,7 @@ def main(raw_reviews_path):
 
     print("> Building Tuples")
     m.get_tuples()
-    
+
     print("> Getting Ratings")
     print(m.get_ratings())
 

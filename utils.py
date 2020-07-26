@@ -1,5 +1,5 @@
-from keras.preprocessing import sequence
-from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras.preprocessing.text import Tokenizer
 import pandas as pd
 import numpy as np
 import dill
@@ -67,7 +67,7 @@ def get_tokenizer():
         Load Tokenizer
     """
     # Make Tokenizer (load or from dataset)
-    from keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.text import Tokenizer
     tokenizer = Tokenizer()
 
     with open(Const.TOKENIZER_PATH, 'rb') as fi:
@@ -208,7 +208,7 @@ def get_ote_dataset(return_df = False):
     tokenizer = get_tokenizer()
 
     from polyglot.text import Text
-    from keras.utils import to_categorical
+    from tensorflow.keras.utils import to_categorical
     tags = [
         'ADJ', 'ADP', 'ADV', 'AUX', 'CONJ', 'DET', 'INTJ', 'NOUN', 'NUM',
         'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X'
@@ -253,7 +253,7 @@ def get_ote_dataset(return_df = False):
     iob_tokenizer = Tokenizer(filters='')
     iob_tokenizer.fit_on_texts(dum)
 
-    from keras.utils import to_categorical
+    from tensorflow.keras.utils import to_categorical
     y_raw = [" ".join(x) for x in df['list_of_iobs']]
     y_raw = iob_tokenizer.texts_to_sequences(y_raw)
     y = sequence.pad_sequences(y_raw, maxlen=max_review_length, padding=PADDING, value=1.)

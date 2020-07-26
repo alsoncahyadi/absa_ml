@@ -22,7 +22,7 @@ params = [
 param_grid = dict(params)
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 try:
@@ -38,16 +38,19 @@ import utils
 from MyClassifier import MyClassifier, Model
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-from keras import backend as K
-from keras.models import Sequential, Input, load_model
-from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
-from keras.layers.convolutional import Conv1D
-from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence, text
-from keras import regularizers, optimizers
-from keras.callbacks import ModelCheckpoint
-
+from tensorflow.keras import backend as K
+from tensorflow.keras import optimizers, regularizers
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import (GRU, LSTM, RNN, Bidirectional,
+                          Dense, Dropout, Lambda, RepeatVector,
+                          TimeDistributed, Concatenate)
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import (AveragePooling1D, GlobalMaxPooling1D,
+                                  MaxPooling1D)
+from tensorflow.keras import Input, Sequential
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import sequence, text
 import dill
 import numpy as np
 
@@ -65,11 +68,11 @@ class CNNSentimentPolarityClassifier (MyClassifier):
         self.WE_PATH = '../we/embedding_matrix.pkl'
         self.THRESHOLD = 0.5
         self.target_names = ['polarity']
-       
+
         self.cnn_model = None
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     def fit(self, X, y,
 
         filters = 320,
@@ -116,7 +119,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             )
         if is_save:
             self.cnn_model.save(self.MODEL_PATH.format(category))
-    
+
     def predict(self, X, **kwargs):
         y_pred = self.cnn_model.predict(X)
         if y_pred.shape[1] > 1:
@@ -132,7 +135,7 @@ class CNNSentimentPolarityClassifier (MyClassifier):
 
     def _fit_gridsearch_cv(self, X, y, param_grid, category="NOTSPECIFIED", **kwargs):
         from sklearn.model_selection import GridSearchCV
-        from keras.wrappers.scikit_learn import KerasClassifier
+        from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
         np.random.seed(7)
 
@@ -189,10 +192,10 @@ class CNNSentimentPolarityClassifier (MyClassifier):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
         layer_softmax = Dense(1, activation=activation)(layer_dropout)
-        
+
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
-        
+
         # Create Optimizer
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
@@ -202,10 +205,10 @@ class CNNSentimentPolarityClassifier (MyClassifier):
     def load_weights(self, path):
         self._create_model()
         self.cnn_model.load_weights(path)
-    
+
     def get_threshold(self):
         return self.THRESHOLD
-    
+
     def load_best_model(self, category):
         best_model = load_model(Const.SPC_ROOT + 'model/cnn/best_{}.model'.format(category))
         del self.cnn_model
@@ -312,8 +315,8 @@ def main():
         """
             Fit the model
         """
-        
-        from keras.utils import to_categorical
+
+        from tensorflow.keras.utils import to_categorical
         # y = to_categorical(y)
         # spc._fit_new_gridsearch_cv(X, y, params, result_path="output/gridsearch_cv_result_{}.csv".format(category), score_verbose=True)
         best_params = get_best_params()
@@ -333,7 +336,7 @@ def main():
                 validation_split=0.,
                 optimizer='nadam',
             )
-        
+
         """
             Load best estimator and score it
         """
@@ -355,7 +358,7 @@ def main():
 
 def get_wrong_preds(data='train'):
     categories = ['food', 'service', 'price', 'place']
-    
+
     for category in categories:
         print()
         print()
@@ -366,7 +369,7 @@ def get_wrong_preds(data='train'):
         spc = CNNSentimentPolarityClassifier()
         spc.load_best_model(category=category)
         X, y, X_test, y_test, df, df_test = utils.get_spc_dataset(category, return_df = True)
-        
+
         data = 'train'
         if data == 'test':
             df = df_test
@@ -375,7 +378,7 @@ def get_wrong_preds(data='train'):
 
         print(len(df))
         y_pred = spc.predict(X)
-        
+
         spc.score(X, y)
 
         cnt = 0

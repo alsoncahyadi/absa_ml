@@ -11,7 +11,7 @@ except:
 import dill
 from we.cluster.KMeans import transform
 from sklearn.base import BaseEstimator, TransformerMixin
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 
 class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -19,20 +19,20 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         return self
-    
+
     def transform(self, X):
         cnn_model = load_model(Const.CE_ROOT + 'model/cnn/best.model')
         features = {}
         y_pred = cnn_model.predict(X)
-        
+
         #
         features['cnn_probability'] = y_pred
-        
+
         #
         features['review'] = []
         for datum in X:
             features['review'].append(" ".join([str(token) for token in datum if token != 0]))
-        
+
         #
         cluster_list = None
         with open(Const.CLUSTER_ROOT + 'cluster_list_1000.pkl', 'rb') as fi:
@@ -41,5 +41,5 @@ class CategoryFeatureExtractor (BaseEstimator, TransformerMixin):
         features['review_cluster'] = []
         for datum in X_cluster:
             features['review_cluster'].append(" ".join([str(token) for token in datum if token != 0]))
-        
+
         return features

@@ -38,7 +38,7 @@ params = [
 param_grid = dict(params)
 
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import sys
 try:
@@ -56,15 +56,19 @@ from MyClassifier import MyClassifier, MultilabelKerasClassifier, KerasClassifie
 from MyOneVsRestClassifier import MyOneVsRestClassifier
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 
-from keras import backend as K
-from keras.models import Sequential, Input, load_model
-from keras.layers import Dense, LSTM, Flatten, Dropout, Lambda, BatchNormalization
-from keras.layers.convolutional import Conv1D
-from keras.layers.pooling import AveragePooling1D, MaxPooling1D, GlobalMaxPooling1D
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence, text
-from keras import regularizers, optimizers
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras import backend as K
+from tensorflow.keras import optimizers, regularizers
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import (GRU, LSTM, RNN, Bidirectional,
+                          Dense, Dropout, Lambda, RepeatVector,
+                          TimeDistributed, Concatenate)
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import (AveragePooling1D, GlobalMaxPooling1D,
+                                  MaxPooling1D)
+from tensorflow.keras import Input, Sequential
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import sequence, text
 
 import dill
 import numpy as np
@@ -83,15 +87,15 @@ class CNNCategoryExtractor (MyClassifier):
 
         self.MODEL_PATH = Const.CE_ROOT + 'model/cnn/CNN.model'
         self.WE_PATH = Const.WE_ROOT + 'embedding_matrix.pkl'
-       
+
         self.target_names = ['food', 'service', 'price', 'place']
         self.cnn_model = None
         self.threshold = threshold
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     def fit(self, X, y,
-        
+
         filters = 320,
         kernel_size = 5,
         conv_activation = 'tanh',
@@ -108,7 +112,7 @@ class CNNCategoryExtractor (MyClassifier):
 
         is_save = False,
         show_summary = False,
-        
+
         **kwargs):
 
         self.cnn_model = self._create_model(
@@ -136,7 +140,7 @@ class CNNCategoryExtractor (MyClassifier):
             )
         if is_save:
             self.cnn_model.save(self.MODEL_PATH)
-    
+
     def predict(self, X):
         threshold = self.threshold
         y_pred = self.cnn_model.predict(X)
@@ -210,21 +214,21 @@ class CNNCategoryExtractor (MyClassifier):
             layer_dense = Dense(units, activation=dense_activation, kernel_regularizer=regularizers.l2(dense_l2_regularizer))(layer_dropout)
             layer_dropout = Dropout(dropout_rate, seed=7)(layer_dense)
         layer_softmax = Dense(4, activation=activation)(layer_dropout)
-        
+
         # Create Model
         cnn_model = Model(inputs=layer_input, outputs=layer_softmax)
-        
+
         # Create Optimizer
         # optimizer = optimizers.Nadam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
         # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
         cnn_model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
         return cnn_model
-    
+
     def load_best_model(self):
         best_model = load_model(Const.CE_ROOT + 'model/cnn/best.model')
         del self.cnn_model
         self.cnn_model = best_model
-    
+
     def _get_features(self, x):
         return x
 
@@ -258,31 +262,29 @@ def cnn():
     """
         Fit the model
     """
-    
-    """
-    ce.fit(X, y, verbose=1,
-        epochs = 100,
-        batch_size = 64,
-        # validation_split = 0.2,
-        filters = 128,
-        kernel_size = 5,
-        conv_activation = 'tanh',
-        conv_l2_regularizer = 0.001,
-        dropout_rate = 0.5,
-        dense_activation = 'tanh',
-        dense_l2_regularizer = 0.01,
-        activation = 'sigmoid',
-        optimizer = "nadam",
-        loss_function = 'binary_crossentropy',
-        units = 64,
-        trainable = False,
-        dense_layers=1,
 
-        is_save = True,
-        show_summary = True
-    )
-    """
-    
+    # ce.fit(X, y, verbose=1,
+    #     epochs = 100,
+    #     batch_size = 64,
+    #     # validation_split = 0.2,
+    #     filters = 128,
+    #     kernel_size = 5,
+    #     conv_activation = 'tanh',
+    #     conv_l2_regularizer = 0.001,
+    #     dropout_rate = 0.5,
+    #     dense_activation = 'tanh',
+    #     dense_l2_regularizer = 0.01,
+    #     activation = 'sigmoid',
+    #     optimizer = "nadam",
+    #     loss_function = 'binary_crossentropy',
+    #     units = 64,
+    #     trainable = False,
+    #     dense_layers=1,
+
+    #     is_save = True,
+    #     show_summary = True
+    # )
+
     # ce._fit_new_gridsearch_cv(X, y, params, thresholds=thresh_to_try, score_verbose=True)
 
     """
@@ -301,7 +303,7 @@ def get_wrong_preds(data='train'):
     ce.set_threshold(0.5)
 
     X, y, X_test, y_test, df, df_test = utils.get_ce_dataset(return_df = True)
-    
+
     data = 'train'
     if data == 'test':
         df = df_test
@@ -310,7 +312,7 @@ def get_wrong_preds(data='train'):
 
     print(len(df))
     y_pred = ce.predict(X)
-    
+
     ce.score(X, y)
 
     str_to_pred = {

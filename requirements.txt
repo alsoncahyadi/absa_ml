@@ -31,7 +31,7 @@ idna @ file:///tmp/build/80754af9/idna_1593446292537/work
 importlib-metadata==1.7.0
 isort==4.3.21
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.10.0
 joblib @ file:///tmp/build/80754af9/joblib_1594236160679/work
 Keras==2.4.3

@@ -55,7 +55,7 @@ oauthlib==3.1.0
 opt-einsum==3.3.0
 pandas @ file:///opt/concourse/worker/volumes/live/38d1301c-8fa9-4d2f-662e-34dddf33b183/volume/pandas_1592841668171/work
 pexpect==4.7.0
-Pillow==7.2.0
+Pillow==9.0.0
 polyglot==16.7.4
 protobuf==3.12.2
 ptyprocess==0.6.0

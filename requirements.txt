@@ -50,7 +50,7 @@ mkl-random==1.1.1
 mkl-service==2.3.0
 Morfessor==2.0.6
 nltk==3.5
-numpy==1.19.1
+numpy==1.22.0
 oauthlib==3.1.0
 opt-einsum==3.3.0
 pandas @ file:///opt/concourse/worker/volumes/live/38d1301c-8fa9-4d2f-662e-34dddf33b183/volume/pandas_1592841668171/work
